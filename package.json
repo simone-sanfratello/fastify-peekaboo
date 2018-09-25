@@ -5,13 +5,14 @@
     "a-settings": "^1.1",
     "a-toolbox": "^1",
     "bluebird": "^3",
+    "fastify-plugin": "^1.2.1",
     "log-segment": "^1"
   },
   "devDependencies": {
-    "tollo": "*",
+    "fastify": "^1.12.0",
     "pre-commit": "^1",
-    "tap": "^12",
-    "standard": "^12"
+    "standard": "^12",
+    "tap": "^12"
   },
   "pre-commit": [
     "test",
@@ -19,7 +20,6 @@
   ],
   "standard": {
     "ignore": [
-      "test/",
       "dist/"
     ]
   },
@@ -31,8 +31,10 @@
     "test-cov": "standard && tap test/* --cov"
   },
   "description": "fastify plugin response caching",
-  "main": "main.js",
-  "files": [],
+  "main": "src/plugin.js",
+  "files": [
+    "src/"
+  ],
   "engines": {
     "node": ">= 8.x"
   },

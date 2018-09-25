@@ -5,7 +5,7 @@
 [![JS Standard Style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
 [![Build Status](https://travis-ci.org/braceslab/fastify-peekaboo.svg?branch=master)](https://travis-ci.org/braceslab/fastify-peekaboo)
 
-fastify plugin response caching
+fastify plugin response caching - **work in progress**
 
 ## Purpose
 
@@ -41,7 +41,12 @@ ${changelog}
 ---
 
 ## TODO
-- [ ] ${todo-list}
+
+- [ ] expire
+- [ ] use fs storage via kyeav adaptor
+- [ ] pre-packed settings (example graphql caching)
+- [ ] option for add etag?
+- [ ] use other kyev supported storage (mongo, mysql, sqlite)
 
 ---
 
