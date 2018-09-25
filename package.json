@@ -1,0 +1,46 @@
+{
+  "name": "fastify-peekaboo",
+  "version": "0.0.1-dev",
+  "dependencies": {
+    "a-settings": "^1.1",
+    "a-toolbox": "^1",
+    "bluebird": "^3",
+    "log-segment": "^1"
+  },
+  "devDependencies": {
+    "tollo": "*",
+    "pre-commit": "^1",
+    "tap": "^12",
+    "standard": "^12"
+  },
+  "pre-commit": [
+    "test",
+    "build"
+  ],
+  "standard": {
+    "ignore": [
+      "test/",
+      "dist/"
+    ]
+  },
+  "scripts": {
+    "dev": "node main.js dev",
+    "build": "echo 'todo build (in /dist dir)'",
+    "clear": "echo 'todo clear - remove buildings'",
+    "test": "standard && tap test/*",
+    "test-cov": "standard && tap test/* --cov"
+  },
+  "description": "fastify plugin response caching",
+  "main": "main.js",
+  "files": [],
+  "engines": {
+    "node": ">= 8.x"
+  },
+  "author": "Simone Sanfratello <simone@braceslab.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/braceslab/fastify-peekaboo.git"
+  },
+  "keywords": []
+}
