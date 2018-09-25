@@ -28,6 +28,11 @@ ${basic-example}
 
 ${api}
 
+### options
+
+options.default
+any matching request will use this options if there isn't a specific rule for 
+
 ## Documentation
 
 See [documentation](./doc/README.md) for further informations.
@@ -47,10 +52,10 @@ ${changelog}
 - [ ] option add x-tag
 - [ ] verbosity (via fastify logger?)
 - [ ] expire
-- [ ] use fs storage via kyeav adaptor
+- [ ] use fs storage via kyev adaptor
 - [ ] benchmark with/without (autocannon?)
 - [ ] pre-packed settings (example graphql caching)
-- [ ] option for add etag?
+- [ ] review https://github.com/fastify/fastify/blob/master/docs/Write-Plugin.md
 - [ ] use other kyev supported storage (mongo, mysql, sqlite)
 
 ---

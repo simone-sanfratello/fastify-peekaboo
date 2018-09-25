@@ -5,6 +5,7 @@ const got = require('got')
 const peekaboo = require('../src/plugin')
 
 // use tollo? varation: cache-by, method, storage
+// use meta-code generator?
 
 tap.test('cache request: cache-by: url, method: all',
   async (_test) => {
