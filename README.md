@@ -42,8 +42,11 @@ ${changelog}
 
 ## TODO
 
+- [ ] option add x-tag
+- [ ] verbosity (via fastify logger?)
 - [ ] expire
 - [ ] use fs storage via kyeav adaptor
+- [ ] benchmark with/without (autocannon?)
 - [ ] pre-packed settings (example graphql caching)
 - [ ] option for add etag?
 - [ ] use other kyev supported storage (mongo, mysql, sqlite)

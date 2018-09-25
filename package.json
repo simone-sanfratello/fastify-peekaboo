@@ -2,14 +2,11 @@
   "name": "fastify-peekaboo",
   "version": "0.0.1-dev",
   "dependencies": {
-    "a-settings": "^1.1",
-    "a-toolbox": "^1",
-    "bluebird": "^3",
-    "fastify-plugin": "^1.2.1",
-    "log-segment": "^1"
+    "fastify-plugin": "^1.2.1"
   },
   "devDependencies": {
     "fastify": "^1.12.0",
+    "got": "^9.2.2",
     "pre-commit": "^1",
     "standard": "^12",
     "tap": "^12"
@@ -24,9 +21,6 @@
     ]
   },
   "scripts": {
-    "dev": "node main.js dev",
-    "build": "echo 'todo build (in /dist dir)'",
-    "clear": "echo 'todo clear - remove buildings'",
     "test": "standard && tap test/*",
     "test-cov": "standard && tap test/* --cov"
   },
