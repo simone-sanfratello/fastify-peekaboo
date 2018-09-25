@@ -42,6 +42,8 @@ ${changelog}
 
 ## TODO
 
+- [ ] different options by matching (even different storage)
+- [ ] invalidate cache
 - [ ] option add x-tag
 - [ ] verbosity (via fastify logger?)
 - [ ] expire

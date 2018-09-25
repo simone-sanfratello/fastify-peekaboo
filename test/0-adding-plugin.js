@@ -19,6 +19,7 @@ tap.test('peekaboo plugin is working (default settings)',
     _test.plan(1)
     const _fastify = fastify()
     _fastify.register(peekaboo, {
+      xtag: true,
       '/home': { method: 'all' }
     })
 
@@ -45,3 +46,5 @@ tap.test('peekaboo plugin is working (default settings)',
       _test.threw(error)
     }
   })
+
+// ... test options
