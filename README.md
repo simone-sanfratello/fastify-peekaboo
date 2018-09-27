@@ -47,11 +47,25 @@ ${changelog}
 
 ## TODO
 
+- [ ] storages
+  - [ ] file
+  - [ ] redis
+  - [ ] postgresql
+- [ ] doc matching 
+  - [ ] composable matching (`URL + QUERYSRING`)
+- [ ] use tollo to document api
+- [ ] use tollo to run test
+  - [ ] use random data from `faker` and|or `casual`
+- [ ] validate options before plug
 - [ ] different options by matching (even different storage)
 - [ ] invalidate cache
 - [ ] option add x-tag
 - [ ] verbosity (via fastify logger?)
 - [ ] expire
+- [ ] test edge cases
+  - [ ] querystring array or object
+- [ ] use cases examples
+  - [ ] lazyly put everything on `storage`
 - [ ] use fs storage via kyev adaptor
 - [ ] benchmark with/without (autocannon?)
 - [ ] pre-packed settings (example graphql caching)
