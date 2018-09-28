@@ -6,7 +6,7 @@ const lib = require('./lib')
 const OPTIONS = {
   default: {
     // match, method
-    xtag: false,
+    xheader: false,
     expire: 60 * 60 * 1000, // 1h
     storage: {
       type: lib.STORAGE.memory
@@ -14,28 +14,63 @@ const OPTIONS = {
   }
 }
 
+/**
+ * match request by options.match
+ */
 const match = function (request, options) {
-  let _key
-  // match request by options.match
   // @todo efficent way instead of brute force
-  // for(options.match)
-  return _key
+  for (const _match of options._matches) {
+    const _rule = options.match[_match]
+    switch (_match) {
+      case lib.MATCH.CUSTOM:
+        return _rule(request.req)
+          ? options._id
+          : null
+      case lib.MATCH.METHOD:
+        if (_rule !== lib.METHOD.ALL && !_rule.includes(request.req.method.toLowerCase())) {
+          return null
+        }
+        break
+      case lib.MATCH.URL:
+        if (request.req.url !== _rule) {
+          return null
+        }
+      // @todo other cases
+    }
+  }
+  return options._id
 }
 
 const plugin = function (fastify, options, next) {
-  const _options = { ...options, ...OPTIONS }
-  const _storage = new Storage(options)
+  let __options, __storage
+
+  const __init = function (options) {
+    __options = { ...options, ...OPTIONS }
+    // @todo validate options:
+    // if matches contains CUSTOM > warning all rules will be ignored
+    // if method > rule can be ALL or Array
+    __options._matches = []
+    let _id = 1
+    // @todo for options.rules
+    for (const i in __options.match) {
+      // @todo sort matches by value
+      __options._matches.push(parseInt(i))
+    }
+    __options._id = _id++
+    // }
+    __storage = new Storage(options)
+  }
 
   const preHandler = async function (request, response) {
-    const key = match(request, options)
-    if (!key) {
+    const id = match(request, __options)
+    if (!id) {
       return
     }
-    response.peekaboo.key = key
-    const _cached = await _storage.get(key)
+    response.peekaboo.id = id
+    const _cached = await __storage.get(id)
     if (_cached) {
-      if (_options.xtag) {
-        response.header('x-peekaboo', '')
+      if (__options.xheader) {
+        response.header('x-peekaboo', '*')
       }
       response.peekaboo.involved = true
       response.send(_cached)
@@ -43,16 +78,15 @@ const plugin = function (fastify, options, next) {
   }
 
   const onSend = async function (request, response, payload) {
-    if (!response.peekaboo.involved && response.peekaboo.key) {
-      _storage.set(response.peekaboo.key, payload)
+    if (!response.peekaboo.involved && response.peekaboo.id) {
+      __storage.set(response.peekaboo.id, payload)
     }
     return payload
   }
 
+  __init(options)
   fastify.decorateReply('peekaboo', {})
-  fastify.decorate('peekaboo', () => {
-    console.log('peekaboo running with options', _options)
-  })
+  fastify.decorate('peekaboo')
   fastify.addHook('preHandler', preHandler)
   fastify.addHook('onSend', onSend)
 

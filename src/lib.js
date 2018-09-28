@@ -11,12 +11,13 @@ const lib = {
   },
 
   MATCH: {
-    URL: 'url',
-    QUERYSTRING: 'qs',
-    BODY: 'body',
-    COOKIE: 'cookies',
-    HEADER: 'header',
-    CUSTOM: 'custom'
+    CUSTOM: 0,
+    METHOD: 1,
+    URL: 2,
+    QUERYSTRING: 3,
+    BODY: 4,
+    COOKIE: 5,
+    HEADER: 6
   },
 
   STORAGE: {
