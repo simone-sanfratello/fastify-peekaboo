@@ -22,7 +22,7 @@
     ]
   },
   "scripts": {
-    "test": "standard && tap test/*",
+    "test": "standard && tap test/*-*.js",
     "test-cov": "standard && tap test/* --cov"
   },
   "description": "fastify plugin response caching",
