@@ -1,3 +1,5 @@
+const crypto = require('crypto')
+
 const lib = {
   METHOD: {
     ALL: '*',
@@ -14,6 +16,12 @@ const lib = {
     MEMORY: 'memory',
     FILE: 'file',
     REDIS: 'redis'
+  },
+
+  hash: function (input) {
+    return crypto.createHmac('sha256', '')
+      .update(input)
+      .digest('hex')
   }
 
 }

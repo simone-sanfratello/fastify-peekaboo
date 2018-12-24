@@ -16,14 +16,14 @@ const Storage = function (options) {
     if (!options) {
       options = { }
     }
-    if (!options.type) {
-      options.type = { type: lib.STORAGE.MEMORY }
+    if (!options.mode) {
+      options.mode = lib.STORAGE.MEMORY
     }
     if (!options.expire) {
       options.expire = 60 * 1000
     }
 
-    switch (options.type) {
+    switch (options.mode) {
       // @todo lib.STORAGE.FILE
       // @todo lib.STORAGE.REDIS
       case lib.STORAGE.MEMORY:

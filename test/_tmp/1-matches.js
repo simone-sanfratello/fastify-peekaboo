@@ -1,7 +1,7 @@
 const tap = require('tap')
 
 const peekaboo = require('../../src/plugin')
-const helper = require('../helper')
+const helper = require('./helper')
 
 tap.test('peekaboo match by custom rule',
   async (_test) => {

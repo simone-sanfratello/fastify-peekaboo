@@ -1,85 +1,44 @@
 const package_ = require('../package.json')
 const plug = require('fastify-plugin')
-const Storage = require('./lib/storage')
+const Storage = require('./storage')
 const lib = require('./lib')
-
-const OPTIONS = {
-  default: {
-    // match, method
-    xheader: false,
-    expire: 60 * 60 * 1000, // 1h
-    storage: {
-      type: lib.STORAGE.memory
-    }
-  }
-}
-
-/**
- * match request by options.match
- */
-const match = function (request, options) {
-  // @todo efficent way instead of brute force
-  for (const _match of options._matches) {
-    const _rule = options.match[_match]
-    switch (_match) {
-      case lib.MATCH.CUSTOM:
-        return _rule(request.req)
-          ? options._id
-          : null
-      case lib.MATCH.METHOD:
-        if (_rule !== lib.METHOD.ALL && !_rule.includes(request.req.method.toLowerCase())) {
-          return null
-        }
-        break
-      case lib.MATCH.URL:
-        if (request.req.url !== _rule) {
-          return null
-        }
-      // @todo other cases
-    }
-  }
-  return options._id
-}
+const match = require('./match')
+const defaultSettings = require('../settings/default')
 
 const plugin = function (fastify, options, next) {
   let __options, __storage
 
   const __init = function (options) {
-    __options = { ...options, ...OPTIONS }
-    // @todo validate options:
-    // if matches contains CUSTOM > warning all rules will be ignored
-    // if method > rule can be ALL or Array
-    __options._matches = []
-    let _id = 1
-    // @todo for options.rules
-    for (const i in __options.match) {
-      // @todo sort matches by value
-      __options._matches.push(parseInt(i))
+    for (let i = 0; i < __options.matches.length; i++) {
+      __options.matches[i]({ ...defaultSettings, ...__options.matches[i] })
     }
-    __options._id = _id++
-    // }
-    __storage = new Storage(options)
+    const { storage, expire } = options
+    __storage = new Storage({ ...storage, expire })
   }
 
   const preHandler = async function (request, response) {
-    const id = match(request, __options)
-    if (!id) {
+    const { hash, i } = match.request(request, __options.matches)
+    if (!hash) {
       return
     }
-    response.peekaboo.id = id
-    const _cached = await __storage.get(id)
+    response.peekaboo.hash = hash
+    response.peekaboo.match = i
+    const _cached = await __storage.get(hash)
     if (_cached) {
       if (__options.xheader) {
         response.header('x-peekaboo', '*')
       }
       response.peekaboo.involved = true
+      // @todo headers, code from storage
       response.send(_cached)
     }
   }
 
   const onSend = async function (request, response, payload) {
-    if (!response.peekaboo.involved && response.peekaboo.id) {
-      __storage.set(response.peekaboo.id, payload)
+    if (!response.peekaboo.involved && response.peekaboo.hash) {
+      // @todo if match.response(payload, response.header)
+      // @todo save body, headers, code
+      __storage.set(response.peekaboo.hash, payload)
     }
     return payload
   }

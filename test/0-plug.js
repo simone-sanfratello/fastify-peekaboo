@@ -47,4 +47,3 @@ tap.test('peekaboo plugin is working (basic match)',
       _test.threw(error)
     }
   })
-
