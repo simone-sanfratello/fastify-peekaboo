@@ -1,5 +1,6 @@
 const lib = {
   METHOD: {
+    STAR: '*',
     ALL: 'all',
     GET: 'get',
     HEAD: 'head',
@@ -10,20 +11,9 @@ const lib = {
     PATCH: 'patch'
   },
 
-  MATCH: {
-    CUSTOM: 0,
-    METHOD: 1,
-    URL: 2,
-    QUERYSTRING: 3,
-    BODY: 4,
-    COOKIE: 5,
-    HEADER: 6
-  },
-
   STORAGE: {
     MEMORY: 'memory',
     FILE: 'file',
-    POSTGRESQL: 'pg',
     REDIS: 'redis'
   }
 

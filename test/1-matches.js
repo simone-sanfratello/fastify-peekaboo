@@ -1,6 +1,4 @@
 const tap = require('tap')
-const fastify = require('fastify')
-const got = require('got')
 
 const peekaboo = require('../src/plugin')
 const helper = require('./helper')
@@ -12,7 +10,7 @@ tap.test('peekaboo match by custom rule',
     const _fastify = helper.init(peekaboo, {
       xheader: true,
       match: {
-        [peekaboo.MATCH.CUSTOM]: () => {
+        [peekaboo.MATCH.CUSTOM]: (request) => {
           return true
         }
       }

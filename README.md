@@ -5,11 +5,11 @@
 [![JS Standard Style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
 [![Build Status](https://travis-ci.org/braceslab/fastify-peekaboo.svg?branch=master)](https://travis-ci.org/braceslab/fastify-peekaboo)
 
-fastify plugin response caching - **work in progress**
+fastify plugin for response caching
 
 ## Purpose
 
-${purpose}
+Use arbitrary cache for serve response from previous elaborations, matching by request and response 
 
 ## Installing
 
@@ -20,37 +20,132 @@ npm i fastify-peekaboo
 ### Quick start
 
 ```js
-${basic-example}
+const fastify = require('fastify')
+const peekaboo = require('fastify-peekaboo')
 
+const _fastify = fastify()
+_fastify.register(peekaboo, {
+  matches: [
+    {
+      request: {
+        methods: 'get',
+        route: '/home'
+      }
+    }
+  ]
+})
+
+_fastify.get('/home', async (request, response) => {
+  const _home = '...elaborate home content'
+  response.send(_home)
+})
+
+await _fastify.listen(80)
 ```
 
-## API
+## Settings
 
-${api}
+Cache is based on matching resquest and response
 
-### options
+### match schema
 
-options.default
-any matching request will use this options if there isn't a specific rule for 
+```js
+{
+  match: {
+    request: Request,
+    response: Response
+  },
+  storage: Storage,
+  expire: number
+  xheader: boolean
+}
+```
+
+#### match.request
+
+Request
+
+#### match.response
+
+Response
+
+#### match.storage
+
+type: `object`   
+
+- `mode`   
+  type: `string`  [ `memory` | `file` | `redis` ]   
+  storage use [keyv](https://github.com/lukechilds/keyv) for cache; it can be:
+    - `memory` (default) cache use runtime memory 
+    - `file` use filesystem, need also `config`
+    - `redis` use redis, need also `config`
+
+- `config`   
+  type: `object`   
+
+  for `file` mode
+  - `path`   
+    type: `string`   
+    path on filesystem where cache files will be stored
+
+  for `redis` mode
+  - `connection`   
+    type: `string`   
+    connection string for redis, example `redis://user:pass@localhost:6379`
+
+#### match.expire
+
+type: `number`   
+ms cache expiration (default `86400000` = 1 day)
+
+#### match.xheader
+
+type: `boolean`   
+add on response header `x-peekaboo` if response come from cache (default `true`)
+
+### default
+
+Default match: consider each match starts from default settings
+
+```js
+{
+  match: {
+    request: {
+      method: 'get'
+    },
+    response: {
+      headers: {
+        status: 200
+      }
+    }
+  },
+  storage: {
+    mode: 'memory',
+  },
+  expire: 86400000, // 1 day in ms
+  xheader: true
+}
+```
+
 
 ## Documentation
 
-See [documentation](./doc/README.md) for further informations.
+See [documentation](./doc/README.md) for further informations and examples.
 
 ---
 
 ## Changelog
 
-${changelog}
+**v. 1.0** release
 
 ---
 
 ## TODO
 
+- [ ] settings conflict detection
 - [ ] storages
   - [ ] file
   - [ ] redis
-  - [ ] postgresql
 - [ ] doc matching 
   - [ ] composable matching (`URL + QUERYSRING`)
 - [ ] use tollo to document api
@@ -70,7 +165,7 @@ ${changelog}
 - [ ] benchmark with/without (autocannon?)
 - [ ] pre-packed settings (example graphql caching)
 - [ ] review https://github.com/fastify/fastify/blob/master/docs/Write-Plugin.md
-- [ ] use other kyev supported storage (mongo, mysql, sqlite)
+- [ ] use other kyev supported storage (postgresql, mongo, mysql, sqlite)
 
 ---
 
