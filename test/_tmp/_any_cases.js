@@ -3,7 +3,7 @@ const fastify = require('fastify')
 const got = require('got')
 
 const cases = require('./sample/cases')
-const peekaboo = require('../src/plugin')
+const peekaboo = require('../../src/plugin')
 
 const _init = async function (routes) {
   const _server = fastify()

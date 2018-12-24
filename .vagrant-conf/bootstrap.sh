@@ -36,3 +36,4 @@ else
     # node /vagrant/sys/setup/prepare.js dev
 fi
 
+# redis ...

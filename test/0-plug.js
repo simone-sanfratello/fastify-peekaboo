@@ -21,10 +21,10 @@ tap.test('peekaboo plugin is working (basic match)',
     const _fastify = fastify()
     _fastify.register(peekaboo, {
       xheader: true,
-      match: {
-        [peekaboo.MATCH.METHOD]: [peekaboo.METHOD.GET],
-        [peekaboo.MATCH.URL]: '/home'
-      }
+      matches: [{
+        methods: 'get',
+        route: '/home'
+      }]
     })
 
     _fastify.get('/home', async (request, response) => {
@@ -48,4 +48,3 @@ tap.test('peekaboo plugin is working (basic match)',
     }
   })
 
-// ... test options

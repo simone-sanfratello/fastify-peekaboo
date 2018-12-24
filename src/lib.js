@@ -1,7 +1,6 @@
 const lib = {
   METHOD: {
-    STAR: '*',
-    ALL: 'all',
+    ALL: '*',
     GET: 'get',
     HEAD: 'head',
     POST: 'post',

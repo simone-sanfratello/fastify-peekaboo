@@ -1,3 +1,6 @@
+### Examples
+
+```js
 const fastify = require('fastify')
 const peekaboo = require('fastify-peekaboo')
 
@@ -95,3 +98,4 @@ _fastify.put('/content/:id', async (request, response) => {
   // ... update content
   response.send('well done')
 })
+```

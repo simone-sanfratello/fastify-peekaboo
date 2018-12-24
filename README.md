@@ -63,11 +63,109 @@ Cache is based on matching resquest and response
 
 #### match.request
 
-Request
+type: `object`   
+
+- `route`   
+  type: `string` or `function(route:string):bool`  
+  route to cache
+
+  examples:
+  - `/home`
+  - `/user/:id`
+  - use cache if function return `true`  
+  ```js
+  function(route) {
+    return route.indexOf('/article') === 0
+  }
+  ```
+
+- `methods`   
+  type: `string` or `string[]`  
+  match by methods; method can be any of `get`, `post`, `put`, `head`, `delete`, `options`, `patch` or  `*` (all)
+
+  examples:
+  - `*` all methods
+  - `get`
+  - [`post`, `put`, `delete`]
+
+- `headers`   
+  type: `string` or `string[]` or `function(headers:object):bool`   
+  match by headers
+
+  examples:
+  - `*` match considering all headers
+  - [`accept-language`, `accept`] match considering these headers values
+  - `cookie` match considering `cookie` header value: if `cookie` contains a token, the response will be de facto private
+  - using `function`, cache will be used if function return `true` and will be cached by all headers
+  ```js
+  function(headers) {
+    return !!headers.authentication
+  }
+  ```
+
+- `body`   
+  type: `string` or `string[]` or `function(body:string|object):bool`   
+  match by body content (if any)
+
+  examples:
+  - `*` match considering whole body
+  - [`user`, `id`] match considering these body values, if body contains a JSON data
+  - `user` match considering only `user` value
+  - using `function`, cache will be used if function return `true` and will be cached by whole body
+  ```js
+  function(body) {
+    return body.indexOf('something') !== 0
+  }
+  ```
+
+- `query`   
+  type: `string` or `string[]` or `function(body:string|object):bool`   
+  match by query content (if any)
+
+  examples:
+  - `*` match considering whole query
+  - [`page`, `filter`] match considering these query values
+  - `page` match considering only `user` value
+  - using `function`, cache will be used if function return `true` and will be cached by whole query
+  ```js
+  function(query) {
+    return query.indexOf('page') !== 0
+  }
+  ```
 
 #### match.response
 
-Response
+type: `object`   
+
+- `headers`   
+  type: `string` or `string[]` or `function(headers:object):bool`   
+  match by headers
+
+  examples:
+  - `*` match considering all headers
+  - [`content-type`, `content-length`] match considering these headers values
+  - `set-cookie` match considering `set-cookie` header value: if `set-cookie` contains a token, the response will be de facto private
+  - using `function`, cache will be used if function return `true` and will be cached by all headers
+  ```js
+  function(headers) {
+    return headers['cache-control'] !== 'no-cache'
+  }
+  ```
+
+- `body`   
+  type: `string` or `string[]` or `function(body:string|object):bool`   
+  match by body content (if any)
+
+  examples:
+  - `*` match considering whole body
+  - [`user`, `id`] match considering these body values, if body contains a JSON data
+  - `user` match considering only `user` value
+  - using `function`, cache will be used if function return `true` and will be cached by whole body
+  ```js
+  function(body) {
+    return body.indexOf('something') !== 0
+  }
+  ```
 
 #### match.storage
 
@@ -105,7 +203,7 @@ add on response header `x-peekaboo` if response come from cache (default `true`)
 
 ### default
 
-Default match: consider each match starts from default settings
+Default match: consider each match inherits default settings
 
 ```js
 {
@@ -136,32 +234,23 @@ See [documentation](./doc/README.md) for further informations and examples.
 
 ## Changelog
 
-**v. 1.0** release
+- **v. 1.0** | 2018-12-..  
+  release
 
 ---
 
 ## TODO
 
-- [ ] settings conflict detection
-- [ ] storages
-  - [ ] file
-  - [ ] redis
-- [ ] doc matching 
-  - [ ] composable matching (`URL + QUERYSRING`)
-- [ ] use tollo to document api
 - [ ] use tollo to run test
   - [ ] use random data from `faker` and|or `casual`
 - [ ] validate options before plug
-- [ ] different options by matching (even different storage)
-- [ ] invalidate cache
-- [ ] option add x-tag
+- [ ] different storage, expire, xheader for each match
+- [ ] invalidate cache by hash
 - [ ] verbosity (via fastify logger?)
-- [ ] expire
+- [ ] expire can be a function(request, response)
 - [ ] test edge cases
   - [ ] querystring array or object
-- [ ] use cases examples
-  - [ ] lazyly put everything on `storage`
-- [ ] use fs storage via kyev adaptor
+- [ ] settings conflict detection 
 - [ ] benchmark with/without (autocannon?)
 - [ ] pre-packed settings (example graphql caching)
 - [ ] review https://github.com/fastify/fastify/blob/master/docs/Write-Plugin.md
