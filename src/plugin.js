@@ -25,35 +25,44 @@ const plugin = function (fastify, options, next) {
     response.peekaboo.match = i
     const _cached = await __storage.get(hash)
     if (_cached) {
+      response.peekaboo.sent = true
       if (__options.xheader) {
         response.header('x-peekaboo', '*')
       }
-      response.peekaboo.involved = true
-      // @todo headers, code from storage
-      response.send(_cached)
+      for (const _header in _cached.headers) {
+        response.header(_header, _cached.headers[_header])
+      }
+      response
+        .send(_cached.body)
     }
   }
 
-  const onSend = async function (request, response, payload) {
-    if (!response.peekaboo.involved && response.peekaboo.hash) {
-      // @todo if match.response(payload, response.header)
-      // @todo save body, headers, code
-      __storage.set(response.peekaboo.hash, payload)
+  const onResponse = async function (request, response) {
+    if (!response.peekaboo.sent && response.peekaboo.match) {
+      if (match.response(response, response.peekaboo.match)) {
+        const _set = {
+          headers: {},
+          body: response.payload
+        }
+        for (const _header in response.headers) {
+          _set.headers[_header] = response.headers[_header]
+        }
+        __storage.set(response.peekaboo.hash, _set)
+      }
     }
-    return payload
   }
 
   __init(options)
   fastify.decorateReply('peekaboo', {})
   fastify.decorate('peekaboo')
   fastify.addHook('preHandler', preHandler)
-  fastify.addHook('onSend', onSend)
+  fastify.addHook('onResponse', onResponse)
 
   next()
 }
 
 module.exports = plug(plugin, {
-  fastify: package_.devDependencies.fastify,
+  fastify: '1.12.0', // @see package_.devDependencies.fastify,
   name: package_.name
 })
 
