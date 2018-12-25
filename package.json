@@ -1,6 +1,6 @@
 {
   "name": "fastify-peekaboo",
-  "version": "0.0.1-dev",
+  "version": "0.0.2-dev",
   "dependencies": {
     "fastify-plugin": "^1.2.1",
     "keyv": "^3.1.0",
@@ -39,5 +39,5 @@
     "type": "git",
     "url": "git+https://github.com/braceslab/fastify-peekaboo.git"
   },
-  "keywords": []
+  "keywords": ["cache"]
 }

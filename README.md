@@ -67,6 +67,7 @@ type: `object`
 
 - `route`   
   type: `string` or `function(route:string):bool`  
+  default: `null`  
   route to cache
 
   examples:
@@ -81,15 +82,17 @@ type: `object`
 
 - `methods`   
   type: `string` or `string[]`  
+  default: `get`  
   match by methods; method can be any of `get`, `post`, `put`, `head`, `delete`, `options`, `patch` or  `*` (all)
 
   examples:
   - `*` all methods
-  - `get`
-  - [`post`, `put`, `delete`]
+  - `get` (default value) cache request made using `get` method
+  - [`post`, `put`, `delete`] cache request made using any method in the list
 
 - `headers`   
   type: `string` or `string[]` or `function(headers:object):bool`   
+  default: `null`  
   match by headers
 
   examples:
@@ -105,6 +108,7 @@ type: `object`
 
 - `body`   
   type: `string` or `string[]` or `function(body:string|object):bool`   
+  default: `null`  
   match by body content (if any)
 
   examples:
@@ -120,6 +124,7 @@ type: `object`
 
 - `query`   
   type: `string` or `string[]` or `function(body:string|object):bool`   
+  default: `null`  
   match by query content (if any)
 
   examples:
@@ -138,29 +143,32 @@ type: `object`
 type: `object`   
 
 - `headers`   
-  type: `string` or `string[]` or `function(headers:object):bool`   
-  match by headers
+  type: `object` or `function(headers:object):bool`   
+  default: `{status: 200}`  
+  match by response headers values
 
   examples:
-  - `*` match considering all headers
-  - [`content-type`, `content-length`] match considering these headers values
-  - `set-cookie` match considering `set-cookie` header value: if `set-cookie` contains a token, the response will be de facto private
-  - using `function`, cache will be used if function return `true` and will be cached by all headers
+  - `{status: 200}` (default value) cache only if response status is 200, so discard error responses
+  - `function` cache if function return `true`
   ```js
   function(headers) {
     return headers['cache-control'] !== 'no-cache'
   }
   ```
+  ```js
+  function(headers) {
+    return headers['status'] > 199 && headers['status'] < 300
+  }
+  ```
 
 - `body`   
-  type: `string` or `string[]` or `function(body:string|object):bool`   
+  type: `object` or `function(body:string|object):bool`   
+  default: `null`  
   match by body content (if any)
 
   examples:
-  - `*` match considering whole body
-  - [`user`, `id`] match considering these body values, if body contains a JSON data
-  - `user` match considering only `user` value
-  - using `function`, cache will be used if function return `true` and will be cached by whole body
+  - `{user: 'Alice'}` match only for `user` `Alice`
+  - using `function`, cache will be used if function return `true`
   ```js
   function(body) {
     return body.indexOf('something') !== 0
@@ -173,6 +181,7 @@ type: `object`
 
 - `mode`   
   type: `string`  [ `memory` | `file` | `redis` ]   
+  default: `memory`  
   storage use [keyv](https://github.com/lukechilds/keyv) for cache; it can be:
     - `memory` (default) cache use runtime memory 
     - `file` use filesystem, need also `config`
@@ -193,8 +202,9 @@ type: `object`
 
 #### match.expire
 
-type: `number`   
-ms cache expiration (default `86400000` = 1 day)
+type: `number`  
+default: `86400000` // 1 day  
+cache expiration in ms
 
 #### match.xheader
 
