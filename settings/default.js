@@ -1,7 +1,7 @@
 const default_ = {
   match: {
     request: {
-      method: 'get'
+      methods: 'get'
     },
     response: {
       headers: {

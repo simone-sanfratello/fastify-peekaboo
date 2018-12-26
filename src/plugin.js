@@ -1,5 +1,6 @@
 const package_ = require('../package.json')
 const plug = require('fastify-plugin')
+const clone = require('fast-deepclone')
 const Storage = require('./storage')
 const lib = require('./lib')
 const match = require('./match')
@@ -22,7 +23,11 @@ const plugin = function (fastify, options, next) {
       // @todo check request and response
       // @todo check request route, method, body ... valid value/s (nullable null)
       // @todo check response
-      __options.matches.push({ ...defaultSettings.match, ...options.matches[i] })
+      const _options = clone(options.matches[i])
+      const _match = clone(defaultSettings.match)
+      Object.assign(_match.request, _options.request)
+      Object.assign(_match.response, _options.response)
+      __options.matches.push(_match)
     }
     const { storage, expire } = { ...defaultSettings.storage, ...defaultSettings.expire, ...options }
     __storage = new Storage({ ...storage, expire })
@@ -43,11 +48,9 @@ const plugin = function (fastify, options, next) {
     const _cached = await __storage.get(hash)
     if (_cached) {
       response.res.peekaboo.sent = true
-      /*
       for (const _name in _cached.headers) {
         response.header(_name, _cached.headers[_name])
       }
-      */
       response.code(_cached.code)
       response.send(_cached.body)
     }
@@ -63,15 +66,16 @@ const plugin = function (fastify, options, next) {
       body: response.peekaboo.body
     }
     const _headers = response._header
-      .split('\n')
+      .split('\r\n')
       .map((header) => {
         const [ key, value ] = header.split(':')
         if (!key.indexOf('HTTP')) {
+          _set.headers.status =
           _set.code = parseInt(key.match(/([0-9]{3,3})/)[0])
         }
         return {
           key: key.toLowerCase(),
-          value
+          value: value ? value.trim() : ''
         }
       })
       .filter((header) => {
@@ -80,6 +84,9 @@ const plugin = function (fastify, options, next) {
 
     for (const _header of _headers) {
       _set.headers[_header.key] = _header.value
+    }
+    if (!match.response(_set, response.peekaboo.match)) {
+      return
     }
     __storage.set(response.peekaboo.hash, _set)
   }
@@ -90,9 +97,7 @@ const plugin = function (fastify, options, next) {
     }
     const _peekaboo = response.res.peekaboo
     if (!_peekaboo.sent && _peekaboo.match) {
-      if (match.response(response, _peekaboo.match)) {
-        _peekaboo.body = payload
-      }
+      _peekaboo.body = payload
     } else {
       delete response.res.peekaboo
     }

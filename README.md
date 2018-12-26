@@ -148,7 +148,7 @@ type: `object`
 - `headers`   
   type: `object` or `function(headers:object):bool`   
   default: `{status: 200}`  
-  match by response headers values; set to `null` to cache avoiding matching
+  match by response headers values
 
   examples:
   - `{status: 200}` (default value) cache only if response status is 200, so discard error responses

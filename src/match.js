@@ -9,8 +9,8 @@ const match = {
    * ! for few matches, a for loop is enough
    */
   request: function (request, matches) {
-    for (const _match of matches) {
-      if (!match.method(_match.request.methods, request.req)) {
+    for (const _rule of matches) {
+      if (!match.requestMethod(_rule.request.methods, request.req)) {
         continue
       }
 
@@ -18,31 +18,31 @@ const match = {
         method: request.req.method.toLowerCase()
       }
 
-      if (_match.request.route) {
-        if (!match.route(_match.request.route, request.req)) {
+      if (_rule.request.route) {
+        if (!match.requestRoute(_rule.request.route, request.req)) {
           continue
         }
         _matching.route = request.req.url
       }
 
-      if (_match.request.headers) {
-        const _headers = match.headers(_match.request.headers, request.req)
+      if (_rule.request.headers) {
+        const _headers = match.requestHeaders(_rule.request.headers, request.req)
         if (!_headers) {
           continue
         }
         _matching.headers = _headers
       }
 
-      if (_match.request.body) {
-        const _body = match.body(_match.request.body, request.req)
+      if (_rule.request.body) {
+        const _body = match.requestBody(_rule.request.body, request.req)
         if (!_body) {
           continue
         }
         _matching.body = _body
       }
 
-      if (_match.request.query) {
-        const _query = match.query(_match.request.query, request.req)
+      if (_rule.request.query) {
+        const _query = match.requestQuery(_rule.request.query, request.req)
         if (!_query) {
           continue
         }
@@ -51,22 +51,31 @@ const match = {
 
       return {
         hash: lib.hash(_matching),
-        match: _match
+        match: _rule
       }
     }
     return { match: null, hash: null }
   },
 
   /**
-   * @todo
-   * @param {fastify.Response} response
-   * @param {*} match
+   * @param {cache} data {headers, body}
+   * @param {object} rule
    * @return {bool}
    */
-  response: function (response, match) {
-    if (!match.response) {
+  response: function (data, rule) {
+    if (!rule.response) {
       return true
     }
+
+    if (rule.response.headers && !match.responseHeaders(rule.response.headers, data)) {
+      return false
+    }
+
+    if (rule.response.body && !match.responseBody(rule.response.body, data)) {
+      return false
+    }
+
+    return true
   },
 
   /**
@@ -74,7 +83,7 @@ const match = {
    * @param {fastify.Request} request
    * @return {bool}
    */
-  method: function (methods, request) {
+  requestMethod: function (methods, request) {
     if (methods === '*') {
       return true
     }
@@ -91,7 +100,7 @@ const match = {
    * @param {fastify.Request} request
    * @return {bool}
    */
-  route: function (route, request) {
+  requestRoute: function (route, request) {
     if (typeof route === 'string') {
       return request.url.indexOf(route) === 0
     }
@@ -99,6 +108,54 @@ const match = {
       return request.url.match(route)
     }
     return route(request.url)
+  },
+
+  /**
+   * @param {fastify.Request} request
+   * @return {bool}
+   */
+  requestHeaders: function (headers, request) {
+
+  },
+
+  /**
+   * @param {fastify.Request} request
+   * @return {bool}
+   */
+  requestBody: function (body, request) {
+
+  },
+
+  /**
+   * @param {fastify.Request} request
+   * @return {bool}
+   */
+  requestQuery: function (query, request) {
+
+  },
+
+  /**
+   * @param {cache} data {headers, body}
+   * @return {bool}
+   */
+  responseHeaders: function (headers, data) {
+    if (typeof headers === 'function') {
+      return headers(data.headers)
+    }
+    for (const _name in headers) {
+      if (headers[_name] !== data.headers[_name]) {
+        return false
+      }
+    }
+    return true
+  },
+
+  /**
+   * @param {cache} data {headers, body}
+   * @return {bool}
+   */
+  responseBody: function (body, data) {
+
   }
 }
 
