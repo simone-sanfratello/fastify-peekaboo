@@ -7,7 +7,7 @@
     "keyv-file": "^0.1.7"
   },
   "devDependencies": {
-    "fastify": "^1.12.0",
+    "fastify": "^1.13.3",
     "got": "^9.2.2",
     "pre-commit": "^1.2.2",
     "standard": "^12",
@@ -39,5 +39,7 @@
     "type": "git",
     "url": "git+https://github.com/braceslab/fastify-peekaboo.git"
   },
-  "keywords": ["cache"]
+  "keywords": [
+    "cache"
+  ]
 }

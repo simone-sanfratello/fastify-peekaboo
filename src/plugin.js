@@ -43,26 +43,12 @@ const plugin = function (fastify, options, next) {
     const _cached = await __storage.get(hash)
     if (_cached) {
       response.res.peekaboo.sent = true
-      let _code
-      const _headers = _cached.header
-        .split('\n')
-        .map((header) => {
-          const [ key, value ] = header.split(':')
-          if (!key.indexOf('HTTP')) {
-            _code = key.match(/([0-9]{3,3})/)[0]
-          }
-          return {
-            key: key.toLowerCase(),
-            value
-          }
-        })
-        .filter((header) => {
-          return !!header.value
-        })
-      for (const _header of _headers) {
-        response.header(_header.key, _header.value)
+      /*
+      for (const _name in _cached.headers) {
+        response.header(_name, _cached.headers[_name])
       }
-      response.code(parseInt(_code))
+      */
+      response.code(_cached.code)
       response.send(_cached.body)
     }
   }
@@ -72,8 +58,28 @@ const plugin = function (fastify, options, next) {
       return
     }
     const _set = {
-      header: response._header,
+      code: null,
+      headers: {},
       body: response.peekaboo.body
+    }
+    const _headers = response._header
+      .split('\n')
+      .map((header) => {
+        const [ key, value ] = header.split(':')
+        if (!key.indexOf('HTTP')) {
+          _set.code = parseInt(key.match(/([0-9]{3,3})/)[0])
+        }
+        return {
+          key: key.toLowerCase(),
+          value
+        }
+      })
+      .filter((header) => {
+        return !!header.value
+      })
+
+    for (const _header of _headers) {
+      _set.headers[_header.key] = _header.value
     }
     __storage.set(response.peekaboo.hash, _set)
   }
@@ -90,7 +96,7 @@ const plugin = function (fastify, options, next) {
     } else {
       delete response.res.peekaboo
     }
-    return payload
+    // return payload
   }
 
   __init(options)
@@ -104,7 +110,7 @@ const plugin = function (fastify, options, next) {
 }
 
 module.exports = plug(plugin, {
-  fastify: '1.12.0', // @see package_.devDependencies.fastify,
+  fastify: '1.13.3', // @see package_.devDependencies.fastify,
   name: package_.name
 })
 
