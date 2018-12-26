@@ -9,53 +9,95 @@ const plugin = function (fastify, options, next) {
   let __options, __storage
 
   const __init = function (options) {
-    for (let i = 0; i < __options.matches.length; i++) {
-      __options.matches[i]({ ...defaultSettings, ...__options.matches[i] })
+    if (!options || !options.matches) {
+      return
     }
-    const { storage, expire } = options
+    __options = {
+      ...defaultSettings,
+      ...options,
+      matches: []
+    }
+    delete __options.match
+    for (let i = 0; i < options.matches.length; i++) {
+      // @todo check request and response
+      // @todo check request route, method, body ... valid value/s (nullable null)
+      // @todo check response
+      __options.matches.push({ ...defaultSettings.match, ...options.matches[i] })
+    }
+    const { storage, expire } = { ...defaultSettings.storage, ...defaultSettings.expire, ...options }
     __storage = new Storage({ ...storage, expire })
   }
 
   const preHandler = async function (request, response) {
-    const { hash, i } = match.request(request, __options.matches)
+    if (!__options) {
+      return
+    }
+    if (__options.xheader) {
+      response.header('x-peekaboo', '*')
+    }
+    const { hash, match: _match } = match.request(request, __options.matches)
     if (!hash) {
       return
     }
-    response.peekaboo.hash = hash
-    response.peekaboo.match = i
+    response.res.peekaboo = { hash, match: _match }
     const _cached = await __storage.get(hash)
     if (_cached) {
-      response.peekaboo.sent = true
-      if (__options.xheader) {
-        response.header('x-peekaboo', '*')
+      response.res.peekaboo.sent = true
+      let _code
+      const _headers = _cached.header
+        .split('\n')
+        .map((header) => {
+          const [ key, value ] = header.split(':')
+          if (!key.indexOf('HTTP')) {
+            _code = key.match(/([0-9]{3,3})/)[0]
+          }
+          return {
+            key: key.toLowerCase(),
+            value
+          }
+        })
+        .filter((header) => {
+          return !!header.value
+        })
+      for (const _header of _headers) {
+        response.header(_header.key, _header.value)
       }
-      for (const _header in _cached.headers) {
-        response.header(_header, _cached.headers[_header])
-      }
-      response
-        .send(_cached.body)
+      response.code(parseInt(_code))
+      response.send(_cached.body)
     }
   }
 
-  const onResponse = async function (request, response) {
-    if (!response.peekaboo.sent && response.peekaboo.match) {
-      if (match.response(response, response.peekaboo.match)) {
-        const _set = {
-          headers: {},
-          body: response.payload
-        }
-        for (const _header in response.headers) {
-          _set.headers[_header] = response.headers[_header]
-        }
-        __storage.set(response.peekaboo.hash, _set)
-      }
+  const onResponse = async function (response) {
+    if (!response.peekaboo) {
+      return
     }
+    const _set = {
+      header: response._header,
+      body: response.peekaboo.body
+    }
+    __storage.set(response.peekaboo.hash, _set)
+  }
+
+  const onSend = async function (request, response, payload) {
+    if (!response.res.peekaboo) {
+      return
+    }
+    const _peekaboo = response.res.peekaboo
+    if (!_peekaboo.sent && _peekaboo.match) {
+      if (match.response(response, _peekaboo.match)) {
+        _peekaboo.body = payload
+      }
+    } else {
+      delete response.res.peekaboo
+    }
+    return payload
   }
 
   __init(options)
-  fastify.decorateReply('peekaboo', {})
-  fastify.decorate('peekaboo')
+  // fastify.decorateReply('peekaboo', {})
+  // fastify.decorate('peekaboo')
   fastify.addHook('preHandler', preHandler)
+  fastify.addHook('onSend', onSend)
   fastify.addHook('onResponse', onResponse)
 
   next()

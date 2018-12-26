@@ -9,7 +9,7 @@ const peekaboo = require('fastify-peekaboo')
 const _fastify = fastify()
 _fastify.register(peekaboo, {
   matches: [
-    // match
+    // match, see below
   ]}
 )
 ```

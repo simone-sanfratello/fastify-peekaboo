@@ -1,5 +1,5 @@
 const Keyv = require('keyv')
-const lib = require('../lib')
+const lib = require('./lib')
 
 // https://github.com/lukechilds/keyv-test-suite/blob/master/src/api.js
 

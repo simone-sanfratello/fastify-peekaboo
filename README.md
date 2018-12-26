@@ -64,15 +64,17 @@ Cache is based on matching resquest and response
 #### match.request
 
 type: `object`   
+(mandatory)  
 
 - `route`   
-  type: `string` or `function(route:string):bool`  
+  type: `string` or `RegExp` `function(route:string):bool`  
   default: `null`  
   route to cache
 
   examples:
   - `/home`
-  - `/user/:id`
+  - `$/users` (RegExp)
+  - `$/user/[0-9]+^` (RegExp)
   - use cache if function return `true`  
   ```js
   function(route) {
@@ -83,7 +85,7 @@ type: `object`
 - `methods`   
   type: `string` or `string[]`  
   default: `get`  
-  match by methods; method can be any of `get`, `post`, `put`, `head`, `delete`, `options`, `patch` or  `*` (all)
+  (mandatory) match by methods; method can be any of `get`, `post`, `put`, `head`, `delete`, `options`, `patch` or  `*` (all) 
 
   examples:
   - `*` all methods
@@ -92,7 +94,7 @@ type: `object`
 
 - `headers`   
   type: `string` or `string[]` or `function(headers:object):bool`   
-  default: `null`  
+  default: `undefined`  
   match by headers
 
   examples:
@@ -108,7 +110,7 @@ type: `object`
 
 - `body`   
   type: `string` or `string[]` or `function(body:string|object):bool`   
-  default: `null`  
+  default: `undefined`  
   match by body content (if any)
 
   examples:
@@ -141,11 +143,12 @@ type: `object`
 #### match.response
 
 type: `object`   
+(optional)  
 
 - `headers`   
   type: `object` or `function(headers:object):bool`   
   default: `{status: 200}`  
-  match by response headers values
+  match by response headers values; set to `null` to cache avoiding matching
 
   examples:
   - `{status: 200}` (default value) cache only if response status is 200, so discard error responses
@@ -251,8 +254,12 @@ See [documentation](./doc/README.md) for further informations and examples.
 
 ## TODO
 
+- [ ] logs and verbosity (use fastify log system?)
+- [ ] match route with fastify syntax
 - [ ] use tollo to run test
   - [ ] use random data from `faker` and|or `casual`
+- [ ] jsdoc
+- [ ] what if response is a stream?
 - [ ] validate options before plug
 - [ ] different storage, expire, xheader for each match
 - [ ] invalidate cache by hash

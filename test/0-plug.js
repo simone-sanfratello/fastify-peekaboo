@@ -19,13 +19,17 @@ tap.test('peekaboo plugin is working (basic match)',
   async (_test) => {
     _test.plan(1)
     const _fastify = fastify()
-    _fastify.register(peekaboo, {
-      xheader: true,
-      matches: [{
-        methods: 'get',
-        route: '/home'
-      }]
-    })
+    _fastify
+      .register(peekaboo, {
+        xheader: true,
+        matches: [{
+          request: {
+            methods: 'get',
+            route: '/home'
+          },
+          response: null
+        }]
+      })
 
     _fastify.get('/home', async (request, response) => {
       response.send('hey there')

@@ -20,7 +20,7 @@ const lib = {
 
   hash: function (input) {
     return crypto.createHmac('sha256', '')
-      .update(input)
+      .update(JSON.stringify(input))
       .digest('hex')
   }
 
