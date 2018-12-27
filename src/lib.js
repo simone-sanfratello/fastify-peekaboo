@@ -15,7 +15,7 @@ const lib = {
 
   STORAGE: {
     MEMORY: 'memory',
-    FILE: 'file',
+    FS: 'fs',
     REDIS: 'redis'
   },
 
@@ -39,6 +39,10 @@ const lib = {
     return crypto.createHmac('sha256', '')
       .update(JSON.stringify(_request))
       .digest('hex')
+  },
+
+  log: function (...args) {
+    console.log(...args)
   }
 
 }

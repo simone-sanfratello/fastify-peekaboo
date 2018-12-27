@@ -29,7 +29,11 @@ const plugin = function (fastify, options, next) {
       Object.assign(_match.response, _options.response)
       __options.matches.push(_match)
     }
-    const { storage, expire } = { ...defaultSettings.storage, ...defaultSettings.expire, ...options }
+    const { storage, expire } = {
+      ...defaultSettings.storage,
+      expire: defaultSettings.expire,
+      ...options
+    }
     __storage = new Storage({ ...storage, expire })
   }
 

@@ -93,17 +93,19 @@ type: `object`
   - [`post`, `put`, `delete`] cache request made using any method in the list
 
 - `headers`   
-  type: `string` or `string[]` or `function(headers:object):bool`   
+  type: `string` or `string[]` or `function(headers:object):string[]`   
   default: `undefined`  
   match by headers: will be cached only by matching headers, not by whole headers - otherwise, cache is not efficient: just considering for `user-agent` and `host`, cache is actually single client based, but you can do this if is what you want
 
   examples:
-  - [`accept-language`, `accept`] match considering these headers values
-  - `cookie` match considering `cookie` header value: if `cookie` contains a token, the response will be de facto private
-  - using `function`, cache will be used if function return `true` and will be cached by all headers
+  - [`authorization`, `cookie`] match considering only these headers values
+  - `authorization` match considering `authorization` header value: if `authorization` contains a token, the response will be de facto private
+  - using `function`, cache will be used if function return an array of headers names that will be used for identify the cache
   ```js
   function(headers) {
-    return !!headers.authentication
+    if(headers.authentication) {
+      return ['cookie']
+    }
   }
   ```
 
@@ -182,11 +184,11 @@ type: `object`
 type: `object`   
 
 - `mode`   
-  type: `string`  [ `memory` | `file` | `redis` ]   
+  type: `string`  [ `memory` | `fs` | `redis` ]   
   default: `memory`  
   storage use [keyv](https://github.com/lukechilds/keyv) for cache; it can be:
     - `memory` (default) cache use runtime memory 
-    - `file` use filesystem, need also `config`
+    - `fs` use filesystem, need also `config`
     - `redis` use redis, need also `config`
 
 - `config`   

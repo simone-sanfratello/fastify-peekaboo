@@ -25,7 +25,7 @@ const match = {
       }
 
       if (_rule.request.headers) {
-        const _headers = match.requestHeaders(_rule.request.headers, request.req)
+        const _headers = match.requestHeaders(_rule.request.headers, request)
         if (!_headers) {
           continue
         }
@@ -115,7 +115,34 @@ const match = {
    * @return {bool}
    */
   requestHeaders: function (headers, request) {
-
+    if (headers instanceof Array) {
+      const _headers = {}
+      let _match
+      for (const _name of headers) {
+        if (toolbox.util.isSet(request.headers[_name])) {
+          _headers[_name] = request.headers[_name]
+          _match = true
+        } else {
+          return null
+        }
+      }
+      return _match ? _headers : null
+    }
+    if (typeof headers === 'string') {
+      if (toolbox.util.isSet(request.headers[headers])) {
+        return { [headers]: request.headers[headers] }
+      }
+      return null
+    }
+    const _keys = headers(request.headers)
+    if (_keys) {
+      const _headers = {}
+      for (const _key of _keys) {
+        _headers[_key] = request.headers[_key]
+      }
+      return _headers
+    }
+    return null
   },
 
   /**
@@ -147,6 +174,7 @@ const match = {
       if (toolbox.util.isSet(request.body[body])) {
         return { [body]: request.body[body] }
       }
+      return null
     }
     if (body(request.body)) {
       return request.body
@@ -183,6 +211,7 @@ const match = {
       if (toolbox.util.isSet(request.query[query])) {
         return { [query]: request.query[query] }
       }
+      return null
     }
     if (query(request.query)) {
       return request.query

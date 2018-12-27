@@ -4,7 +4,7 @@ const got = require('got')
 
 const peekaboo = require('../src/plugin')
 
-tap.test('peekaboo storage (@todo)',
+tap.test('peekaboo match response header (@todo)',
   async (_test) => {
     _test.plan(1)
     _test.pass()

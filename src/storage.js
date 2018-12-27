@@ -1,4 +1,7 @@
 const Keyv = require('keyv')
+const KeyvFile = require('keyv-file')
+const uuid = require('uuid/v4')
+const path = require('path')
 const lib = require('./lib')
 
 // https://github.com/lukechilds/keyv-test-suite/blob/master/src/api.js
@@ -24,7 +27,13 @@ const Storage = function (options) {
     }
 
     switch (options.mode) {
-      // @todo lib.STORAGE.FILE
+      case lib.STORAGE.FS:
+        __storage = new Keyv({
+          store: new KeyvFile({
+            filename: path.join(options.config.path, uuid())
+          })
+        })
+        break
       // @todo lib.STORAGE.REDIS
       case lib.STORAGE.MEMORY:
       default:
@@ -40,7 +49,7 @@ const Storage = function (options) {
     return __storage.set(key, data, options.expire)
   }
 
-  __init()
+  __init(options)
 
   return {
     get: get,
