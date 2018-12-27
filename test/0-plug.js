@@ -61,8 +61,7 @@ tap.test('peekaboo plugin is working (default settings)',
         matches: [{
           request: {
             route: '/'
-          },
-          response: { headers: null }
+          }
         }]
       })
 

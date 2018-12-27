@@ -125,7 +125,7 @@ type: `object`
   ```
 
 - `query`   
-  type: `string` or `string[]` or `function(body:string|object):bool`   
+  type: `string` or `string[]` or `function(query:string|object):bool`   
   default: `null`  
   match by query content (if any)
 

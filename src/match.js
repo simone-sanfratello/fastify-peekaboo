@@ -1,3 +1,5 @@
+const url = require('url')
+const toolbox = require('a-toolbox')
 const lib = require('./lib')
 
 const match = {
@@ -42,7 +44,7 @@ const match = {
       }
 
       if (_rule.request.query) {
-        const _query = match.requestQuery(_rule.request.query, request.req)
+        const _query = match.requestQuery(_rule.request.query, request)
         if (!_query) {
           continue
         }
@@ -101,13 +103,14 @@ const match = {
    * @return {bool}
    */
   requestRoute: function (route, request) {
+    const _url = new url.URL('http://host.url' + request.url).pathname
     if (typeof route === 'string') {
-      return request.url.indexOf(route) === 0
+      return _url.indexOf(route) === 0
     }
     if (route instanceof RegExp) {
-      return request.url.match(route)
+      return _url.match(route)
     }
-    return route(request.url)
+    return route(_url)
   },
 
   /**
@@ -127,11 +130,39 @@ const match = {
   },
 
   /**
+   * @param {string|string[]|function(query:string|object):bool} query
    * @param {fastify.Request} request
-   * @return {bool}
+   * @return {object|null} query matched or null if don't match
    */
   requestQuery: function (query, request) {
-
+    if (query === '*') {
+      return request.query || null
+    }
+    if (query instanceof Array) {
+      if (query.length !== Object.keys(request.query).length) {
+        return null
+      }
+      const _query = {}
+      let _match
+      for (const _name of query) {
+        if (toolbox.util.isSet(request.query[_name])) {
+          _query[_name] = request.query[_name]
+          _match = true
+        } else {
+          return null
+        }
+      }
+      return _match ? _query : null
+    }
+    if (typeof query === 'string') {
+      if (toolbox.util.isSet(request.query[query])) {
+        return { [query]: request.query[query] }
+      }
+    }
+    if (query(request.query)) {
+      return request.query
+    }
+    return null
   },
 
   /**

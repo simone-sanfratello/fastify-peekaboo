@@ -37,9 +37,6 @@ const plugin = function (fastify, options, next) {
     if (!__options) {
       return
     }
-    if (__options.xheader) {
-      response.header('x-peekaboo', '*')
-    }
     const { hash, match: _match } = match.request(request, __options.matches)
     if (!hash) {
       return
@@ -47,6 +44,9 @@ const plugin = function (fastify, options, next) {
     response.res.peekaboo = { hash, match: _match }
     const _cached = await __storage.get(hash)
     if (_cached) {
+      if (__options.xheader) {
+        response.header('x-peekaboo', 'from-cache')
+      }
       response.res.peekaboo.sent = true
       for (const _name in _cached.headers) {
         response.header(_name, _cached.headers[_name])
