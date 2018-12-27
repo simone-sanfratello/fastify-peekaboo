@@ -95,10 +95,9 @@ type: `object`
 - `headers`   
   type: `string` or `string[]` or `function(headers:object):bool`   
   default: `undefined`  
-  match by headers
+  match by headers: will be cached only by matching headers, not by whole headers - otherwise, cache is not efficient: just considering for `user-agent` and `host`, cache is actually single client based, but you can do this if is what you want
 
   examples:
-  - `*` match considering all headers
   - [`accept-language`, `accept`] match considering these headers values
   - `cookie` match considering `cookie` header value: if `cookie` contains a token, the response will be de facto private
   - using `function`, cache will be used if function return `true` and will be cached by all headers

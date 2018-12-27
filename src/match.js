@@ -16,15 +16,12 @@ const match = {
         continue
       }
 
-      const _matching = {
-        method: request.req.method.toLowerCase()
-      }
+      const _matching = {}
 
       if (_rule.request.route) {
         if (!match.requestRoute(_rule.request.route, request.req)) {
           continue
         }
-        _matching.route = request.req.url
       }
 
       if (_rule.request.headers) {
@@ -52,7 +49,7 @@ const match = {
       }
 
       return {
-        hash: lib.hash(_matching),
+        hash: lib.hash(request, _matching),
         match: _rule
       }
     }

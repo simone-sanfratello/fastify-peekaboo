@@ -1,4 +1,5 @@
 const crypto = require('crypto')
+const url = require('url')
 
 const lib = {
   METHOD: {
@@ -18,9 +19,26 @@ const lib = {
     REDIS: 'redis'
   },
 
-  hash: function (input) {
+  hash: function (request, match) {
+    const _request = {
+      method: request.req.method,
+      route: new url.URL('http://host.url' + request.req.url).pathname
+    }
+    if (Object.keys(request.params).length) {
+      _request.params = request.params
+    }
+    if (Object.keys(request.query).length) {
+      _request.query = request.query
+    }
+    if (match.headers && Object.keys(match.headers).length) {
+      _request.headers = match.headers
+    }
+    if (request.body) {
+      // ??
+      _request.body = request.body
+    }
     return crypto.createHmac('sha256', '')
-      .update(JSON.stringify(input))
+      .update(JSON.stringify(_request))
       .digest('hex')
   }
 
