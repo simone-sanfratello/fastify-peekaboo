@@ -33,7 +33,7 @@ const match = {
       }
 
       if (_rule.request.body) {
-        const _body = match.requestBody(_rule.request.body, request.req)
+        const _body = match.requestBody(_rule.request.body, request)
         if (!_body) {
           continue
         }
@@ -119,11 +119,39 @@ const match = {
   },
 
   /**
+   * @param {string|string[]|function(body:string|object):bool} body
    * @param {fastify.Request} request
-   * @return {bool}
+   * @return {object|null} body matched or null if don't match
    */
   requestBody: function (body, request) {
-
+    if (body === '*') {
+      return request.body || null
+    }
+    if (body instanceof Array) {
+      if (body.length !== Object.keys(request.body).length) {
+        return null
+      }
+      const _body = {}
+      let _match
+      for (const _name of body) {
+        if (toolbox.util.isSet(request.body[_name])) {
+          _body[_name] = request.body[_name]
+          _match = true
+        } else {
+          return null
+        }
+      }
+      return _match ? _body : null
+    }
+    if (typeof body === 'string') {
+      if (toolbox.util.isSet(request.body[body])) {
+        return { [body]: request.body[body] }
+      }
+    }
+    if (body(request.body)) {
+      return request.body
+    }
+    return null
   },
 
   /**

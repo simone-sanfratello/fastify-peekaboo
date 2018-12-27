@@ -107,22 +107,6 @@ type: `object`
   }
   ```
 
-- `body`   
-  type: `string` or `string[]` or `function(body:string|object):bool`   
-  default: `undefined`  
-  match by body content (if any)
-
-  examples:
-  - `*` match considering whole body
-  - [`user`, `id`] match considering these body values, if body contains a JSON data
-  - `user` match considering only `user` value
-  - using `function`, cache will be used if function return `true` and will be cached by whole body
-  ```js
-  function(body) {
-    return body.indexOf('something') !== 0
-  }
-  ```
-
 - `query`   
   type: `string` or `string[]` or `function(query:string|object):bool`   
   default: `null`  
@@ -136,6 +120,22 @@ type: `object`
   ```js
   function(query) {
     return query.indexOf('page') !== 0
+  }
+  ```
+
+- `body`   
+  type: `string` or `string[]` or `function(body:string|object):bool`   
+  default: `undefined`  
+  match by body content (if any)
+
+  examples:
+  - `*` match considering whole body
+  - [`user`, `id`] match considering these body values, if body contains form data
+  - `user` match considering only `user` value
+  - using `function`, cache will be used if function return `true` and will be cached by whole body
+  ```js
+  function(body) {
+    return body.indexOf('something') !== 0
   }
   ```
 
@@ -259,6 +259,7 @@ See [documentation](./doc/README.md) for further informations and examples.
   - [ ] use random data from `faker` and|or `casual`
 - [ ] jsdoc
 - [ ] what if response is a stream?
+- [ ] on file upload?
 - [ ] validate options before plug
 - [ ] different storage, expire, xheader for each match
 - [ ] invalidate cache by hash
@@ -267,8 +268,9 @@ See [documentation](./doc/README.md) for further informations and examples.
 - [ ] test edge cases
   - [ ] querystring array or object
 - [ ] settings conflict detection 
-- [ ] benchmark with/without (autocannon?)
+- [ ] benchmark plugin overhead (autocannon?)
 - [ ] pre-packed settings (example graphql caching)
+- [ ] real application example: proxy server
 - [ ] review https://github.com/fastify/fastify/blob/master/docs/Write-Plugin.md
 - [ ] use other kyev supported storage (postgresql, mongo, mysql, sqlite)
 

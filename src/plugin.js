@@ -65,6 +65,9 @@ const plugin = function (fastify, options, next) {
       headers: {},
       body: response.peekaboo.body
     }
+    try {
+      _set.body = JSON.parse(_set.body)
+    } catch (error) {}
     const _headers = response._header
       .split('\r\n')
       .map((header) => {

@@ -34,7 +34,6 @@ const lib = {
       _request.headers = match.headers
     }
     if (request.body) {
-      // ??
       _request.body = request.body
     }
     return crypto.createHmac('sha256', '')
