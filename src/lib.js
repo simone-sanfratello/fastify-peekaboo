@@ -42,7 +42,7 @@ const lib = {
   },
 
   log: function (...args) {
-    console.log(...args)
+    // console.log(...args)
   }
 
 }

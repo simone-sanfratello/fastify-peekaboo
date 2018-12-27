@@ -1,6 +1,6 @@
 {
   "name": "fastify-peekaboo",
-  "version": "0.0.2-dev",
+  "version": "0.1.0-alpha",
   "dependencies": {
     "a-toolbox": "^1.5.6",
     "fast-deepclone": "^1.0.1",

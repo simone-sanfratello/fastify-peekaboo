@@ -50,13 +50,12 @@ _fastify.register(peekaboo, {
   })
   ```
 
-- cache route /content by params even if response is an error
+- cache route /content even if response is an error
   ```js 
   const match = {
     request: {
       methods: 'get',
-      route: '/content/:id',
-      params: '*'
+      route: '/content/',
     },
     response: {
       headers: {

@@ -9,7 +9,7 @@ fastify plugin for response caching
 
 ## Purpose
 
-Use arbitrary cache for serve response from previous elaborations, matching by request and response 
+Use arbitrary cache to serve response from previous elaborations, matching by request and response 
 
 ## Installing
 
@@ -42,6 +42,8 @@ _fastify.get('/home', async (request, response) => {
 
 await _fastify.listen(80)
 ```
+
+First call to `/home` will execute the handler and after will be served the same content from cache
 
 ## Settings
 
@@ -248,8 +250,7 @@ See [documentation](./doc/README.md) for further informations and examples.
 
 ## Changelog
 
-- **v. 1.0** | 2018-12-..  
-  release
+- **v. 0.1.0-alpha** [ 2018-12-27 ] alpha   
 
 ---
 
@@ -264,7 +265,7 @@ See [documentation](./doc/README.md) for further informations and examples.
 - [ ] on file upload?
 - [ ] validate options before plug
 - [ ] different storage, expire, xheader for each match
-- [ ] invalidate cache by hash
+- [ ] invalidate cache (by ...?)
 - [ ] verbosity (via fastify logger?)
 - [ ] expire can be a function(request, response)
 - [ ] test edge cases

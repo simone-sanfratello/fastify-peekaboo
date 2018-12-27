@@ -48,6 +48,7 @@ tap.test('peekaboo storage (file)',
     _test.pass()
   })
 
+/*
 tap.test('peekaboo storage (redis)',
   async (_test) => {
     _test.plan(2)
@@ -86,3 +87,4 @@ tap.test('peekaboo storage (redis)',
     _fastify.close()
     _test.pass()
   })
+*/

@@ -38,6 +38,7 @@ const plugin = function (fastify, options, next) {
   }
 
   const preHandler = async function (request, response) {
+    lib.log('plugin', 'preHandler')
     if (!__options) {
       return
     }
@@ -60,7 +61,22 @@ const plugin = function (fastify, options, next) {
     }
   }
 
+  const onSend = async function (request, response, payload) {
+    lib.log('plugin', 'onSend')
+    if (!response.res.peekaboo) {
+      return
+    }
+    const _peekaboo = response.res.peekaboo
+    if (!_peekaboo.sent && _peekaboo.match) {
+      _peekaboo.body = payload
+    } else {
+      delete response.res.peekaboo
+    }
+    return payload
+  }
+
   const onResponse = async function (response) {
+    lib.log('plugin', 'onResponse')
     if (!response.peekaboo) {
       return
     }
@@ -69,9 +85,7 @@ const plugin = function (fastify, options, next) {
       headers: {},
       body: response.peekaboo.body
     }
-    try {
-      _set.body = JSON.parse(_set.body)
-    } catch (error) {}
+
     const _headers = response._header
       .split('\r\n')
       .map((header) => {
@@ -92,23 +106,17 @@ const plugin = function (fastify, options, next) {
     for (const _header of _headers) {
       _set.headers[_header.key] = _header.value
     }
+
+    if (_set.headers['content-type'].indexOf('json') !== -1) {
+      try {
+        _set.body = JSON.parse(_set.body)
+      } catch (error) {}
+    }
+
     if (!match.response(_set, response.peekaboo.match)) {
       return
     }
     __storage.set(response.peekaboo.hash, _set)
-  }
-
-  const onSend = async function (request, response, payload) {
-    if (!response.res.peekaboo) {
-      return
-    }
-    const _peekaboo = response.res.peekaboo
-    if (!_peekaboo.sent && _peekaboo.match) {
-      _peekaboo.body = payload
-    } else {
-      delete response.res.peekaboo
-    }
-    // return payload
   }
 
   __init(options)
