@@ -72,7 +72,7 @@ type: `object`
   route to cache
 
   examples:
-  - `/home`
+  - `/home` (string)  
   - `$/users` (RegExp)
   - `$/user/[0-9]+^` (RegExp)
   - use cache if function return `true`  
