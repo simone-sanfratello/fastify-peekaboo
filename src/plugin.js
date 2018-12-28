@@ -1,4 +1,5 @@
 const package_ = require('../package.json')
+const stream = require('stream')
 const plug = require('fastify-plugin')
 const clone = require('fast-deepclone')
 const Storage = require('./storage')
@@ -38,7 +39,7 @@ const plugin = function (fastify, options, next) {
   }
 
   const preHandler = async function (request, response) {
-    lib.log('plugin', 'preHandler')
+    lib.log.track('plugin', 'preHandler', lib.log.request(request))
     if (!__options) {
       return
     }
@@ -62,13 +63,35 @@ const plugin = function (fastify, options, next) {
   }
 
   const onSend = async function (request, response, payload) {
-    lib.log('plugin', 'onSend')
+    lib.log.track('plugin', 'onSend', lib.log.request(request))
     if (!response.res.peekaboo) {
       return
     }
     const _peekaboo = response.res.peekaboo
     if (!_peekaboo.sent && _peekaboo.match) {
+      /*
+      if (payload.__proto__.constructor.name === 'DuplexWrapper') {
+        let _content = ''
+        _peekaboo.stream = new stream.Writable({
+          write: function (chunk, encoding, next) {
+            _content += chunk.toString()
+            next()
+          }
+        })
+        payload.pipe(_peekaboo.stream)
+        let done = new Promise((resolve, reject) => {
+          _peekaboo.stream.once('finish', resolve)
+          _peekaboo.stream.once('error', reject)
+          //          setTimeout(resolve, 100)
+        })
+        await done
+        console.log('done')
+        _peekaboo.body = async () => { return _content }
+        return _peekaboo.stream
+      } else {
+      */
       _peekaboo.body = payload
+      /* } */
     } else {
       delete response.res.peekaboo
     }
@@ -76,7 +99,7 @@ const plugin = function (fastify, options, next) {
   }
 
   const onResponse = async function (response) {
-    lib.log('plugin', 'onResponse')
+    lib.log.track('plugin', 'onResponse')
     if (!response.peekaboo) {
       return
     }
@@ -85,6 +108,8 @@ const plugin = function (fastify, options, next) {
       headers: {},
       body: response.peekaboo.body
     }
+
+    lib.log.track('plugin') //, 'body', _set.body)
 
     const _headers = response._header
       .split('\r\n')

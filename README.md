@@ -257,6 +257,7 @@ See [documentation](./doc/README.md) for further informations and examples.
 ## TODO
 
 - [ ] logs and verbosity (use fastify log system?)
+- [ ] stream support 
 - [ ] match route with fastify syntax
 - [ ] use tollo to run test
   - [ ] use random data from `faker` and|or `casual`

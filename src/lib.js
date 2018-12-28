@@ -41,8 +41,13 @@ const lib = {
       .digest('hex')
   },
 
-  log: function (...args) {
-    // console.log(...args)
+  log: {
+    track: function (...args) {
+      console.log(...args)
+    },
+    request: function (request) {
+      return request.req.url
+    }
   }
 
 }
