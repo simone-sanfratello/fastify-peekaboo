@@ -41,10 +41,12 @@ const lib = {
       .digest('hex')
   },
 
+  instanceOf (object) {
+    // eslint-disable-next-line
+    return object.__proto__.constructor.name
+  },
+
   log: {
-    track: function (...args) {
-      console.log(...args)
-    },
     request: function (request) {
       return request.req.url
     }

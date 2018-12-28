@@ -36,11 +36,12 @@ const plugin = function (fastify, options, next) {
       ...options
     }
     __storage = new Storage({ ...storage, expire })
+    // request.log.trace({ peekaboo: { init: { __options } } })
   }
 
   const preHandler = function (request, response, next) {
     (async () => {
-      lib.log.track('plugin', 'preHandler', lib.log.request(request))
+      request.log.trace({ peekaboo: { preHandler: { request: lib.log.request(request) } } })
       if (!__options) {
         next()
         return
@@ -87,42 +88,42 @@ const plugin = function (fastify, options, next) {
 
   const onSend = function (request, response, payload, next) {
     (async () => {
-      lib.log.track('plugin', 'onSend', lib.log.request(request), '...')
+      request.log.trace({ peekaboo: { onSend: { request: lib.log.request(request), message: '...' } } })
       if (!response.res.peekaboo) {
-        lib.log.track('plugin', 'onSend', lib.log.request(request), 'response has not to be cached')
+        request.log.trace({ peekaboo: { onSend: { request: lib.log.request(request), message: 'response has not to be cached' } } })
         next()
         return
       }
 
       const _peekaboo = response.res.peekaboo
       if (!_peekaboo.sent && _peekaboo.match) {
-        lib.log.track('plugin', 'onSend', lib.log.request(request), 'response has to be cached')
-        if (payload.__proto__.constructor.name === 'DuplexWrapper') {
+        request.log.trace({ peekaboo: { onSend: { request: lib.log.request(request), message: 'response has to be cached' } } })
+        if (['DuplexWrapper', 'ReadStream'].includes(lib.instanceOf(payload))) {
           _peekaboo.stream = true
-          lib.log.track('plugin', 'onSend', lib.log.request(request), 'response is a stream')
+          request.log.trace({ peekaboo: { onSend: { request: lib.log.request(request), message: 'response is a stream' } } })
           next(null, payload)
-          lib.log.track('plugin', 'onSend', lib.log.request(request), 'acquiring response stream')
+          request.log.trace({ peekaboo: { onSend: { request: lib.log.request(request), message: 'acquiring response stream' } } })
           _peekaboo.body = acquireStream(request, response, payload)
-          lib.log.track('plugin', 'onSend', lib.log.request(request), 'response stream acquired')
+          request.log.trace({ peekaboo: { onSend: { request: lib.log.request(request), message: 'response stream acquired' } } })
           return
         } else {
           _peekaboo.body = payload
-          lib.log.track('plugin', 'onSend', lib.log.request(request), 'response acquired')
+          request.log.trace({ peekaboo: { onSend: { request: lib.log.request(request), message: 'response acquired' } } })
         }
       } else {
         delete response.res.peekaboo
-        lib.log.track('plugin', 'onSend', lib.log.request(request), 'response sent from cache')
+        request.log.trace({ peekaboo: { onSend: { request: lib.log.request(request), message: 'response sent from cache' } } })
       }
-      lib.log.track('plugin', 'onSend', lib.log.request(request), 'done')
+      request.log.trace({ peekaboo: { onSend: { request: lib.log.request(request), message: 'done' } } })
       next(null, payload)
     })()
   }
 
   const onResponse = function (response, next) {
     (async () => {
-      lib.log.track('plugin', 'onResponse')
+      // request.log.trace('plugin', 'onResponse')
       if (!response.peekaboo) {
-        lib.log.track('plugin', 'onResponse', 'response has not to be cached')
+        // request.log.trace('plugin', 'onResponse', 'response has not to be cached')
         next()
         return
       }
@@ -155,7 +156,7 @@ const plugin = function (fastify, options, next) {
       }
 
       if (response.peekaboo.stream) {
-        lib.log.track('plugin', 'onResponse', 'response body content-type', _set.headers['content-type'])
+        // request.log.trace('plugin', 'onResponse', 'response body content-type', _set.headers['content-type'])
         // @todo _set.body = _set.body.toString(charset(_set.headers['content-type']) || 'utf8')
         if (contentTypeText(_set.headers['content-type'])) {
           _set.body = _set.body.toString('utf8')

@@ -22,6 +22,7 @@ npm i fastify-peekaboo
 ```js
 const fastify = require('fastify')
 const peekaboo = require('fastify-peekaboo')
+const fs = require('fs')
 
 const _fastify = fastify()
 _fastify.register(peekaboo, {
@@ -40,12 +41,15 @@ _fastify.get('/home', async (request, response) => {
   response.send(_home)
 })
 
+_fastify.get('/image', async (request, response) => {
+  response.send(fs.createReadStream('image.png'))
+})
+
 await _fastify.listen(80)
 ```
 
-First call to `/home` will execute the handler and after will be served the same content from cache
+First call to `/home` will execute the handler and after will be served the same content from cache; also works with streams
 
-#### working with streams
 
 ## Settings
 
@@ -61,8 +65,7 @@ Cache is based on matching resquest and response
   },
   storage: Storage,
   expire: number,
-  xheader: boolean,
-  log: boolean
+  xheader: boolean
 }
 ```
 
@@ -221,12 +224,6 @@ type: `boolean`
 default: `true`  
 add on response header `x-peekaboo` if response come from cache
 
-#### match.log
-
-type: `boolean`   
-default: `true`  
-enable log messages, using fastify logger
-
 ### default
 
 Default match: consider each match inherits default settings
@@ -251,6 +248,13 @@ Default match: consider each match inherits default settings
 }
 ```
 
+### Log
+
+To enable loggin just enable the `fastify` logging option like
+
+```js
+fastify({ logger: true })
+```
 
 ## Documentation
 
@@ -266,25 +270,30 @@ See [documentation](./doc/README.md) for further informations and examples.
 
 ## TODO
 
-- [ ] logs and verbosity (use fastify log system?)
-- [ ] match route with fastify syntax
+**v. 1.0**
+
 - [ ] use tollo to run test
   - [ ] use random data from `faker` and|or `casual`
 - [ ] jsdoc
-- [ ] what if response is a stream?
+- [ ] redis storage test
+
+**v. 1.1**
+
+- [ ] review https://github.com/fastify/fastify/blob/master/docs/Write-Plugin.md
+- [ ] match route with fastify syntax
 - [ ] on file upload?
-- [ ] validate options before plug
+
+**v. 1.2**
 - [ ] different storage, expire, xheader for each match
 - [ ] invalidate cache (by ...?)
-- [ ] verbosity (via fastify logger?)
 - [ ] expire can be a function(request, response)
 - [ ] test edge cases
   - [ ] querystring array or object
-- [ ] settings conflict detection 
+- [ ] validate options before plug
+  - [ ] settings conflict detection 
 - [ ] benchmark plugin overhead (autocannon?)
 - [ ] pre-packed settings (example graphql caching)
-- [ ] real application example: proxy server
-- [ ] review https://github.com/fastify/fastify/blob/master/docs/Write-Plugin.md
+- [ ] application example: proxy server
 - [ ] use other kyev supported storage (postgresql, mongo, mysql, sqlite)
 
 ---
