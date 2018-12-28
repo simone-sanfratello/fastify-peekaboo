@@ -6,7 +6,7 @@ const peekaboo = require('../src/plugin')
 
 tap.test('peekaboo with streams',
   async (_test) => {
-    _test.plan(2)
+    _test.plan(1)
     const _fastify = fastify()
     _fastify
       .register(peekaboo, {

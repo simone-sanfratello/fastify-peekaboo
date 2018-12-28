@@ -133,8 +133,6 @@ const plugin = function (fastify, options, next) {
         body: await response.peekaboo.body
       }
 
-      // lib.log.track('plugin') //, 'body', _set.body)
-
       const _headers = response._header
         .split('\r\n')
         .map((header) => {
@@ -159,7 +157,9 @@ const plugin = function (fastify, options, next) {
       if (response.peekaboo.stream) {
         lib.log.track('plugin', 'onResponse', 'response body content-type', _set.headers['content-type'])
         // @todo _set.body = _set.body.toString(charset(_set.headers['content-type']) || 'utf8')
-        _set.body = _set.body.toString('utf8')
+        if (contentTypeText(_set.headers['content-type'])) {
+          _set.body = _set.body.toString('utf8')
+        }
       }
 
       if (_set.headers['content-type'].indexOf('json') !== -1) {
@@ -198,6 +198,10 @@ const plugin = function (fastify, options, next) {
   fastify.addHook('onResponse', onResponse)
 
   next()
+}
+
+const contentTypeText = function (contentType) {
+  return contentType && contentType.indexOf('text') !== -1
 }
 
 module.exports = plug(plugin, {

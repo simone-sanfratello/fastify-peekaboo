@@ -14,7 +14,8 @@ const default_ = {
     config: {}
   },
   expire: 86400000, // 1 day in ms
-  xheader: true
+  xheader: true,
+  log: false
 }
 
 module.exports = default_

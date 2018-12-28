@@ -45,6 +45,8 @@ await _fastify.listen(80)
 
 First call to `/home` will execute the handler and after will be served the same content from cache
 
+#### working with streams
+
 ## Settings
 
 Cache is based on matching resquest and response
@@ -58,8 +60,9 @@ Cache is based on matching resquest and response
     response: Response
   },
   storage: Storage,
-  expire: number
-  xheader: boolean
+  expire: number,
+  xheader: boolean,
+  log: boolean
 }
 ```
 
@@ -128,7 +131,7 @@ type: `object`
   ```
 
 - `body`   
-  type: `string` or `string[]` or `function(body:string|object):bool`   
+  type: `string` or `string[]` or `function(body:string|object|Buffer):bool`   
   default: `undefined`  
   match by body content (if any)
 
@@ -136,7 +139,7 @@ type: `object`
   - `*` match considering whole body
   - [`user`, `id`] match considering these body values, if body contains form data
   - `user` match considering only `user` value
-  - `function` cache if function return `true`
+  - `function` cache if function return `true`; `body` can be a `string` or `object` or `Buffer` according to response  
   ```js
   function(body) {
     return body.indexOf('something') !== 0
@@ -215,7 +218,14 @@ cache expiration in ms
 #### match.xheader
 
 type: `boolean`   
-add on response header `x-peekaboo` if response come from cache (default `true`)
+default: `true`  
+add on response header `x-peekaboo` if response come from cache
+
+#### match.log
+
+type: `boolean`   
+default: `true`  
+enable log messages, using fastify logger
 
 ### default
 
@@ -257,7 +267,6 @@ See [documentation](./doc/README.md) for further informations and examples.
 ## TODO
 
 - [ ] logs and verbosity (use fastify log system?)
-- [ ] stream support 
 - [ ] match route with fastify syntax
 - [ ] use tollo to run test
   - [ ] use random data from `faker` and|or `casual`
