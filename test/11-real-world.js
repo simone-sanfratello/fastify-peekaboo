@@ -6,7 +6,7 @@ const peekaboo = require('../src/plugin')
 
 tap.test('peekaboo with streams',
   async (_test) => {
-    _test.plan(1)
+    _test.plan(2)
     const _fastify = fastify()
     _fastify
       .register(peekaboo, {
@@ -20,8 +20,11 @@ tap.test('peekaboo with streams',
       })
 
     _fastify.get('/google', async (request, response) => {
-      response.send((await got('https://www.google.com')).body)
-      // response.send(got.stream('https://www.google.com'))
+      response.send(got.stream('https://www.google.com'))
+    })
+
+    _fastify.get('/image', async (request, response) => {
+      response.send(got.stream('https://braceslab.com/img/header.jpg'))
     })
 
     try {
@@ -33,12 +36,20 @@ tap.test('peekaboo with streams',
       await got(_url)
       let _response = await got(_url)
       if (!_response.headers['x-peekaboo']) {
-        _test.fail('not using cache')
+        _test.fail('should use cache, but it doesnt')
+      }
+
+      _url = `http://127.0.0.1:${_port}/image`
+      await got(_url)
+      _response = await got(_url)
+      if (!_response.headers['x-peekaboo']) {
+        _test.fail('should use cache, but it doesnt')
       }
 
       _fastify.close()
       _test.pass()
     } catch (error) {
+      console.error(error)
       _test.threw(error)
     }
   })
