@@ -130,7 +130,7 @@ const plugin = function (fastify, options, next) {
 }
 
 module.exports = plug(plugin, {
-  fastify: '1.13.3', // @see package_.devDependencies.fastify,
+  fastify: '1', // @see package_.devDependencies.fastify,
   name: package_.name
 })
 

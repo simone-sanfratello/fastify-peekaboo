@@ -240,7 +240,15 @@ const match = {
    * @return {bool}
    */
   responseBody: function (body, data) {
-
+    if (typeof body === 'function') {
+      return body(data.body)
+    }
+    for (const _name in body) {
+      if (body[_name] !== data.body[_name]) {
+        return false
+      }
+    }
+    return true
   }
 }
 

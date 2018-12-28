@@ -97,12 +97,12 @@ type: `object`
 - `headers`   
   type: `string` or `string[]` or `function(headers:object):string[]`   
   default: `undefined`  
-  match by headers: will be cached only by matching headers, not by whole headers - otherwise, cache is not efficient: just considering for `user-agent` and `host`, cache is actually single client based, but you can do this if is what you want
+  match by headers: will be cached only by matching headers, not by whole headers - otherwise, cache is not efficient: just considering for `user-agent` and `host`, cache is actually single client based (but you can do that if is what you want)
 
   examples:
   - [`authorization`, `cookie`] match considering only these headers values
   - `authorization` match considering `authorization` header value: if `authorization` contains a token, the response will be de facto private
-  - using `function`, cache will be used if function return an array of headers names that will be used for identify the cache
+  - `function` cache if function return an array of headers names that will be used for identify the cache
   ```js
   function(headers) {
     if(headers.authentication) {
@@ -120,7 +120,7 @@ type: `object`
   - `*` match considering whole query
   - [`page`, `filter`] match considering these query values
   - `page` match considering only `user` value
-  - using `function`, cache will be used if function return `true` and will be cached by whole query
+  - `function` cache if function return `true`
   ```js
   function(query) {
     return query.indexOf('page') !== 0
@@ -136,7 +136,7 @@ type: `object`
   - `*` match considering whole body
   - [`user`, `id`] match considering these body values, if body contains form data
   - `user` match considering only `user` value
-  - using `function`, cache will be used if function return `true` and will be cached by whole body
+  - `function` cache if function return `true`
   ```js
   function(body) {
     return body.indexOf('something') !== 0
