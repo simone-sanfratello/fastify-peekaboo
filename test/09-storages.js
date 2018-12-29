@@ -91,3 +91,7 @@ tap.test('peekaboo storage (redis)',
     _fastify.close()
     _test.pass()
   })
+  .then(() => {
+  // ! issue on redis client, doesn't close connection on quit
+    process.exit(0)
+  })

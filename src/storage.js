@@ -12,7 +12,7 @@ const lib = require('./lib')
  * @param {peekaboo.STORAGE} [options.type=lib.STORAGE.MEMORY]
  * @param {number} [options.expire=60000] 1 min
  */
-const Storage = function (options) {
+const Storage = function (options, fastify) {
   let __storage
 
   const __init = function (options) {
@@ -39,6 +39,11 @@ const Storage = function (options) {
         __storage.on('error', (error) => {
           // @todo logger.error
           console.error(error)
+        })
+        fastify.addHook('onClose', (instance, done) => {
+          // @todo not working
+          // @see https://github.com/lukechilds/keyv-redis/issues/12
+          __storage.opts.store.closeConnection && __storage.opts.store.closeConnection()
         })
         break
       case lib.STORAGE.MEMORY:

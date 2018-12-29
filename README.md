@@ -261,6 +261,10 @@ fastify({ logger: true })
 
 See [documentation](./doc/README.md) for further informations and examples.
 
+## Known Issues
+
+Due to [`keys-redis` does not close connection](https://github.com/lukechilds/keyv-redis/issues/12), if you use `redis` storage you have to stop the process manually (process.exit for example)
+
 ---
 
 ## Changelog

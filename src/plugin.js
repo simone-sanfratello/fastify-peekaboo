@@ -35,7 +35,7 @@ const plugin = function (fastify, options, next) {
       expire: defaultSettings.expire,
       ...options
     }
-    __storage = new Storage({ ...storage, expire })
+    __storage = new Storage({ ...storage, expire }, fastify)
     // request.log.trace({ peekaboo: { init: { __options } } })
   }
 
@@ -180,6 +180,7 @@ const plugin = function (fastify, options, next) {
   /**
    * @todo memoize
    */
+  /*
   const charset = function (contentType) {
     if (!contentType || !contentType.indexOf('charset=')) {
       return
@@ -191,6 +192,7 @@ const plugin = function (fastify, options, next) {
     // 8 is charset length
     return contentType.substring(_index + 8)
   }
+  */
 
   __init(options)
   // fastify.decorateReply('peekaboo', {})
