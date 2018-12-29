@@ -1,6 +1,6 @@
 ### Examples
 
-Init
+Setup and run
 
 ```js
 const fastify = require('fastify')
@@ -9,7 +9,7 @@ const peekaboo = require('fastify-peekaboo')
 const _fastify = fastify()
 _fastify.register(peekaboo, {
   matches: [
-    // match, see below
+    // list of matches, see below
   ]}
 )
 ```
@@ -109,7 +109,7 @@ _fastify.register(peekaboo, {
   const match = {
     request: {
       methods: 'put',
-      route: '/content/:id',
+      route: '/content/',
       body: '*'
     }
   }

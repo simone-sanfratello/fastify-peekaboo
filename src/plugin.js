@@ -57,6 +57,7 @@ const plugin = function (fastify, options, next) {
         next()
         return
       }
+      request.log.trace({ peekaboo: { preHandler: { request: lib.log.request(request), message: 'serve response from cache' } } })
       if (__options.xheader) {
         response.header('x-peekaboo', 'from-cache')
       }

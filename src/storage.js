@@ -34,7 +34,13 @@ const Storage = function (options) {
           })
         })
         break
-      // @todo lib.STORAGE.REDIS
+      case lib.STORAGE.REDIS:
+        __storage = new Keyv(options.config.connection)
+        __storage.on('error', (error) => {
+          // @todo logger.error
+          console.error(error)
+        })
+        break
       case lib.STORAGE.MEMORY:
       default:
         __storage = new Keyv()

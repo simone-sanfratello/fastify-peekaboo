@@ -48,7 +48,6 @@ tap.test('peekaboo storage (file)',
     _test.pass()
   })
 
-/*
 tap.test('peekaboo storage (redis)',
   async (_test) => {
     _test.plan(2)
@@ -56,10 +55,15 @@ tap.test('peekaboo storage (redis)',
     _fastify
       .register(peekaboo, {
         xheader: true,
+        matches: [{
+          methods: '*',
+          route: '/'
+        }],
+        expire: 5 * 60 * 1000,
         storage: {
           mode: 'redis',
           config: {
-            connection: 'redis://user:pass@localhost:6379'
+            connection: 'redis://localhost:6379'
           }
         }
       })
@@ -74,8 +78,8 @@ tap.test('peekaboo storage (redis)',
 
     try {
       let _url = `http://127.0.0.1:${_port}/`
-      await got(_url)
       let _response = await got(_url)
+      _response = await got(_url)
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
@@ -87,4 +91,3 @@ tap.test('peekaboo storage (redis)',
     _fastify.close()
     _test.pass()
   })
-*/

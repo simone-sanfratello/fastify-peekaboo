@@ -38,7 +38,6 @@ tap.test('peekaboo with streams',
       _fastify.server.unref()
       const _port = _fastify.server.address().port
 
-      /*
       let _url = `http://127.0.0.1:${_port}/google`
       await got(_url)
       let _response = await got(_url)
@@ -52,11 +51,10 @@ tap.test('peekaboo with streams',
       if (!_response.headers['x-peekaboo']) {
         _test.fail('should use cache, but it doesnt')
       }
-      */
 
-      let _url = `http://127.0.0.1:${_port}/local/image`
+      _url = `http://127.0.0.1:${_port}/local/image`
       await got(_url)
-      let _response = await got(_url)
+      _response = await got(_url)
       if (!_response.headers['x-peekaboo']) {
         _test.fail('should use cache, but it doesnt')
       }

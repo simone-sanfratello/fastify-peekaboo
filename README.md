@@ -29,8 +29,8 @@ _fastify.register(peekaboo, {
   matches: [
     {
       request: {
-        methods: 'get',
-        route: '/home'
+        methods: '*',
+        route: '/'
       }
     }
   ]
@@ -48,8 +48,9 @@ _fastify.get('/image', async (request, response) => {
 await _fastify.listen(80)
 ```
 
-First call to `/home` will execute the handler and after will be served the same content from cache; also works with streams
+First call to `/home` or `/image` will execute the handler; from second time content will be served from cache without re-elaborate.
 
+Cache storage can be `memory` (ram), `fs` or `redis`.
 
 ## Settings
 
