@@ -5,7 +5,7 @@
 [![JS Standard Style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
 [![Build Status](https://travis-ci.org/braceslab/fastify-peekaboo.svg?branch=master)](https://travis-ci.org/braceslab/fastify-peekaboo)
 
-fastify plugin for response caching
+fastify plugin for memoize response
 
 ## Purpose
 
@@ -54,7 +54,7 @@ Cache storage can be `memory` (ram), `fs` or `redis`.
 
 ## Settings
 
-Cache is based on matching resquest and response
+Cache works by matching request and response
 
 ### match schema
 
@@ -277,29 +277,32 @@ Due to [`keys-redis` does not close connection](https://github.com/lukechilds/ke
 
 **v. 1.0**
 
+- [ ] real world examples
 - [ ] use tollo to run test
   - [ ] use random data from `faker` and|or `casual`
 - [ ] jsdoc
-- [ ] redis storage test
+- [ ] validate options before plug
+  - [ ] settings conflict detection
+  - [ ] send warnings/errors
+- [ ] doc review
 
 **v. 1.1**
 
-- [ ] review https://github.com/fastify/fastify/blob/master/docs/Write-Plugin.md
 - [ ] match route with fastify syntax
+- [ ] benchmark plugin overhead (autocannon?)
+  - [ ] benchmark with different storages
 - [ ] on file upload?
+- [ ] test edge cases
+  - [ ] querystring array or object
 
-**v. 1.2**
+**v. 1.3**
+- [ ] pre-packed settings (example graphql caching)
+- [ ] CI travis
+
+**v. 1.4**
 - [ ] different storage, expire, xheader for each match
 - [ ] invalidate cache (by ...?)
 - [ ] expire can be a function(request, response)
-- [ ] test edge cases
-  - [ ] querystring array or object
-- [ ] validate options before plug
-  - [ ] settings conflict detection 
-- [ ] benchmark plugin overhead (autocannon?)
-- [ ] pre-packed settings (example graphql caching)
-- [ ] application example: proxy server
-- [ ] use other kyev supported storage (postgresql, mongo, mysql, sqlite)
 
 ---
 

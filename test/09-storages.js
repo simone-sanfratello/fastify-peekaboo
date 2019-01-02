@@ -36,8 +36,8 @@ tap.test('peekaboo storage (file)',
       let _url = `http://127.0.0.1:${_port}/`
       await got(_url)
       let _response = await got(_url)
-      if (!_response.headers['x-peekaboo']) {
-        _test.fail()
+      if (_response.headers['x-peekaboo'] !== 'from-cache-fs') {
+        _test.fail('should use cache fs, but it doesnt')
       }
       _test.equal(_response.body, 'response')
     } catch (error) {
@@ -80,8 +80,8 @@ tap.test('peekaboo storage (redis)',
       let _url = `http://127.0.0.1:${_port}/`
       let _response = await got(_url)
       _response = await got(_url)
-      if (!_response.headers['x-peekaboo']) {
-        _test.fail()
+      if (_response.headers['x-peekaboo'] !== 'from-cache-redis') {
+        _test.fail('should use cache redis, but it doesnt')
       }
       _test.equal(_response.body, 'response')
     } catch (error) {
