@@ -17,3 +17,5 @@
 *._*
 .*.swp
 .~*
+
+package-lock.json
