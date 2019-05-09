@@ -120,7 +120,7 @@ const plugin = function (fastify, options, next) {
     })()
   }
 
-  const onResponse = function (response, next) {
+  const onResponse = function (request, response, next) {
     (async () => {
       // request.log.trace('plugin', 'onResponse')
       if (!response.peekaboo) {
@@ -209,7 +209,7 @@ const contentTypeText = function (contentType) {
 }
 
 module.exports = plug(plugin, {
-  fastify: '1',
+  fastify: '2',
   name: package_.name
 })
 
