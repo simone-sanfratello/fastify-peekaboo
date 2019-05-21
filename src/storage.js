@@ -1,5 +1,6 @@
 const Keyv = require('keyv')
 const KeyvFile = require('keyv-file')
+const KeyvRedis = require('keyv-redis')
 const uuid = require('uuid/v4')
 const path = require('path')
 const lib = require('./lib')
@@ -35,15 +36,16 @@ const Storage = function (options, fastify) {
         })
         break
       case lib.STORAGE.REDIS:
-        __storage = new Keyv(options.config.connection)
+        const _client = new KeyvRedis(options.config.connection)
+        __storage = new Keyv({ store: _client })
         __storage.on('error', (error) => {
           // @todo logger.error
           console.error(error)
         })
         fastify.addHook('onClose', (instance, done) => {
-          // @todo not working
           // @see https://github.com/lukechilds/keyv-redis/issues/12
-          __storage.opts.store.closeConnection && __storage.opts.store.closeConnection()
+          _client.redis.quit()
+          done()
         })
         break
       case lib.STORAGE.MEMORY:

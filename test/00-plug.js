@@ -11,14 +11,18 @@ tap.test('peekaboo plugin is loaded',
     await _fastify
       .register(peekaboo)
       .ready()
-    _fastify.close()
+    await _fastify.close()
     _test.pass(_fastify.peekaboo)
   })
 
 tap.test('peekaboo plugin is working (basic match)',
   async (_test) => {
     _test.plan(1)
-    const _fastify = fastify()
+    const _fastify = fastify({
+      logger: {
+        level: 'trace'
+      }
+    })
     _fastify
       .register(peekaboo, {
         xheader: true,
@@ -44,7 +48,7 @@ tap.test('peekaboo plugin is working (basic match)',
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
-      _fastify.close()
+      await _fastify.close()
       _test.pass()
     } catch (error) {
       _test.threw(error)
@@ -79,7 +83,7 @@ tap.test('peekaboo plugin is working (default settings)',
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
-      _fastify.close()
+      await _fastify.close()
       _test.pass()
     } catch (error) {
       _test.threw(error)

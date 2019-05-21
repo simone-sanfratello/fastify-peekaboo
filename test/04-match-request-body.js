@@ -49,7 +49,7 @@ tap.test('peekaboo matching by request body (*)',
       }
       _test.same(_response.body, { error: false, name: 'Alice' })
 
-      _fastify.close()
+      await _fastify.close()
       _test.pass()
     } catch (error) {
       _test.threw(error)
@@ -97,7 +97,7 @@ tap.test('peekaboo matching by request body (string)',
       }
       _test.same(_response.body, { error: false })
 
-      _fastify.close()
+      await _fastify.close()
       _test.pass()
     } catch (error) {
       _test.threw(error)
@@ -153,7 +153,7 @@ tap.test('peekaboo matching by request body (array)',
       }
       _test.same(_response.body, { error: false, id: 8, name: 'Mimì' })
 
-      _fastify.close()
+      await _fastify.close()
       _test.pass()
     } catch (error) {
       _test.threw(error)
@@ -207,7 +207,7 @@ tap.test('peekaboo matching by request body (function)',
         _test.fail()
       }
 
-      _fastify.close()
+      await _fastify.close()
       _test.pass()
     } catch (error) {
       _test.threw(error)

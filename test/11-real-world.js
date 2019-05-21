@@ -59,7 +59,7 @@ tap.test('peekaboo with streams',
         _test.fail('should use cache, but it doesnt')
       }
 
-      _fastify.close()
+      await _fastify.close()
       _test.pass()
     } catch (error) {
       console.error(error)

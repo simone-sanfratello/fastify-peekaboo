@@ -51,7 +51,7 @@ tap.test('peekaboo matching by response headers (object)',
         _test.fail()
       }
 
-      _fastify.close()
+      await _fastify.close()
       _test.pass()
     } catch (error) {
       _test.threw(error)
@@ -107,7 +107,7 @@ tap.test('peekaboo matching by response headers (function)',
         _test.fail()
       }
 
-      _fastify.close()
+      await _fastify.close()
       _test.pass()
     } catch (error) {
       _test.threw(error)

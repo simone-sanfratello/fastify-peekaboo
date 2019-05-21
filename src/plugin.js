@@ -51,9 +51,11 @@ const plugin = function (fastify, options, next) {
         next()
         return
       }
+      request.log.trace({ peekaboo: { preHandler: { request: lib.log.request(request), message: 'will use cache' } } })
       response.res.peekaboo = { hash, match: _match }
       const _cached = await __storage.get(hash)
       if (!_cached) {
+        request.log.trace({ peekaboo: { preHandler: { request: lib.log.request(request), message: 'still not cached' } } })
         next()
         return
       }
@@ -123,7 +125,7 @@ const plugin = function (fastify, options, next) {
   const onResponse = function (request, response, next) {
     (async () => {
       // request.log.trace('plugin', 'onResponse')
-      if (!response.peekaboo) {
+      if (!response.res.peekaboo) {
         // request.log.trace('plugin', 'onResponse', 'response has not to be cached')
         next()
         return
@@ -132,10 +134,10 @@ const plugin = function (fastify, options, next) {
       const _set = {
         code: null,
         headers: {},
-        body: await response.peekaboo.body
+        body: await response.res.peekaboo.body
       }
 
-      const _headers = response._header
+      const _headers = response.res._header
         .split('\r\n')
         .map((header) => {
           const [ key, value ] = header.split(':')
@@ -156,7 +158,7 @@ const plugin = function (fastify, options, next) {
         _set.headers[_header.key] = _header.value
       }
 
-      if (response.peekaboo.stream) {
+      if (response.res.peekaboo.stream) {
         // request.log.trace('plugin', 'onResponse', 'response body content-type', _set.headers['content-type'])
         // @todo _set.body = _set.body.toString(charset(_set.headers['content-type']) || 'utf8')
         if (contentTypeText(_set.headers['content-type'])) {
@@ -170,8 +172,8 @@ const plugin = function (fastify, options, next) {
         } catch (error) {}
       }
 
-      if (match.response(_set, response.peekaboo.match)) {
-        await __storage.set(response.peekaboo.hash, _set)
+      if (match.response(_set, response.res.peekaboo.match)) {
+        await __storage.set(response.res.peekaboo.hash, _set)
       }
       next()
     })()

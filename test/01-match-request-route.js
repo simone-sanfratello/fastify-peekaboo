@@ -45,7 +45,7 @@ tap.test('peekaboo matching by request route (string)',
       _test.pass()
     }
 
-    _fastify.close()
+    await _fastify.close()
     _test.pass()
   })
 
@@ -90,7 +90,7 @@ tap.test('peekaboo matching by request route (RegExp)',
       _test.pass()
     }
 
-    _fastify.close()
+    await _fastify.close()
     _test.pass()
   })
 
@@ -145,6 +145,6 @@ tap.test('peekaboo matching by request route (function)',
       _test.pass()
     }
 
-    _fastify.close()
+    await _fastify.close()
     _test.pass()
   })

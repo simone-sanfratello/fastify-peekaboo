@@ -57,7 +57,7 @@ tap.test('peekaboo matching by request methods (*)',
       _test.pass()
     }
 
-    _fastify.close()
+    await _fastify.close()
     _test.pass()
   })
 
@@ -118,6 +118,6 @@ tap.test('peekaboo matching by request methods (string)',
       _test.pass()
     }
 
-    _fastify.close()
+    await _fastify.close()
     _test.pass()
   })

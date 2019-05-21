@@ -44,7 +44,7 @@ tap.test('peekaboo matching by request query (*)',
       }
       _test.equal(_response.body, '{"q":"1","p":"0"}')
 
-      _fastify.close()
+      await _fastify.close()
       _test.pass()
     } catch (error) {
       _test.threw(error)
@@ -91,7 +91,7 @@ tap.test('peekaboo matching by request query (string)',
       }
       _test.equal(_response.body, '{"param":"value2"}')
 
-      _fastify.close()
+      await _fastify.close()
       _test.pass()
     } catch (error) {
       _test.threw(error)
@@ -144,7 +144,7 @@ tap.test('peekaboo matching by request query (array)',
         _test.fail()
       }
 
-      _fastify.close()
+      await _fastify.close()
       _test.pass()
     } catch (error) {
       _test.threw(error)
@@ -205,7 +205,7 @@ tap.test('peekaboo matching by request query (function)',
         _test.fail()
       }
 
-      _fastify.close()
+      await _fastify.close()
       _test.pass()
     } catch (error) {
       _test.threw(error)

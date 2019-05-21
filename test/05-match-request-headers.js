@@ -45,7 +45,7 @@ tap.test('peekaboo matching by request headers (string)',
         _test.fail()
       }
 
-      _fastify.close()
+      await _fastify.close()
       _test.pass()
     } catch (error) {
       _test.threw(error)
@@ -105,7 +105,7 @@ tap.test('peekaboo matching by request headers (array)',
       }
       _test.equal(_response.body, 'ok ' + headers.cookie)
 
-      _fastify.close()
+      await _fastify.close()
       _test.pass()
     } catch (error) {
       _test.threw(error)
@@ -161,7 +161,7 @@ tap.test('peekaboo matching by request headers (function)',
       }
       _test.equal(_response.body, 'ciao')
 
-      _fastify.close()
+      await _fastify.close()
       _test.pass()
     } catch (error) {
       _test.threw(error)

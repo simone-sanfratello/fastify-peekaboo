@@ -1,4 +1,3 @@
-/*
 const tap = require('tap')
 const fastify = require('fastify')
 const got = require('got')
@@ -45,7 +44,7 @@ tap.test('peekaboo storage (file)',
       _test.threw(error)
     }
 
-    _fastify.close()
+    await _fastify.close()
     _test.pass()
   })
 
@@ -89,11 +88,10 @@ tap.test('peekaboo storage (redis)',
       _test.threw(error)
     }
 
-    _fastify.close()
+    await _fastify.close()
     _test.pass()
   })
   .then(() => {
   // ! issue on redis client, doesn't close connection on quit
     process.exit(0)
   })
-*/
