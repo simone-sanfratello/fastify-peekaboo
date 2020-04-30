@@ -34,20 +34,20 @@ tap.test('peekaboo matching by request body (*)',
       const _port = _fastify.server.address().port
 
       let _url = `http://127.0.0.1:${_port}/update`
-      await got.post(_url, { body: { id: 11 }, json: true })
-      let _response = await got.post(_url, { body: { id: 11 }, json: true })
+      await got.post(_url, { json: { id: 11 } })
+      let _response = await got.post(_url, { json: { id: 11 } })
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
-      _test.same(_response.body, { error: false, id: 11 })
+      _test.same(JSON.parse(_response.body), { error: false, id: 11 })
 
       _url = `http://127.0.0.1:${_port}/update`
-      await got.post(_url, { body: { id: 11, name: 'Alice' }, json: true })
-      _response = await got.post(_url, { body: { id: 11, name: 'Alice' }, json: true })
+      await got.post(_url, { json: { id: 11, name: 'Alice' } })
+      _response = await got.post(_url, { json: { id: 11, name: 'Alice' } })
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
-      _test.same(_response.body, { error: false, name: 'Alice' })
+      _test.same(JSON.parse(_response.body), { error: false, name: 'Alice' })
 
       await _fastify.close()
       _test.pass()
@@ -82,20 +82,20 @@ tap.test('peekaboo matching by request body (string)',
       const _port = _fastify.server.address().port
 
       let _url = `http://127.0.0.1:${_port}/update/user`
-      await got.post(_url, { body: { id: 9 }, json: true })
-      let _response = await got.post(_url, { body: { id: 9 }, json: true })
+      await got.post(_url, { json: { id: 9 } })
+      let _response = await got.post(_url, { json: { id: 9 } })
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
-      _test.same(_response.body, { error: false, id: 9 })
+      _test.same(JSON.parse(_response.body), { error: false, id: 9 })
 
       _url = `http://127.0.0.1:${_port}/update/user`
-      await got.post(_url, { body: { name: 'Alice' }, json: true })
-      _response = await got.post(_url, { body: { name: 'Alice' }, json: true })
+      await got.post(_url, { json: { name: 'Alice' } })
+      _response = await got.post(_url, { json: { name: 'Alice' } })
       if (_response.headers['x-peekaboo']) {
         _test.fail()
       }
-      _test.same(_response.body, { error: false })
+      _test.same(JSON.parse(_response.body), { error: false })
 
       await _fastify.close()
       _test.pass()
@@ -130,28 +130,28 @@ tap.test('peekaboo matching by request body (array)',
       const _port = _fastify.server.address().port
 
       let _url = `http://127.0.0.1:${_port}/update/user`
-      await got.post(_url, { body: { id: 9 }, json: true })
-      let _response = await got.post(_url, { body: { id: 9 }, json: true })
+      await got.post(_url, { json: { id: 9 } })
+      let _response = await got.post(_url, { json: { id: 9 } })
       if (_response.headers['x-peekaboo']) {
         _test.fail()
       }
-      _test.same(_response.body, { error: false, id: 9 })
+      _test.same(JSON.parse(_response.body), { error: false, id: 9 })
 
       _url = `http://127.0.0.1:${_port}/update/user`
-      await got.post(_url, { body: { name: 'Alice' }, json: true })
-      _response = await got.post(_url, { body: { name: 'Alice' }, json: true })
+      await got.post(_url, { json: { name: 'Alice' } })
+      _response = await got.post(_url, { json: { name: 'Alice' } })
       if (_response.headers['x-peekaboo']) {
         _test.fail()
       }
-      _test.same(_response.body, { error: false, name: 'Alice' })
+      _test.same(JSON.parse(_response.body), { error: false, name: 'Alice' })
 
       _url = `http://127.0.0.1:${_port}/update/user`
-      await got.post(_url, { body: { id: 8, name: 'Mimì' }, json: true })
-      _response = await got.post(_url, { body: { id: 8, name: 'Mimì' }, json: true })
+      await got.post(_url, { json: { id: 8, name: 'Mimì' } })
+      _response = await got.post(_url, { json: { id: 8, name: 'Mimì' } })
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
-      _test.same(_response.body, { error: false, id: 8, name: 'Mimì' })
+      _test.same(JSON.parse(_response.body), { error: false, id: 8, name: 'Mimì' })
 
       await _fastify.close()
       _test.pass()
@@ -201,8 +201,8 @@ tap.test('peekaboo matching by request body (function)',
       }
 
       _url = `http://127.0.0.1:${_port}/update/user`
-      await got.put(_url, { body: { name: 'Alice' }, json: true })
-      _response = await got.put(_url, { body: { name: 'Alice' }, json: true })
+      await got.put(_url, { json: { name: 'Alice' } })
+      _response = await got.put(_url, { json: { name: 'Alice' } })
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }

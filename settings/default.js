@@ -4,8 +4,8 @@ const default_ = {
       methods: 'get'
     },
     response: {
+      status: 200,
       headers: {
-        status: 200
       }
     }
   },

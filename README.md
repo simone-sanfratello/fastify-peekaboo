@@ -265,6 +265,9 @@ See [documentation](./doc/README.md) for further informations and examples.
 
 ## Changelog
 
+- **v. 0.5.0-beta** [ 2020-04-30 ] beta   
+  - upgrade dependencies
+
 - **v. 0.4.0-beta** [ 2019-05-21 ] beta   
   - upgrade to `fastify v.2`
   - fix redis connection close (by fork to keyv redis adapter https://github.com/simone-sanfratello/keyv-redis)

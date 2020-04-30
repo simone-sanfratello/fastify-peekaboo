@@ -153,7 +153,7 @@ tap.test('peekaboo matching by request headers (function)',
       _test.equal(_response.body, 'hello')
 
       _url = `http://127.0.0.1:${_port}/`
-      let headers = { 'accept-language': 'en-US,en;q=0.9,it;q=0.8,la;q=0.7' }
+      const headers = { 'accept-language': 'en-US,en;q=0.9,it;q=0.8,la;q=0.7' }
       await got(_url, { headers })
       _response = await got(_url, { headers })
       if (!_response.headers['x-peekaboo']) {

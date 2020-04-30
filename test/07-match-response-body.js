@@ -37,9 +37,9 @@ tap.test('peekaboo matching by response body (object)',
     const _port = _fastify.server.address().port
 
     try {
-      let _url = `http://127.0.0.1:${_port}/user/1012`
+      const _url = `http://127.0.0.1:${_port}/user/1012`
       await got(_url)
-      let _response = await got(_url)
+      const _response = await got(_url)
       if (!_response.headers['x-peekaboo']) {
         _test.fail('not response from cache')
       }
@@ -48,16 +48,14 @@ tap.test('peekaboo matching by response body (object)',
     }
 
     try {
-      let _url = `http://127.0.0.1:${_port}/admin`
+      const _url = `http://127.0.0.1:${_port}/admin`
       await got(_url)
     } catch (error) {}
-    try {
-      let _url = `http://127.0.0.1:${_port}/admin`
-      await got(_url)
-    } catch (response) {
-      if (response.headers['x-peekaboo']) {
-        _test.fail('response from cache')
-      }
+
+    const _url = `http://127.0.0.1:${_port}/admin`
+    const _response = await got(_url, { throwHttpErrors: false })
+    if (_response.headers['x-peekaboo']) {
+      _test.fail('response from cache')
     }
 
     await _fastify.close()
@@ -103,9 +101,9 @@ tap.test('peekaboo matching by response body (function)',
     const _port = _fastify.server.address().port
 
     try {
-      let _url = `http://127.0.0.1:${_port}/content`
+      const _url = `http://127.0.0.1:${_port}/content`
       await got(_url)
-      let _response = await got(_url)
+      const _response = await got(_url)
       if (!_response.headers['x-peekaboo']) {
         _test.fail('not response from cache')
       }
@@ -114,9 +112,9 @@ tap.test('peekaboo matching by response body (function)',
     }
 
     try {
-      let _url = `http://127.0.0.1:${_port}/user/1012`
+      const _url = `http://127.0.0.1:${_port}/user/1012`
       await got(_url)
-      let _response = await got(_url)
+      const _response = await got(_url)
       if (_response.headers['x-peekaboo']) {
         _test.fail('response from cache')
       }
@@ -125,9 +123,9 @@ tap.test('peekaboo matching by response body (function)',
     }
 
     try {
-      let _url = `http://127.0.0.1:${_port}/admin`
+      const _url = `http://127.0.0.1:${_port}/admin`
       await got(_url)
-      let _response = await got(_url)
+      const _response = await got(_url)
       if (_response.headers['x-peekaboo']) {
         _test.fail('response from cache')
       }

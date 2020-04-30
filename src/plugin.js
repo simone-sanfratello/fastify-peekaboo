@@ -101,7 +101,7 @@ const plugin = function (fastify, options, next) {
       const _peekaboo = response.res.peekaboo
       if (!_peekaboo.sent && _peekaboo.match) {
         request.log.trace({ peekaboo: { onSend: { request: lib.log.request(request), message: 'response has to be cached' } } })
-        if (['DuplexWrapper', 'ReadStream'].includes(lib.instanceOf(payload))) {
+        if (lib.isStream(payload)) {
           _peekaboo.stream = true
           request.log.trace({ peekaboo: { onSend: { request: lib.log.request(request), message: 'response is a stream' } } })
           next(null, payload)
@@ -118,6 +118,8 @@ const plugin = function (fastify, options, next) {
         request.log.trace({ peekaboo: { onSend: { request: lib.log.request(request), message: 'response sent from cache' } } })
       }
       request.log.trace({ peekaboo: { onSend: { request: lib.log.request(request), message: 'done' } } })
+
+      // request.log.trace({ payload })
       next(null, payload)
     })()
   }
@@ -140,7 +142,7 @@ const plugin = function (fastify, options, next) {
       const _headers = response.res._header
         .split('\r\n')
         .map((header) => {
-          const [ key, value ] = header.split(':')
+          const [key, value] = header.split(':')
           if (!key.indexOf('HTTP')) {
             _set.headers.status =
           _set.code = parseInt(key.match(/([0-9]{3,3})/)[0])

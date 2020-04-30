@@ -46,6 +46,11 @@ const lib = {
     return object.__proto__.constructor.name
   },
 
+  isStream (object) {
+    // return ['DuplexWrapper', 'ReadStream'].includes(lib.instanceOf(payload)
+    return object.pipe && object.unpipe
+  },
+
   log: {
     request: function (request) {
       return request.req.url

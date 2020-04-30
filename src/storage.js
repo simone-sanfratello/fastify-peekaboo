@@ -1,7 +1,7 @@
 const Keyv = require('keyv')
 const KeyvFile = require('keyv-file')
 const KeyvRedis = require('keyv-redis')
-const uuid = require('uuid/v4')
+const uuid = require('uuid').v4
 const path = require('path')
 const lib = require('./lib')
 
@@ -27,6 +27,7 @@ const Storage = function (options, fastify) {
       options.expire = 60 * 1000
     }
 
+    let _client
     switch (options.mode) {
       case lib.STORAGE.FS:
         __storage = new Keyv({
@@ -36,7 +37,7 @@ const Storage = function (options, fastify) {
         })
         break
       case lib.STORAGE.REDIS:
-        const _client = new KeyvRedis(options.config.connection)
+        _client = new KeyvRedis(options.config.connection)
         __storage = new Keyv({ store: _client })
         __storage.on('error', (error) => {
           // @todo logger.error

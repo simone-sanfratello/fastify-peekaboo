@@ -27,9 +27,9 @@ tap.test('peekaboo matching by request methods (*)',
     const _port = _fastify.server.address().port
 
     try {
-      let _url = `http://127.0.0.1:${_port}/resource`
+      const _url = `http://127.0.0.1:${_port}/resource`
       await got.post(_url)
-      let _response = await got.post(_url)
+      const _response = await got.post(_url)
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
@@ -39,9 +39,9 @@ tap.test('peekaboo matching by request methods (*)',
     }
 
     try {
-      let _url = `http://127.0.0.1:${_port}/resource`
+      const _url = `http://127.0.0.1:${_port}/resource`
       await got.delete(_url)
-      let _response = await got.delete(_url)
+      const _response = await got.delete(_url)
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
@@ -51,7 +51,7 @@ tap.test('peekaboo matching by request methods (*)',
     }
 
     try {
-      let _url = `http://127.0.0.1:${_port}/not-matching`
+      const _url = `http://127.0.0.1:${_port}/not-matching`
       await got(_url)
     } catch (error) {
       _test.pass()
@@ -88,9 +88,9 @@ tap.test('peekaboo matching by request methods (string)',
     const _port = _fastify.server.address().port
 
     try {
-      let _url = `http://127.0.0.1:${_port}/resource`
+      const _url = `http://127.0.0.1:${_port}/resource`
       await got.put(_url)
-      let _response = await got.put(_url)
+      const _response = await got.put(_url)
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
@@ -100,9 +100,9 @@ tap.test('peekaboo matching by request methods (string)',
     }
 
     try {
-      let _url = `http://127.0.0.1:${_port}/resource`
+      const _url = `http://127.0.0.1:${_port}/resource`
       await got.delete(_url)
-      let _response = await got.delete(_url)
+      const _response = await got.delete(_url)
       if (_response.headers['x-peekaboo']) {
         _test.fail()
       }
@@ -112,7 +112,7 @@ tap.test('peekaboo matching by request methods (string)',
     }
 
     try {
-      let _url = `http://127.0.0.1:${_port}/resource`
+      const _url = `http://127.0.0.1:${_port}/resource`
       await got(_url)
     } catch (error) {
       _test.pass()

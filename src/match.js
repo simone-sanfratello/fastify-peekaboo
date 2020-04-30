@@ -66,6 +66,8 @@ const match = {
       return true
     }
 
+    // @todo match status response
+
     if (rule.response.headers && !match.responseHeaders(rule.response.headers, data)) {
       return false
     }

@@ -33,9 +33,9 @@ tap.test('peekaboo storage (file)',
     const _port = _fastify.server.address().port
 
     try {
-      let _url = `http://127.0.0.1:${_port}/`
+      const _url = `http://127.0.0.1:${_port}/`
       await got(_url)
-      let _response = await got(_url)
+      const _response = await got(_url)
       if (_response.headers['x-peekaboo'] !== 'from-cache-fs') {
         _test.fail('should use cache fs, but it doesnt')
       }
@@ -48,6 +48,8 @@ tap.test('peekaboo storage (file)',
     _test.pass()
   })
 
+/*
+@todo dockerode
 tap.test('peekaboo storage (redis)',
   async (_test) => {
     _test.plan(2)
@@ -77,7 +79,7 @@ tap.test('peekaboo storage (redis)',
     const _port = _fastify.server.address().port
 
     try {
-      let _url = `http://127.0.0.1:${_port}/`
+      const _url = `http://127.0.0.1:${_port}/`
       let _response = await got(_url)
       _response = await got(_url)
       if (_response.headers['x-peekaboo'] !== 'from-cache-redis') {
@@ -95,3 +97,4 @@ tap.test('peekaboo storage (redis)',
   // ! issue on redis client, doesn't close connection on quit
     process.exit(0)
   })
+*/

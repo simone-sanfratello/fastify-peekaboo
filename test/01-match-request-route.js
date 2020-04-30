@@ -27,9 +27,9 @@ tap.test('peekaboo matching by request route (string)',
     const _port = _fastify.server.address().port
 
     try {
-      let _url = `http://127.0.0.1:${_port}/a/path/to/something?q=1`
+      const _url = `http://127.0.0.1:${_port}/a/path/to/something?q=1`
       await got(_url)
-      let _response = await got(_url)
+      const _response = await got(_url)
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
@@ -39,7 +39,7 @@ tap.test('peekaboo matching by request route (string)',
     }
 
     try {
-      let _url = `http://127.0.0.1:${_port}/not-matching`
+      const _url = `http://127.0.0.1:${_port}/not-matching`
       await got(_url)
     } catch (error) {
       _test.pass()
@@ -72,9 +72,9 @@ tap.test('peekaboo matching by request route (RegExp)',
     const _port = _fastify.server.address().port
 
     try {
-      let _url = `http://127.0.0.1:${_port}/path/to/users`
+      const _url = `http://127.0.0.1:${_port}/path/to/users`
       await got(_url)
-      let _response = await got(_url)
+      const _response = await got(_url)
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
@@ -84,7 +84,7 @@ tap.test('peekaboo matching by request route (RegExp)',
     }
 
     try {
-      let _url = `http://127.0.0.1:${_port}/not-matching`
+      const _url = `http://127.0.0.1:${_port}/not-matching`
       await got(_url)
     } catch (error) {
       _test.pass()
@@ -139,7 +139,7 @@ tap.test('peekaboo matching by request route (function)',
     }
 
     try {
-      let _url = `http://127.0.0.1:${_port}/not-matching`
+      const _url = `http://127.0.0.1:${_port}/not-matching`
       await got(_url)
     } catch (error) {
       _test.pass()

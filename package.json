@@ -1,28 +1,28 @@
 {
   "name": "fastify-peekaboo",
-  "version": "0.4.0-beta",
+  "version": "0.5.0-beta",
   "dependencies": {
-    "a-toolbox": "^1.5.6",
+    "a-toolbox": "^1.7.3",
     "clone": "^2.1.2",
-    "fastify-plugin": "^1.5.0",
-    "keyv": "^3.1.0",
-    "keyv-file": "^0.1.9",
+    "fastify-plugin": "^1.6.1",
+    "keyv": "^4.0.0",
+    "keyv-file": "^0.1.13",
     "keyv-redis": "git://github.com/simone-sanfratello/keyv-redis.git#patch-1-0",
-    "uuid": "^3.3.2"
+    "uuid": "^7.0.3"
   },
   "devDependencies": {
-    "fastify": "^2.3.0",
-    "got": "^9.2.2",
+    "fastify": "^2.13.1",
+    "got": "^11.0.2",
     "pre-commit": "^1.2.2",
-    "standard": "^12",
-    "tap": "^14.1.1"
+    "standard": "^14",
+    "tap": "^14.10.7"
   },
   "pre-commit": [
     "test"
   ],
   "scripts": {
     "test": "standard && tap test/*-*.js",
-    "test-cov": "standard && tap test/* --cov"
+    "test-coverage": "standard && tap test/* --cov"
   },
   "description": "fastify plugin response caching",
   "main": "src/plugin.js",
@@ -31,7 +31,7 @@
     "settings/"
   ],
   "engines": {
-    "node": ">= 8.x"
+    "node": ">=12"
   },
   "author": "Simone Sanfratello <simone@braceslab.com>",
   "license": "MIT",
