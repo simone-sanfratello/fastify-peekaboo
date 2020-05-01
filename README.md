@@ -26,18 +26,20 @@ const fs = require('fs')
 
 const _fastify = fastify()
 _fastify.register(peekaboo, {
-  matches: [
-    {
-      request: {
-        methods: '*',
-        route: '/'
-      }
+  // cache everything 
+  rules: [{
+    request: {
+      methods: '*',
+      route: /^\//
+    },
+    response: {
+      status: /^2/
     }
-  ]
+  }]
 })
 
 _fastify.get('/home', async (request, response) => {
-  const _home = '...elaborate home content'
+  const _home = 'welcome!'
   response.send(_home)
 })
 
@@ -48,157 +50,46 @@ _fastify.get('/image', async (request, response) => {
 await _fastify.listen(80)
 ```
 
-First call to `/home` or `/image` will execute the handler; from second time content will be served from cache without re-elaborate.
+First call to `/home` or `/image` will execute the handler; from second time content will be served from cache without running the handlers.
 
-Cache storage can be `memory` (ram), `fs` or `redis`.
+Cache storage can be `memory` (ram), `fs`.
 
 ## Settings
 
 Cache works by matching request and response
 
-### match schema
+### settings
 
 ```js
 {
-  match: {
-    request: Request,
-    response: Response
-  },
+  rules: [{
+    request: MatchRequest,
+    response: MatchResponse
+  }],
   storage: Storage,
   expire: number,
   xheader: boolean
 }
 ```
 
-#### match.request
+#### settings.rules
 
-type: `object`   
-(mandatory)  
+@todo rules
+rules are cumulative, not exclusive
+rule: request.method and request.route are mandatory
 
-- `route`   
-  type: `string` or `RegExp` `function(route:string):bool`  
-  default: `null`  
-  route to cache
+@todo recipes, examples, use cases
 
-  examples:
-  - `/home` (string)  
-  - `$/users` (RegExp)
-  - `$/user/[0-9]+^` (RegExp)
-  - use cache if function return `true`  
-  ```js
-  function(route) {
-    return route.indexOf('/article') === 0
-  }
-  ```
-
-- `methods`   
-  type: `string` or `string[]`  
-  default: `get`  
-  (mandatory) match by methods; method can be any of `get`, `post`, `put`, `head`, `delete`, `options`, `patch` or  `*` (all) 
-
-  examples:
-  - `*` all methods
-  - `get` (default value) cache request made using `get` method
-  - [`post`, `put`, `delete`] cache request made using any method in the list
-
-- `headers`   
-  type: `string` or `string[]` or `function(headers:object):string[]`   
-  default: `undefined`  
-  match by headers: will be cached only by matching headers, not by whole headers - otherwise, cache is not efficient: just considering for `user-agent` and `host`, cache is actually single client based (but you can do that if is what you want)
-
-  examples:
-  - [`authorization`, `cookie`] match considering only these headers values
-  - `authorization` match considering `authorization` header value: if `authorization` contains a token, the response will be de facto private
-  - `function` cache if function return an array of headers names that will be used for identify the cache
-  ```js
-  function(headers) {
-    if(headers.authentication) {
-      return ['cookie']
-    }
-  }
-  ```
-
-- `query`   
-  type: `string` or `string[]` or `function(query:string|object):bool`   
-  default: `null`  
-  match by query content (if any)
-
-  examples:
-  - `*` match considering whole query
-  - [`page`, `filter`] match considering these query values
-  - `page` match considering only `user` value
-  - `function` cache if function return `true`
-  ```js
-  function(query) {
-    return query.indexOf('page') !== 0
-  }
-  ```
-
-- `body`   
-  type: `string` or `string[]` or `function(body:string|object|Buffer):bool`   
-  default: `undefined`  
-  match by body content (if any)
-
-  examples:
-  - `*` match considering whole body
-  - [`user`, `id`] match considering these body values, if body contains form data
-  - `user` match considering only `user` value
-  - `function` cache if function return `true`; `body` can be a `string` or `object` or `Buffer` according to response  
-  ```js
-  function(body) {
-    return body.indexOf('something') !== 0
-  }
-  ```
-
-#### match.response
-
-type: `object`   
-(optional)  
-
-- `headers`   
-  type: `object` or `function(headers:object):bool`   
-  default: `{status: 200}`  
-  match by response headers values
-
-  examples:
-  - `{status: 200}` (default value) cache only if response status is 200, so discard error responses
-  - `function` cache if function return `true`
-  ```js
-  function(headers) {
-    return headers['cache-control'] !== 'no-cache'
-  }
-  ```
-  ```js
-  function(headers) {
-    return headers['status'] > 199 && headers['status'] < 300
-  }
-  ```
-
-- `body`   
-  type: `object` or `function(body:string|object):bool`   
-  default: `null`  
-  match by body content (if any)
-
-  examples:
-  - `{user: 'Alice'}` match only for `user` `Alice`
-  - using `function`, cache will be used if function return `true`
-  ```js
-  function(body) {
-    return body.indexOf('something') !== 0
-  }
-  ```
-
-#### match.storage
+#### settings.storage
 
 type: `object`   
 
 - `mode`   
-  type: `string`  [ `memory` | `fs` | `redis` ]   
+  type: `string`  [ `memory` | `fs` ]   
   default: `memory`  
-  storage use [keyv](https://github.com/lukechilds/keyv) for cache; it can be:
+  storage use [keyv](https://github.com/lukechilds/keyv) for interface; it can be:
     - `memory` (default) cache use runtime memory 
     - `fs` use filesystem, need also `config`
-    - `redis` use redis, need also `config`
 
 - `config`   
   type: `object`   
@@ -208,18 +99,15 @@ type: `object`
     type: `string`   
     path on filesystem where cache files will be stored
 
-  for `redis` mode
-  - `connection`   
-    type: `string`   
-    connection string for redis, example `redis://user:pass@localhost:6379`
+    @todo example
 
-#### match.expire
+#### settings.expire
 
 type: `number`  
 default: `86400000` // 1 day  
-cache expiration in ms
+cache expiration in ms, optional
 
-#### match.xheader
+#### settings.xheader
 
 type: `boolean`   
 default: `true`  
@@ -227,26 +115,10 @@ add on response header `x-peekaboo` if response come from cache
 
 ### default
 
-Default match: consider each match inherits default settings
+Default rules: cache all successful responses
 
 ```js
-{
-  match: {
-    request: {
-      method: 'get'
-    },
-    response: {
-      headers: {
-        status: 200
-      }
-    }
-  },
-  storage: {
-    mode: 'memory',
-  },
-  expire: 86400000, // 1 day in ms
-  xheader: true
-}
+@todo settings/default
 ```
 
 ### Log
@@ -277,14 +149,13 @@ See [documentation](./doc/README.md) for further informations and examples.
 
 ---
 
-## TODO
+## Roadmap
 
 **v. 1.0**
 
+- [ ] new matching system
+- [ ] drop redis storage
 - [ ] real world examples
-- [ ] use tollo to run test
-  - [ ] use random data from `faker` and|or `casual`
-- [ ] jsdoc
 - [ ] validate options before plug
   - [ ] settings conflict detection
   - [ ] send warnings/errors
@@ -292,7 +163,7 @@ See [documentation](./doc/README.md) for further informations and examples.
 
 **v. 1.1**
 
-- [ ] match route with fastify syntax
+- [ ] postgresql storage?
 - [ ] benchmark plugin overhead (autocannon?)
   - [ ] benchmark with different storages
 - [ ] on file upload?
@@ -300,10 +171,12 @@ See [documentation](./doc/README.md) for further informations and examples.
   - [ ] querystring array or object
 
 **v. 1.3**
-- [ ] pre-packed settings (example graphql caching)
-- [ ] CI travis
+
+- [ ] settings recipes (example graphql caching)
+- [ ] CI
 
 **v. 1.4**
+
 - [ ] different storage, expire, xheader for each match
 - [ ] invalidate cache (by ...?)
 - [ ] expire can be a function(request, response)
@@ -314,7 +187,7 @@ See [documentation](./doc/README.md) for further informations and examples.
 
 The MIT License (MIT)
 
-Copyright (c) 2018 [braces lab](https://braceslab.com)
+Copyright (c) 2018-2020 [Simone Sanfratello](https://braceslab.com)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

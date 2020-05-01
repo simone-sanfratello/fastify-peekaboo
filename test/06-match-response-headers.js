@@ -1,6 +1,6 @@
 const tap = require('tap')
 const fastify = require('fastify')
-const got = require('got')
+const helper = require('./helper')
 
 const peekaboo = require('../src/plugin')
 
@@ -11,15 +11,13 @@ tap.test('peekaboo matching by response headers (object)',
     _fastify
       .register(peekaboo, {
         xheader: true,
-        matches: [{
+        rules: [{
           request: {
             methods: '*',
-            route: '/'
+            route: true
           },
           response: {
-            headers: {
-              status: 201
-            }
+            status: 201
           }
         }]
       })
@@ -33,25 +31,23 @@ tap.test('peekaboo matching by response headers (object)',
     })
 
     try {
-      await _fastify.listen(0)
-      _fastify.server.unref()
-      const _port = _fastify.server.address().port
+      await helper.fastify.start(_fastify)
 
-      let _url = `http://127.0.0.1:${_port}/200`
-      await got(_url)
-      let _response = await got(_url)
+      let path = '/200'
+      await helper.request({ path })
+      let _response = await helper.request({ path })
       if (_response.headers['x-peekaboo']) {
         _test.fail()
       }
 
-      _url = `http://127.0.0.1:${_port}/201`
-      await got(_url)
-      _response = await got(_url)
+      path = '/201'
+      await helper.request({ path })
+      _response = await helper.request({ path })
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
 
-      await _fastify.close()
+      await helper.fastify.stop(_fastify)
       _test.pass()
     } catch (error) {
       _test.threw(error)
@@ -65,10 +61,10 @@ tap.test('peekaboo matching by response headers (function)',
     _fastify
       .register(peekaboo, {
         xheader: true,
-        matches: [{
+        rules: [{
           request: {
             methods: '*',
-            route: '/'
+            route: true
           },
           response: {
             headers: function (headers) {
@@ -89,25 +85,23 @@ tap.test('peekaboo matching by response headers (function)',
     })
 
     try {
-      await _fastify.listen(0)
-      _fastify.server.unref()
-      const _port = _fastify.server.address().port
+      await helper.fastify.start(_fastify)
 
-      let _url = `http://127.0.0.1:${_port}/cookie`
-      await got(_url)
-      let _response = await got(_url)
+      let path = '/cookie'
+      await helper.request({ path })
+      let _response = await helper.request({ path })
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
 
-      _url = `http://127.0.0.1:${_port}/home`
-      await got(_url)
-      _response = await got(_url)
+      path = '/home'
+      await helper.request({ path })
+      _response = await helper.request({ path })
       if (_response.headers['x-peekaboo']) {
         _test.fail()
       }
 
-      await _fastify.close()
+      await helper.fastify.stop(_fastify)
       _test.pass()
     } catch (error) {
       _test.threw(error)

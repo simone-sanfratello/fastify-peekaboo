@@ -1,5 +1,7 @@
 const crypto = require('crypto')
+const stream = require('stream')
 const url = require('url')
+const stringify = require('json-stringify-extended')
 
 const lib = {
   METHOD: {
@@ -15,45 +17,94 @@ const lib = {
 
   STORAGE: {
     MEMORY: 'memory',
-    FS: 'fs',
-    REDIS: 'redis'
+    FS: 'fs'
   },
 
-  hash: function (request, match) {
-    const _request = {
-      method: request.req.method,
-      route: new url.URL('http://host.url' + request.req.url).pathname
+  hash: {
+    request: function (request, rule) {
+      const _rule = rule.request
+      const hashing = {
+        method: request.req.method,
+        route: new url.URL(request.raw.originalUrl).pathname
+      }
+
+      // nb on purpuse copy/paste code for performance reason
+      if (_rule.query) {
+        hashing.query = {}
+        for (const key in _rule.query) {
+          hashing.query[key] = request.query[key]
+        }
+      }
+      if (_rule.body) {
+        hashing.body = {}
+        for (const key in _rule.body) {
+          hashing.body[key] = request.body[key]
+        }
+      }
+      if (_rule.headers) {
+        hashing.headers = {}
+        for (const key in _rule.headers) {
+          hashing.headers[key] = request.headers[key]
+        }
+      }
+      return crypto.createHmac('sha256', '')
+        .update(stringify(hashing))
+        .digest('hex')
+    },
+    response: function (response, rule) {
+      if (!rule.response) {
+        return Date.now()
+      }
+      const hashing = {}
+
+      // nb on purpuse copy/paste code for performance reason
+      if (rule.status) {
+        hashing.status = response.status
+      }
+      if (rule.body) {
+        if (typeof response.body === 'object') {
+          hashing.body = {}
+          for (const key in rule.body) {
+            hashing.body[key] = response.body[key]
+          }
+        } else {
+          hashing.body = response.body
+        }
+      }
+      if (rule.headers) {
+        hashing.headers = {}
+        for (const key in rule.headers) {
+          hashing.headers[key] = response.headers[key]
+        }
+      }
+      return crypto.createHmac('sha256', '')
+        .update(stringify(hashing))
+        .digest('hex')
     }
-    if (Object.keys(request.params).length) {
-      _request.params = request.params
-    }
-    if (Object.keys(request.query).length) {
-      _request.query = request.query
-    }
-    if (match.headers && Object.keys(match.headers).length) {
-      _request.headers = match.headers
-    }
-    if (request.body) {
-      _request.body = request.body
-    }
-    return crypto.createHmac('sha256', '')
-      .update(JSON.stringify(_request))
-      .digest('hex')
   },
 
-  instanceOf (object) {
-    // eslint-disable-next-line
-    return object.__proto__.constructor.name
-  },
-
-  isStream (object) {
-    // return ['DuplexWrapper', 'ReadStream'].includes(lib.instanceOf(payload)
+  isStream: function (object) {
+    // ? ['DuplexWrapper', 'ReadStream'].includes(object.__proto__.constructor.name)
     return object.pipe && object.unpipe
+  },
+
+  acquireStream: async function (source) {
+    let _content = Buffer.alloc(0)
+    const _stream = source.pipe(new stream.PassThrough())
+    const done = new Promise((resolve, reject) => {
+      _stream.on('data', (chunk) => {
+        _content = Buffer.concat([_content, chunk])
+      })
+      _stream.once('finish', resolve)
+      _stream.once('error', reject)
+    })
+    await done
+    return _content
   },
 
   log: {
     request: function (request) {
-      return request.req.url
+      return request.raw.originalUrl
     }
   }
 

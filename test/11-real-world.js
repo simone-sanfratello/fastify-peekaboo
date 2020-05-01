@@ -1,8 +1,9 @@
 const tap = require('tap')
 const fastify = require('fastify')
-const got = require('got')
 const fs = require('fs')
 const path = require('path')
+const got = require('got')
+const helper = require('./helper')
 
 const peekaboo = require('../src/plugin')
 
@@ -11,15 +12,7 @@ tap.test('peekaboo with streams',
     _test.plan(1)
     const _fastify = fastify({ logger: { level: 'trace' } })
     _fastify
-      .register(peekaboo, {
-        xheader: true,
-        matches: [{
-          request: {
-            methods: '*',
-            route: '/'
-          }
-        }]
-      })
+      .register(peekaboo)
 
     _fastify.get('/google', async (request, response) => {
       response.send(got.stream('https://www.google.com'))
@@ -34,32 +27,30 @@ tap.test('peekaboo with streams',
     })
 
     try {
-      await _fastify.listen(0)
-      _fastify.server.unref()
-      const _port = _fastify.server.address().port
+      await helper.fastify.start(_fastify)
 
-      let _url = `http://127.0.0.1:${_port}/google`
-      await got(_url)
-      let _response = await got(_url)
+      let path = '/google'
+      await helper.request({ path })
+      let _response = await helper.request({ path })
       if (!_response.headers['x-peekaboo']) {
         _test.fail('should use cache, but it doesnt')
       }
 
-      _url = `http://127.0.0.1:${_port}/remote/image`
-      await got(_url)
-      _response = await got(_url)
+      path = '/remote/image'
+      await helper.request({ path })
+      _response = await helper.request({ path })
       if (!_response.headers['x-peekaboo']) {
         _test.fail('should use cache, but it doesnt')
       }
 
-      _url = `http://127.0.0.1:${_port}/local/image`
-      await got(_url)
-      _response = await got(_url)
+      path = '/local/image'
+      await helper.request({ path })
+      _response = await helper.request({ path })
       if (!_response.headers['x-peekaboo']) {
         _test.fail('should use cache, but it doesnt')
       }
 
-      await _fastify.close()
+      await helper.fastify.stop(_fastify)
       _test.pass()
     } catch (error) {
       console.error(error)

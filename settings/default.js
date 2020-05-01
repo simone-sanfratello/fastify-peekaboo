@@ -1,14 +1,13 @@
 const default_ = {
-  match: {
+  rules: [{
     request: {
-      methods: 'get'
+      methods: true,
+      route: true
     },
     response: {
-      status: 200,
-      headers: {
-      }
+      status: /^2/
     }
-  },
+  }],
   storage: {
     mode: 'memory',
     config: {}

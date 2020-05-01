@@ -1,6 +1,6 @@
 const tap = require('tap')
 const fastify = require('fastify')
-const got = require('got')
+const helper = require('./helper')
 
 const peekaboo = require('../src/plugin')
 
@@ -11,44 +11,36 @@ tap.test('peekaboo plugin is loaded',
     await _fastify
       .register(peekaboo)
       .ready()
-    await _fastify.close()
+    await helper.fastify.stop(_fastify)
     _test.pass(_fastify.peekaboo)
   })
 
 tap.test('peekaboo plugin is working (basic match)',
   async (_test) => {
     _test.plan(1)
-    const _fastify = fastify({
-      logger: {
-        level: 'trace'
-      }
+    const _fastify = fastify({ logger: { level: 'trace' } })
+    _fastify.register(peekaboo, {
+      xheader: true,
+      rules: [{
+        request: {
+          methods: 'get',
+          route: '/home'
+        }
+      }]
     })
-    _fastify
-      .register(peekaboo, {
-        xheader: true,
-        matches: [{
-          request: {
-            methods: 'get',
-            route: '/home'
-          }
-        }]
-      })
 
     _fastify.get('/home', async (request, response) => {
       response.send('hey there')
     })
 
     try {
-      await _fastify.listen(0)
-      _fastify.server.unref()
-      const _port = _fastify.server.address().port
-      const _url = `http://127.0.0.1:${_port}/home`
-      await got(_url)
-      const _response = await got(_url)
+      await helper.fastify.start(_fastify)
+      await helper.request({ path: '/home' })
+      const _response = await helper.request({ path: '/home' })
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
-      await _fastify.close()
+      await helper.fastify.stop(_fastify)
       _test.pass()
     } catch (error) {
       _test.threw(error)
@@ -62,9 +54,9 @@ tap.test('peekaboo plugin is working (default settings)',
     _fastify
       .register(peekaboo, {
         xheader: true,
-        matches: [{
+        rules: [{
           request: {
-            route: '/'
+            route: true
           }
         }]
       })
@@ -74,16 +66,13 @@ tap.test('peekaboo plugin is working (default settings)',
     })
 
     try {
-      await _fastify.listen(0)
-      _fastify.server.unref()
-      const _port = _fastify.server.address().port
-      const _url = `http://127.0.0.1:${_port}/home`
-      await got(_url)
-      const _response = await got(_url)
+      await helper.fastify.start(_fastify)
+      await helper.request({ path: '/home' })
+      const _response = await helper.request({ path: '/home' })
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
-      await _fastify.close()
+      await helper.fastify.stop(_fastify)
       _test.pass()
     } catch (error) {
       _test.threw(error)

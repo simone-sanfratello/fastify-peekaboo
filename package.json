@@ -1,13 +1,12 @@
 {
   "name": "fastify-peekaboo",
-  "version": "0.5.0-beta",
+  "version": "1.0.0-alpha",
   "dependencies": {
     "a-toolbox": "^1.7.3",
-    "clone": "^2.1.2",
     "fastify-plugin": "^1.6.1",
+    "json-stringify-extended": "^2.0.0",
     "keyv": "^4.0.0",
     "keyv-file": "^0.1.13",
-    "keyv-redis": "git://github.com/simone-sanfratello/keyv-redis.git#patch-1-0",
     "uuid": "^7.0.3"
   },
   "devDependencies": {

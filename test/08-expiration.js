@@ -1,6 +1,6 @@
 const tap = require('tap')
 // const fastify = require('fastify')
-// const got = require('got')
+// const helper = require('./helper')
 // const peekaboo = require('../src/plugin')
 
 tap.test('peekaboo expiration (@todo)',

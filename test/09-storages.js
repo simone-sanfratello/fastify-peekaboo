@@ -1,6 +1,6 @@
 const tap = require('tap')
 const fastify = require('fastify')
-const got = require('got')
+const helper = require('./helper')
 
 const peekaboo = require('../src/plugin')
 
@@ -11,11 +11,11 @@ tap.test('peekaboo storage (file)',
     _fastify
       .register(peekaboo, {
         xheader: true,
-        matches: [{
+        rules: [{
           methods: '*',
-          route: '/'
+          route: true
         }],
-        expire: 30 * 1000,
+        expire: 10 * 1000,
         storage: {
           mode: 'fs',
           config: {
@@ -28,14 +28,12 @@ tap.test('peekaboo storage (file)',
       response.send('response')
     })
 
-    await _fastify.listen(0)
-    _fastify.server.unref()
-    const _port = _fastify.server.address().port
+    await helper.fastify.start(_fastify)
 
     try {
-      const _url = `http://127.0.0.1:${_port}/`
-      await got(_url)
-      const _response = await got(_url)
+      const path = '/'
+      await helper.request({ path })
+      const _response = await helper.request({ path })
       if (_response.headers['x-peekaboo'] !== 'from-cache-fs') {
         _test.fail('should use cache fs, but it doesnt')
       }
@@ -44,57 +42,6 @@ tap.test('peekaboo storage (file)',
       _test.threw(error)
     }
 
-    await _fastify.close()
+    await helper.fastify.stop(_fastify)
     _test.pass()
   })
-
-/*
-@todo dockerode
-tap.test('peekaboo storage (redis)',
-  async (_test) => {
-    _test.plan(2)
-    const _fastify = fastify()
-    _fastify
-      .register(peekaboo, {
-        xheader: true,
-        matches: [{
-          methods: '*',
-          route: '/'
-        }],
-        expire: 5 * 60 * 1000,
-        storage: {
-          mode: 'redis',
-          config: {
-            connection: 'redis://localhost:6379'
-          }
-        }
-      })
-
-    _fastify.all('/', async (request, response) => {
-      response.send('response')
-    })
-
-    await _fastify.listen(0)
-    _fastify.server.unref()
-    const _port = _fastify.server.address().port
-
-    try {
-      const _url = `http://127.0.0.1:${_port}/`
-      let _response = await got(_url)
-      _response = await got(_url)
-      if (_response.headers['x-peekaboo'] !== 'from-cache-redis') {
-        _test.fail('should use cache redis, but it doesnt')
-      }
-      _test.equal(_response.body, 'response')
-    } catch (error) {
-      _test.threw(error)
-    }
-
-    await _fastify.close()
-    _test.pass()
-  })
-  .then(() => {
-  // ! issue on redis client, doesn't close connection on quit
-    process.exit(0)
-  })
-*/
