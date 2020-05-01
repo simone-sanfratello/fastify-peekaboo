@@ -6,52 +6,49 @@ const match = require('./match')
 const defaultSettings = require('../settings/default')
 
 const plugin = function (fastify, settings, next) {
-  let __settings, __storage
+  let _settings, _storage
 
   const __init = function (settings) {
     // @todo validate settings
-    __settings = {
+    _settings = {
       ...defaultSettings,
       ...settings
     }
 
     const { storage, expire } = settings
-    __storage = new Storage({ ...storage, expire }, fastify)
+    _storage = new Storage({ ...storage, expire }, fastify)
     // request.log.trace({ peekaboo: { init: { __settings } } })
   }
 
   const preHandler = function (request, response, next) {
     (async () => {
       request.log.trace({ peekaboo: { preHandler: { request: lib.log.request(request) } } })
-      if (!__settings) {
+      if (!_settings) {
         next()
         return
       }
-      const _match = match.request(request, __settings.rules)
+      const _match = match.request(request, _settings.rules)
       if (!_match) {
         next()
         return
       }
       request.log.trace({ peekaboo: { preHandler: { request: lib.log.request(request), message: 'will use cache' } } })
-      response.res.peekaboo = _match
-      const _cached = await __storage.get(_match.hash)
+      response.peekaboo = { match: true, ..._match }
+      const _cached = await _storage.get(_match.hash)
       if (!_cached) {
         request.log.trace({ peekaboo: { preHandler: { request: lib.log.request(request), message: 'still not cached' } } })
         next()
         return
       }
       request.log.trace({ peekaboo: { preHandler: { request: lib.log.request(request), message: 'serve response from cache' } } })
-      if (__settings.xheader) {
-        response.header('x-peekaboo', 'from-cache-' + __settings.storage.mode)
+      response.peekaboo.sent = true
+      if (_settings.xheader) {
+        response.header('x-peekaboo', 'from-cache-' + _settings.storage.mode)
       }
-      response.res.peekaboo.sent = true
       for (const _name in _cached.headers) {
-        if (_name === 'status' || _name === 'transfer-encoding') {
-          continue
-        }
         response.header(_name, _cached.headers[_name])
       }
-      response.code(_cached.code)
+      response.code(_cached.status)
       response.send(_cached.body)
     })()
   }
@@ -59,13 +56,13 @@ const plugin = function (fastify, settings, next) {
   const onSend = function (request, response, payload, next) {
     (async () => {
       request.log.trace({ peekaboo: { onSend: { request: lib.log.request(request), message: '...' } } })
-      if (!response.res.peekaboo) {
+      if (!response.peekaboo.match) {
         request.log.trace({ peekaboo: { onSend: { request: lib.log.request(request), message: 'response has not to be cached' } } })
         next()
         return
       }
 
-      const _peekaboo = response.res.peekaboo
+      const _peekaboo = response.peekaboo
       if (!_peekaboo.sent && _peekaboo.match) {
         request.log.trace({ peekaboo: { onSend: { request: lib.log.request(request), message: 'response has to be cached' } } })
         if (lib.isStream(payload)) {
@@ -81,11 +78,10 @@ const plugin = function (fastify, settings, next) {
           request.log.trace({ peekaboo: { onSend: { request: lib.log.request(request), message: 'response acquired' } } })
         }
       } else {
-        delete response.res.peekaboo
+        response.peekaboo.sent = true
         request.log.trace({ peekaboo: { onSend: { request: lib.log.request(request), message: 'response sent from cache' } } })
       }
       request.log.trace({ peekaboo: { onSend: { request: lib.log.request(request), message: 'done' } } })
-
       // request.log.trace({ payload })
       next(null, payload)
     })()
@@ -94,26 +90,22 @@ const plugin = function (fastify, settings, next) {
   const onResponse = function (request, response, next) {
     (async () => {
       // request.log.trace('plugin', 'onResponse')
-      if (!response.res.peekaboo) {
+      if (!response.peekaboo.match || response.peekaboo.sent) {
         // request.log.trace('plugin', 'onResponse', 'response has not to be cached')
         next()
         return
       }
 
       const _set = {
-        code: null,
+        status: response.statusCode,
         headers: {},
-        body: await response.res.peekaboo.body
+        body: await response.peekaboo.body
       }
 
       const _headers = response.res._header
         .split('\r\n')
         .map((header) => {
           const [key, value] = header.split(':')
-          if (!key.indexOf('HTTP')) {
-            _set.headers.status =
-          _set.code = parseInt(key.match(/([0-9]{3,3})/)[0])
-          }
           return {
             key: key.toLowerCase(),
             value: value ? value.trim() : ''
@@ -128,7 +120,7 @@ const plugin = function (fastify, settings, next) {
         _set.headers[_header.key] = _header.value
       }
 
-      if (response.res.peekaboo.stream) {
+      if (response.peekaboo.stream) {
         // request.log.trace('plugin', 'onResponse', 'response body content-type', _set.headers['content-type'])
         // @todo _set.body = _set.body.toString(charset(_set.headers['content-type']) || 'utf8')
         if (contentTypeText(_set.headers['content-type'])) {
@@ -136,39 +128,26 @@ const plugin = function (fastify, settings, next) {
         }
       }
 
-      if (_set.headers['content-type'].indexOf('json') !== -1) {
+      if (_set.headers['content-type'].includes('json')) {
         try {
           _set.body = JSON.parse(_set.body)
         } catch (error) {}
       }
 
-      if (match.response(_set, response.res.peekaboo.rule)) {
-        await __storage.set(response.res.peekaboo.hash, _set)
+      // trim headers @todo function
+      delete _set.headers.status
+      delete _set.headers.connection
+      delete _set.headers['transfer-encoding']
+
+      if (match.response(_set, response.peekaboo.rule)) {
+        await _storage.set(response.peekaboo.hash, _set)
       }
       next()
     })()
   }
 
-  /**
-   * @todo memoize
-   */
-  /*
-  const charset = function (contentType) {
-    if (!contentType || !contentType.indexOf('charset=')) {
-      return
-    }
-    const _index = contentType.indexOf('charset=')
-    if (_index < 0) {
-      return
-    }
-    // 8 is charset length
-    return contentType.substring(_index + 8)
-  }
-  */
-
   __init(settings)
-  // fastify.decorateReply('peekaboo', {})
-  // fastify.decorate('peekaboo')
+  fastify.decorateReply('peekaboo', {})
   fastify.addHook('preHandler', preHandler)
   fastify.addHook('onSend', onSend)
   fastify.addHook('onResponse', onResponse)

@@ -29,23 +29,23 @@ tap.test('peekaboo with streams',
     try {
       await helper.fastify.start(_fastify)
 
-      let path = '/google'
-      await helper.request({ path })
-      let _response = await helper.request({ path })
+      let url = helper.fastify.url(_fastify, '/google')
+      await helper.request({ url })
+      let _response = await helper.request({ url })
       if (!_response.headers['x-peekaboo']) {
         _test.fail('should use cache, but it doesnt')
       }
 
-      path = '/remote/image'
-      await helper.request({ path })
-      _response = await helper.request({ path })
+      url = helper.fastify.url(_fastify, '/remote/image')
+      await helper.request({ url })
+      _response = await helper.request({ url })
       if (!_response.headers['x-peekaboo']) {
         _test.fail('should use cache, but it doesnt')
       }
 
-      path = '/local/image'
-      await helper.request({ path })
-      _response = await helper.request({ path })
+      url = helper.fastify.url(_fastify, '/local/image')
+      await helper.request({ url })
+      _response = await helper.request({ url })
       if (!_response.headers['x-peekaboo']) {
         _test.fail('should use cache, but it doesnt')
       }

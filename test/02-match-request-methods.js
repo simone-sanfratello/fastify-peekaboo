@@ -13,7 +13,8 @@ tap.test('peekaboo matching by request methods (*)',
         xheader: true,
         rules: [{
           request: {
-            methods: '*'
+            methods: '*',
+            route: true
           }
         }]
       })
@@ -25,9 +26,9 @@ tap.test('peekaboo matching by request methods (*)',
     await helper.fastify.start(_fastify)
 
     try {
-      const path = '/resource'
-      await helper.request({ method: 'post', path })
-      const _response = await helper.request({ method: 'post', path })
+      const url = helper.fastify.url(_fastify, '/resource')
+      await helper.request({ method: 'post', url })
+      const _response = await helper.request({ method: 'post', url })
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
@@ -37,9 +38,9 @@ tap.test('peekaboo matching by request methods (*)',
     }
 
     try {
-      const path = '/resource'
-      await helper.request({ method: 'delete', path })
-      const _response = await helper.request({ method: 'delete', path })
+      const url = helper.fastify.url(_fastify, '/resource')
+      await helper.request({ method: 'delete', url })
+      const _response = await helper.request({ method: 'delete', url })
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
@@ -49,8 +50,8 @@ tap.test('peekaboo matching by request methods (*)',
     }
 
     try {
-      const path = '/not-matching'
-      await helper.request({ path })
+      const url = helper.fastify.url(_fastify, '/not-matching')
+      await helper.request({ url })
     } catch (error) {
       _test.pass()
     }
@@ -68,7 +69,8 @@ tap.test('peekaboo matching by request methods (string)',
         xheader: true,
         rules: [{
           request: {
-            methods: 'put'
+            methods: 'put',
+            route: true
           }
         }]
       })
@@ -84,9 +86,9 @@ tap.test('peekaboo matching by request methods (string)',
     await helper.fastify.start(_fastify)
 
     try {
-      const path = '/resource'
-      await helper.request({ method: 'put', path })
-      const _response = await helper.request({ method: 'put', path })
+      const url = helper.fastify.url(_fastify, '/resource')
+      await helper.request({ method: 'put', url })
+      const _response = await helper.request({ method: 'put', url })
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
@@ -96,9 +98,9 @@ tap.test('peekaboo matching by request methods (string)',
     }
 
     try {
-      const path = '/resource'
-      await helper.request({ method: 'delete', path })
-      const _response = await helper.request({ method: 'delete', path })
+      const url = helper.fastify.url(_fastify, '/resource')
+      await helper.request({ method: 'delete', url })
+      const _response = await helper.request({ method: 'delete', url })
       if (_response.headers['x-peekaboo']) {
         _test.fail()
       }
@@ -108,8 +110,8 @@ tap.test('peekaboo matching by request methods (string)',
     }
 
     try {
-      const path = '/resource'
-      await helper.request({ path })
+      const url = helper.fastify.url(_fastify, '/resource')
+      await helper.request({ url })
     } catch (error) {
       _test.pass()
     }

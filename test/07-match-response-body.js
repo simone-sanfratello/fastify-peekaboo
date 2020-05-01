@@ -35,9 +35,9 @@ tap.test('peekaboo matching by response body (object)',
     await helper.fastify.start(_fastify)
 
     try {
-      const path = '/user/1012'
-      await helper.request({ path })
-      const _response = await helper.request({ path })
+      const url = helper.fastify.url(_fastify, '/user/1012')
+      await helper.request({ url })
+      const _response = await helper.request({ url })
       if (!_response.headers['x-peekaboo']) {
         _test.fail('not response from cache')
       }
@@ -46,12 +46,12 @@ tap.test('peekaboo matching by response body (object)',
     }
 
     try {
-      const path = '/admin'
-      await helper.request({ path })
+      const url = helper.fastify.url(_fastify, '/admin')
+      await helper.request({ url })
     } catch (error) {}
 
-    const path = '/admin'
-    const _response = await helper.request(path, { throwHttpErrors: false })
+    const url = helper.fastify.url(_fastify, '/admin')
+    const _response = await helper.request({ url, throwHttpErrors: false })
     if (_response.headers['x-peekaboo']) {
       _test.fail('response from cache')
     }
@@ -97,9 +97,9 @@ tap.test('peekaboo matching by response body (function)',
     await helper.fastify.start(_fastify)
 
     try {
-      const path = '/content'
-      await helper.request({ path })
-      const _response = await helper.request({ path })
+      const url = helper.fastify.url(_fastify, '/content')
+      await helper.request({ url })
+      const _response = await helper.request({ url })
       if (!_response.headers['x-peekaboo']) {
         _test.fail('not response from cache')
       }
@@ -108,9 +108,9 @@ tap.test('peekaboo matching by response body (function)',
     }
 
     try {
-      const path = '/user/1012'
-      await helper.request({ path })
-      const _response = await helper.request({ path })
+      const url = helper.fastify.url(_fastify, '/user/1012')
+      await helper.request({ url })
+      const _response = await helper.request({ url })
       if (_response.headers['x-peekaboo']) {
         _test.fail('response from cache')
       }
@@ -119,9 +119,9 @@ tap.test('peekaboo matching by response body (function)',
     }
 
     try {
-      const path = '/admin'
-      await helper.request({ path })
-      const _response = await helper.request({ path })
+      const url = helper.fastify.url(_fastify, '/admin')
+      await helper.request({ url })
+      const _response = await helper.request({ url })
       if (_response.headers['x-peekaboo']) {
         _test.fail('response from cache')
       }

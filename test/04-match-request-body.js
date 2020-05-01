@@ -31,17 +31,17 @@ tap.test('peekaboo matching by request body (*)',
     try {
       await helper.fastify.start(_fastify)
 
-      let path = '/update'
-      await helper.request({ method: 'post', path, json: { id: 11 } })
-      let _response = await helper.request({ method: 'post', path, json: { id: 11 } })
+      let url = helper.fastify.url(_fastify, '/update')
+      await helper.request({ method: 'post', url, json: { id: 11 } })
+      let _response = await helper.request({ method: 'post', url, json: { id: 11 } })
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
       _test.same(JSON.parse(_response.body), { error: false, id: 11 })
 
-      path = '/update'
-      await helper.request({ method: 'post', path, json: { id: 11, name: 'Alice' } })
-      _response = await helper.request({ method: 'post', path, json: { id: 11, name: 'Alice' } })
+      url = helper.fastify.url(_fastify, '/update')
+      await helper.request({ method: 'post', url, json: { id: 11, name: 'Alice' } })
+      _response = await helper.request({ method: 'post', url, json: { id: 11, name: 'Alice' } })
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
@@ -65,7 +65,7 @@ tap.test('peekaboo matching by request body (string)',
           request: {
             methods: '*',
             route: '/update/user',
-            body: /id/m
+            body: { id: true }
           }
         }]
       })
@@ -77,17 +77,17 @@ tap.test('peekaboo matching by request body (string)',
     try {
       await helper.fastify.start(_fastify)
 
-      let path = '/update/user'
-      await helper.request({ method: 'post', path, json: { id: 9 } })
-      let _response = await helper.request({ method: 'post', path, json: { id: 9 } })
+      let url = helper.fastify.url(_fastify, '/update/user')
+      await helper.request({ method: 'post', url, json: { id: 9 } })
+      let _response = await helper.request({ method: 'post', url, json: { id: 9 } })
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
       _test.same(JSON.parse(_response.body), { error: false, id: 9 })
 
-      path = '/update/user'
-      await helper.request({ method: 'post', path, json: { name: 'Alice' } })
-      _response = await helper.request({ method: 'post', path, json: { name: 'Alice' } })
+      url = helper.fastify.url(_fastify, '/update/user')
+      await helper.request({ method: 'post', url, json: { name: 'Alice' } })
+      _response = await helper.request({ method: 'post', url, json: { name: 'Alice' } })
       if (_response.headers['x-peekaboo']) {
         _test.fail()
       }
@@ -111,7 +111,7 @@ tap.test('peekaboo matching by request body (array)',
           request: {
             methods: '*',
             route: '/update/user',
-            body: { id: true, name: true }
+            body: { id: true, name: 'Alice' }
           }
         }]
       })
@@ -123,26 +123,26 @@ tap.test('peekaboo matching by request body (array)',
     try {
       await helper.fastify.start(_fastify)
 
-      let path = '/update/user'
-      await helper.request({ method: 'post', path, json: { id: 9 } })
-      let _response = await helper.request({ method: 'post', path, json: { id: 9 } })
+      let url = helper.fastify.url(_fastify, '/update/user')
+      await helper.request({ method: 'post', url, json: { id: 9 } })
+      let _response = await helper.request({ method: 'post', url, json: { id: 9 } })
       if (_response.headers['x-peekaboo']) {
         _test.fail()
       }
       _test.same(JSON.parse(_response.body), { error: false, id: 9 })
 
-      path = '/update/user'
-      await helper.request({ method: 'post', path, json: { name: 'Alice' } })
-      _response = await helper.request({ method: 'post', path, json: { name: 'Alice' } })
+      url = helper.fastify.url(_fastify, '/update/user')
+      await helper.request({ method: 'post', url, json: { name: 'Alice' } })
+      _response = await helper.request({ method: 'post', url, json: { name: 'Alice' } })
       if (_response.headers['x-peekaboo']) {
         _test.fail()
       }
       _test.same(JSON.parse(_response.body), { error: false, name: 'Alice' })
 
-      path = '/update/user'
-      await helper.request({ method: 'post', path, json: { id: 8, name: 'Mimì' } })
-      _response = await helper.request({ method: 'post', path, json: { id: 8, name: 'Mimì' } })
-      if (!_response.headers['x-peekaboo']) {
+      url = helper.fastify.url(_fastify, '/update/user')
+      await helper.request({ method: 'post', url, json: { id: 8, name: 'Mimì' } })
+      _response = await helper.request({ method: 'post', url, json: { id: 8, name: 'Mimì' } })
+      if (_response.headers['x-peekaboo']) {
         _test.fail()
       }
       _test.same(JSON.parse(_response.body), { error: false, id: 8, name: 'Mimì' })
@@ -185,15 +185,15 @@ tap.test('peekaboo matching by request body (function)',
     try {
       await helper.fastify.start(_fastify)
 
-      const path = '/update/user'
-      await helper.request({ method: 'put', path })
-      let _response = await helper.request({ method: 'put', path })
+      const url = helper.fastify.url(_fastify, '/update/user')
+      await helper.request({ method: 'put', url })
+      let _response = await helper.request({ method: 'put', url })
       if (_response.headers['x-peekaboo']) {
         _test.fail()
       }
 
-      await helper.request({ method: 'put', path, json: { name: 'Alice' } })
-      _response = await helper.request({ method: 'put', path, json: { name: 'Alice' } })
+      await helper.request({ method: 'put', url, json: { name: 'Alice' } })
+      _response = await helper.request({ method: 'put', url, json: { name: 'Alice' } })
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }

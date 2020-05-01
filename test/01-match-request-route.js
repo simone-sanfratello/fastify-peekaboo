@@ -13,6 +13,7 @@ tap.test('peekaboo matching by request route (string)',
         xheader: true,
         rules: [{
           request: {
+            methods: true,
             route: /^\/a\/p/
           }
         }]
@@ -25,9 +26,9 @@ tap.test('peekaboo matching by request route (string)',
     await helper.fastify.start(_fastify)
 
     try {
-      const path = '/a/path/to/something?q=1'
-      await helper.request({ path })
-      const _response = await helper.request({ path })
+      const url = helper.fastify.url(_fastify, '/a/path/to/something?q=1')
+      await helper.request({ url })
+      const _response = await helper.request({ url })
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
@@ -37,8 +38,8 @@ tap.test('peekaboo matching by request route (string)',
     }
 
     try {
-      const path = '/not-matching'
-      await helper.request({ path })
+      const url = helper.fastify.url(_fastify, '/not-matching')
+      await helper.request({ url })
     } catch (error) {
       _test.pass()
     }
@@ -56,6 +57,7 @@ tap.test('peekaboo matching by request route (RegExp)',
         xheader: true,
         rules: [{
           request: {
+            methods: true,
             route: /users|guest/
           }
         }]
@@ -68,9 +70,9 @@ tap.test('peekaboo matching by request route (RegExp)',
     await helper.fastify.start(_fastify)
 
     try {
-      const path = '/path/to/users'
-      await helper.request({ path })
-      const _response = await helper.request({ path })
+      const url = helper.fastify.url(_fastify, '/path/to/users')
+      await helper.request({ url })
+      const _response = await helper.request({ url })
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
@@ -81,7 +83,7 @@ tap.test('peekaboo matching by request route (RegExp)',
 
     try {
       const path = '/not-matching'
-      await helper.request({ path })
+      await helper.request({ url })
     } catch (error) {
       _test.pass()
     }
@@ -99,6 +101,7 @@ tap.test('peekaboo matching by request route (function)',
         xheader: true,
         rules: [{
           request: {
+            methods: true,
             route: function (route) {
               return route.indexOf('user/10') !== -1 && route.indexOf('user/20') === -1
             }
@@ -114,16 +117,18 @@ tap.test('peekaboo matching by request route (function)',
 
     try {
       let path = '/path/to/user/10'
-      await helper.request({ path })
-      let _response = await helper.request({ path })
+      let url = helper.fastify.url(_fastify, path)
+      await helper.request({ url })
+      let _response = await helper.request({ url })
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
       _test.equal(_response.body, 'user.id=10')
 
       path = '/path/to/user/20'
-      await helper.request({ path })
-      _response = await helper.request({ path })
+      url = helper.fastify.url(_fastify, path)
+      await helper.request({ url })
+      _response = await helper.request({ url })
       if (_response.headers['x-peekaboo']) {
         _test.fail()
       }
@@ -134,7 +139,8 @@ tap.test('peekaboo matching by request route (function)',
 
     try {
       const path = '/not-matching'
-      await helper.request({ path })
+      const url = helper.fastify.url(_fastify, path)
+      await helper.request({ url })
     } catch (error) {
       _test.pass()
     }

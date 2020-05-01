@@ -33,16 +33,16 @@ tap.test('peekaboo matching by response headers (object)',
     try {
       await helper.fastify.start(_fastify)
 
-      let path = '/200'
-      await helper.request({ path })
-      let _response = await helper.request({ path })
+      let url = helper.fastify.url(_fastify, '/200')
+      await helper.request({ url })
+      let _response = await helper.request({ url })
       if (_response.headers['x-peekaboo']) {
         _test.fail()
       }
 
-      path = '/201'
-      await helper.request({ path })
-      _response = await helper.request({ path })
+      url = helper.fastify.url(_fastify, '/201')
+      await helper.request({ url })
+      _response = await helper.request({ url })
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
@@ -87,16 +87,16 @@ tap.test('peekaboo matching by response headers (function)',
     try {
       await helper.fastify.start(_fastify)
 
-      let path = '/cookie'
-      await helper.request({ path })
-      let _response = await helper.request({ path })
+      let url = helper.fastify.url(_fastify, '/cookie')
+      await helper.request({ url })
+      let _response = await helper.request({ url })
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
 
-      path = '/home'
-      await helper.request({ path })
-      _response = await helper.request({ path })
+      url = helper.fastify.url(_fastify, '/home')
+      await helper.request({ url })
+      _response = await helper.request({ url })
       if (_response.headers['x-peekaboo']) {
         _test.fail()
       }

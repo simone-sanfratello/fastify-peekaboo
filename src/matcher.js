@@ -2,7 +2,7 @@ const url = require('url')
 
 const matcher = {
   request: function (request, rule) {
-    const route = new url.URL(request.raw.originalUrl).pathname
+    const route = new url.URL('http://a.b' + request.raw.originalUrl).pathname
 
     if (!matcher.list(request.req.method.toLowerCase(), rule.methods) ||
       !matcher.string(route, rule.route)) {
@@ -24,6 +24,9 @@ const matcher = {
   },
 
   response: function (response, rule) {
+    if (!rule) {
+      return true
+    }
     if (rule.status && !matcher.number(response.status, rule.status)) {
       return false
     }
@@ -39,7 +42,7 @@ const matcher = {
   string: function (string, match) {
     const typeOf = typeof match
     if (typeOf === 'boolean') {
-      return match
+      return (match && string !== undefined) || (!match && string === undefined)
     }
     if (typeOf === 'string') {
       return string === match
@@ -54,6 +57,9 @@ const matcher = {
   },
 
   number: function (number, match) {
+    if (number === undefined) {
+      return false
+    }
     const typeOf = typeof match
     if (typeOf === 'boolean') {
       return match
@@ -82,10 +88,19 @@ const matcher = {
     if (typeOf === 'function') {
       return !!match(value)
     }
+    if (typeOf === 'string') {
+      return match === value
+    }
     return match.includes(value)
   },
 
   object: function (object, match) {
+    if (match === true) {
+      return true
+    }
+    if (match === false) {
+      return false
+    }
     if (typeof match === 'function') {
       return !!match(object)
     }

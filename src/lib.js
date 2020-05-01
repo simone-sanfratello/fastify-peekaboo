@@ -1,6 +1,5 @@
 const crypto = require('crypto')
 const stream = require('stream')
-const url = require('url')
 const stringify = require('json-stringify-extended')
 
 const lib = {
@@ -22,37 +21,31 @@ const lib = {
 
   hash: {
     request: function (request, rule) {
-      const _rule = rule.request
       const hashing = {
         method: request.req.method,
-        route: new url.URL(request.raw.originalUrl).pathname
+        route: request.raw.originalUrl
       }
 
-      // nb on purpuse copy/paste code for performance reason
-      if (_rule.query) {
-        hashing.query = {}
-        for (const key in _rule.query) {
-          hashing.query[key] = request.query[key]
-        }
-      }
-      if (_rule.body) {
-        hashing.body = {}
-        for (const key in _rule.body) {
-          hashing.body[key] = request.body[key]
-        }
-      }
-      if (_rule.headers) {
-        hashing.headers = {}
-        for (const key in _rule.headers) {
-          hashing.headers[key] = request.headers[key]
+      for (const part of ['headers', 'body', 'query']) {
+        if (rule[part]) {
+          // on mathing all or function, hash whole part
+          if (rule[part] === true || typeof rule[part] === 'function') {
+            hashing[part] = request[part]
+            continue
+          }
+
+          hashing[part] = {}
+          for (const key in rule[part]) {
+            hashing[part][key] = request[part][key]
+          }
         }
       }
       return crypto.createHmac('sha256', '')
-        .update(stringify(hashing))
+        .update(stringify(hashing, stringify.options.compact))
         .digest('hex')
     },
     response: function (response, rule) {
-      if (!rule.response) {
+      if (!rule) {
         return Date.now()
       }
       const hashing = {}
@@ -78,7 +71,7 @@ const lib = {
         }
       }
       return crypto.createHmac('sha256', '')
-        .update(stringify(hashing))
+        .update(stringify(hashing, stringify.options.compact))
         .digest('hex')
     }
   },

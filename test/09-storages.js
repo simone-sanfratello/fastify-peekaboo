@@ -31,9 +31,9 @@ tap.test('peekaboo storage (file)',
     await helper.fastify.start(_fastify)
 
     try {
-      const path = '/'
-      await helper.request({ path })
-      const _response = await helper.request({ path })
+      const url = helper.fastify.url(_fastify, '/')
+      await helper.request({ url })
+      const _response = await helper.request({ url })
       if (_response.headers['x-peekaboo'] !== 'from-cache-fs') {
         _test.fail('should use cache fs, but it doesnt')
       }

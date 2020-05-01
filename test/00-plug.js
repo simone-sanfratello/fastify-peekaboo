@@ -35,8 +35,9 @@ tap.test('peekaboo plugin is working (basic match)',
 
     try {
       await helper.fastify.start(_fastify)
-      await helper.request({ path: '/home' })
-      const _response = await helper.request({ path: '/home' })
+      const url = helper.fastify.url(_fastify, '/home')
+      await helper.request({ url })
+      const _response = await helper.request({ url })
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
@@ -53,12 +54,7 @@ tap.test('peekaboo plugin is working (default settings)',
     const _fastify = fastify()
     _fastify
       .register(peekaboo, {
-        xheader: true,
-        rules: [{
-          request: {
-            route: true
-          }
-        }]
+        xheader: true
       })
 
     _fastify.all('/home', async (request, response) => {
@@ -67,8 +63,9 @@ tap.test('peekaboo plugin is working (default settings)',
 
     try {
       await helper.fastify.start(_fastify)
-      await helper.request({ path: '/home' })
-      const _response = await helper.request({ path: '/home' })
+      const url = helper.fastify.url(_fastify, '/home')
+      await helper.request({ url })
+      const _response = await helper.request({ url })
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }

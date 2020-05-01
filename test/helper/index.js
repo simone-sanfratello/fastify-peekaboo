@@ -5,7 +5,7 @@ if (!process.env.NODE_ENV) {
 }
 
 const got = require('got')
-const options = { retry: 0, throwHttpErrors: false }
+const options = {} // retry: 0, throwHttpErrors: false }
 
 const helper = {
   fastify: {
@@ -13,17 +13,16 @@ const helper = {
     start: async function (instance) {
       await instance.listen(0)
       instance.server.unref()
-      helper.fastify._port = instance.server.address().port
     },
     stop: async function (instance) {
       await instance.close()
+    },
+    url: function (instance, path) {
+      return `http://127.0.0.1:${instance.server.address().port}${path}`
     }
   },
   request: async function (request) {
-    const url = `http://127.0.0.1:${helper.fastify._port}` + request.path
-    console.log(url)
-    delete request.path
-    return got({ url, ...options, ...request })
+    return got({ ...options, ...request })
   }
 }
 

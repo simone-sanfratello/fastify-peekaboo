@@ -9,8 +9,8 @@ const match = {
   request: function (request, rules) {
     for (let index = 0; index < rules.length; index++) {
       const rule = rules[index]
-      if (matcher.request(request, rule)) {
-        return { rule, hash: lib.hash(request, rule) }
+      if (matcher.request(request, rule.request)) {
+        return { rule, hash: lib.hash.request(request, rule.request) }
       }
     }
   },
@@ -20,8 +20,8 @@ const match = {
    * @return {hash|undefined}
    */
   response: function (response, rule) {
-    if (matcher.response(response, rule)) {
-      return lib.hash(response, rule)
+    if (matcher.response(response, rule.response)) {
+      return lib.hash.response(response, rule.response)
     }
   }
 
