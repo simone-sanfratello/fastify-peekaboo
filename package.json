@@ -20,7 +20,7 @@
     "test"
   ],
   "scripts": {
-    "test": "standard && tap test/*-*.js",
+    "test": "standard && tap test/*.e2e.js",
     "test-coverage": "standard && tap test/* --cov"
   },
   "description": "fastify plugin response caching",

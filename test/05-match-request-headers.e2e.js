@@ -14,6 +14,7 @@ tap.test('peekaboo matching by request headers (string)',
         rules: [{
           request: {
             route: '/',
+            methods: true,
             headers: { referer: true }
           }
         }]
@@ -28,8 +29,8 @@ tap.test('peekaboo matching by request headers (string)',
 
       let url = helper.fastify.url(_fastify, '/')
       let _headers = { referer: 'testing' }
-      await helper.request(url, { headers: _headers })
-      let _response = await helper.request(url, { headers: _headers })
+      await helper.request({ url, headers: _headers })
+      let _response = await helper.request({ url, headers: _headers })
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
@@ -37,8 +38,8 @@ tap.test('peekaboo matching by request headers (string)',
 
       url = helper.fastify.url(_fastify, '/')
       _headers = { host: 'localhost' }
-      await helper.request(url, { headers: _headers })
-      _response = await helper.request(url, { headers: _headers })
+      await helper.request({ url, headers: _headers })
+      _response = await helper.request({ url, headers: _headers })
       if (_response.headers['x-peekaboo']) {
         _test.fail()
       }
@@ -60,6 +61,7 @@ tap.test('peekaboo matching by request headers (array)',
         rules: [{
           request: {
             route: '/',
+            methods: true,
             headers: { authorization: true, cookie: true }
           }
         }]
@@ -78,14 +80,14 @@ tap.test('peekaboo matching by request headers (array)',
 
       let url = helper.fastify.url(_fastify, '/')
       let headers = { authorization: 'token#1', cookie: 'sid=abcde13564' }
-      await helper.request(url, { headers })
-      let _response = await helper.request(url, { headers })
+      await helper.request({ url, headers })
+      let _response = await helper.request({ url, headers })
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
 
       url = helper.fastify.url(_fastify, '/')
-      await helper.request(url, { headers })
+      await helper.request({ url, headers })
       _response = await helper.request({ url })
       if (_response.headers['x-peekaboo']) {
         _test.fail()
@@ -94,8 +96,8 @@ tap.test('peekaboo matching by request headers (array)',
 
       url = helper.fastify.url(_fastify, '/')
       headers = { authorization: 'token#2', cookie: 'sid=987654abcde' }
-      await helper.request(url, { headers })
-      _response = await helper.request(url, { headers })
+      await helper.request({ url, headers })
+      _response = await helper.request({ url, headers })
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
@@ -118,6 +120,7 @@ tap.test('peekaboo matching by request headers (function)',
         rules: [{
           request: {
             route: '/',
+            methods: true,
             headers: function (headers) {
               if (headers['accept-language'] && headers['accept-language'].indexOf('it') !== -1) {
                 return ['accept-language']
@@ -148,8 +151,8 @@ tap.test('peekaboo matching by request headers (function)',
 
       url = helper.fastify.url(_fastify, '/')
       const headers = { 'accept-language': 'en-US,en;q=0.9,it;q=0.8,la;q=0.7' }
-      await helper.request(url, { headers })
-      _response = await helper.request(url, { headers })
+      await helper.request({ url, headers })
+      _response = await helper.request({ url, headers })
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }

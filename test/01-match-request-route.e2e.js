@@ -82,7 +82,7 @@ tap.test('peekaboo matching by request route (RegExp)',
     }
 
     try {
-      const path = '/not-matching'
+      const url = helper.fastify.url(_fastify, '/not-matching')
       await helper.request({ url })
     } catch (error) {
       _test.pass()

@@ -23,10 +23,6 @@ const plugin = function (fastify, settings, next) {
   const preHandler = function (request, response, next) {
     (async () => {
       request.log.trace({ peekaboo: { preHandler: { request: lib.log.request(request) } } })
-      if (!_settings) {
-        next()
-        return
-      }
       const _match = match.request(request, _settings.rules)
       if (!_match) {
         next()

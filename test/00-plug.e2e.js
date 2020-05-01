@@ -48,6 +48,37 @@ tap.test('peekaboo plugin is working (basic match)',
     }
   })
 
+tap.test('peekaboo plugin is working, no xheader',
+  async (_test) => {
+    _test.plan(2)
+    const _fastify = fastify({ logger: { level: 'trace' } })
+    _fastify.register(peekaboo, {
+      xheader: false
+    })
+
+    let i = 1
+    _fastify.get('/home', async (request, response) => {
+      response.send(i)
+      i++
+    })
+
+    try {
+      await helper.fastify.start(_fastify)
+      const url = helper.fastify.url(_fastify, '/home')
+      await helper.request({ url })
+      const _response = await helper.request({ url })
+      if (_response.headers['x-peekaboo']) {
+        _test.fail()
+      }
+      _test.equal(_response.body, '1')
+
+      await helper.fastify.stop(_fastify)
+      _test.pass()
+    } catch (error) {
+      _test.threw(error)
+    }
+  })
+
 tap.test('peekaboo plugin is working (default settings)',
   async (_test) => {
     _test.plan(1)

@@ -11,10 +11,6 @@ tap.test('peekaboo storage (file)',
     _fastify
       .register(peekaboo, {
         xheader: true,
-        rules: [{
-          methods: '*',
-          route: true
-        }],
         expire: 10 * 1000,
         storage: {
           mode: 'fs',
