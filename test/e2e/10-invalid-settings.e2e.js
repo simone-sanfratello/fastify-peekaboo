@@ -14,9 +14,7 @@ tap.test('peekaboo invalid settings #1', async (_test) => {
         request: {
           methods: true,
           route: true,
-          headers: {
-            a: 99
-          }
+          headers: { a: 99 }
         }
       }]
     })
@@ -24,6 +22,7 @@ tap.test('peekaboo invalid settings #1', async (_test) => {
     await helper.fastify.stop(_fastify)
     _test.fail()
   } catch (error) {
+    console.log(error.toString())
     await helper.fastify.stop(_fastify)
     _test.pass()
   }
@@ -37,7 +36,7 @@ tap.test('peekaboo invalid settings #2', async (_test) => {
     _fastify.register(peekaboo, {
       rules: [{
         request: {
-          methods: -1,
+          methods: undefined,
           route: '/home'
         }
       }]
@@ -46,6 +45,53 @@ tap.test('peekaboo invalid settings #2', async (_test) => {
     await helper.fastify.stop(_fastify)
     _test.fail()
   } catch (error) {
+    console.log(error.toString())
+    await helper.fastify.stop(_fastify)
+    _test.pass()
+  }
+})
+
+tap.test('peekaboo invalid settings #3', async (_test) => {
+  _test.plan(1)
+
+  const _fastify = fastify()
+  try {
+    _fastify.register(peekaboo, {
+      rules: [{
+        request: {
+          methods: ['miao', 'put'],
+          route: '/home'
+        }
+      }]
+    })
+    await helper.fastify.start(_fastify)
+    await helper.fastify.stop(_fastify)
+    _test.fail()
+  } catch (error) {
+    console.log(error.toString())
+    await helper.fastify.stop(_fastify)
+    _test.pass()
+  }
+})
+
+tap.test('peekaboo invalid settings #4', async (_test) => {
+  _test.plan(1)
+
+  const _fastify = fastify()
+  try {
+    _fastify.register(peekaboo, {
+      rules: [{
+        request: {
+          methods: 'drink',
+          route: '/home'
+        }
+      }]
+    })
+    await helper.fastify.start(_fastify)
+    await helper.fastify.stop(_fastify)
+    _test.fail()
+  } catch (error) {
+    console.log(error.toString())
     await helper.fastify.stop(_fastify)
     _test.pass()
   }

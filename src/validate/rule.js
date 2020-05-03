@@ -17,9 +17,12 @@ const s = superstruct.superstruct({
   }
 })
 
+const methods = Object.values(lib.METHOD)
+methods.shift() // trim '*'
+
 const matchingNumber = s.union(['boolean', 'number', 'regexp', 'function'])
 const matchingString = s.union(['boolean', 'string', 'regexp', 'function'])
-const matchingList = s.union(['boolean', s.enum(Object.values(lib.METHOD)), '*', 'regexp', 'function'])
+const matchingList = s.union(['boolean', s.enum(methods), s.array([s.enum(methods)]), '*', 'regexp', 'function'])
 const matchingObject = s.union(['boolean', 'function', 'matchingStringObject'])
 
 const rule = s({

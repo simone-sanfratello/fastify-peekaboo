@@ -150,7 +150,12 @@ const plugin = function (fastify, settings, next) {
     })()
   }
 
-  _init(settings)
+  try {
+    _init(settings)
+  } catch (error) {
+    next(error)
+    return
+  }
   fastify.decorateReply('peekaboo', {})
   fastify.addHook('preHandler', preHandler)
   fastify.addHook('onSend', onSend)
