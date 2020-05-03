@@ -156,10 +156,6 @@ See [documentation](./doc/README.md) for further informations and examples.
 
 ## Roadmap
 
-**v. 1.0**
-
-- [ ] doc review (matching system)
-
 **v. 1.1**
 
 - [ ] postgresql storage?
