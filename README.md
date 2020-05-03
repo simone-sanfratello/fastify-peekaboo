@@ -5,11 +5,11 @@
 [![JS Standard Style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
 [![Build Status](https://travis-ci.org/braceslab/fastify-peekaboo.svg?branch=master)](https://travis-ci.org/braceslab/fastify-peekaboo)
 
-fastify plugin for memoize responses
+fastify plugin for memoize responses by expressive settings.
 
 ## Purpose
 
-Use arbitrary cache to serve responses from previous elaboration, matching them by request and response
+Use arbitrary cache to serve responses from previous elaboration, matching them by request and response.
 
 ## Installing
 
@@ -26,16 +26,20 @@ const fs = require('fs')
 
 const _fastify = fastify()
 _fastify.register(peekaboo, {
-  // default settings: cache everything good!
+  // default settings: cache good stuff for 1 day
   rules: [{
     request: {
-      methods: '*',
+      methods: true,
       route: true
     },
     response: {
-      status: /^2/
+      status: (code) => code > 199 && code < 300
     }
-  }]
+  }],
+  storage: { mode: 'memory' },
+  expire: 86400000, // 1 day in ms
+  xheader: true,
+  log: false
 })
 
 _fastify.get('/home', async (request, response) => {
@@ -56,16 +60,15 @@ Cache storage can be `memory` (ram), `fs`.
 
 ## Settings
 
-Cache works by matching request and response
+Cache works by matching request and response.  
+If `request` (and `response`) match, `response` is saved by hashing the matching `request`.  
+The first rule that match the request is choosen.
 
 ### settings
 
 ```js
 {
-  rules: [{
-    request: MatchRequest,
-    response: MatchResponse
-  }],
+  rules: MatchingRule[],
   storage: Storage,
   expire: number,
   xheader: boolean
@@ -74,15 +77,10 @@ Cache works by matching request and response
 
 #### settings.rules
 
-@todo rules
-rules are cumulative, not exclusive
-rule: request.method and request.route are mandatory
-
-@todo recipes, examples, use cases
+The set of rules that indicate to use cache or not for requests.  
+See [matching system](./doc/README.md#matching-system) for details.
 
 #### settings.storage
-
-type: `object`
 
 - `mode`  
   type: `string`  [ `memory` | `fs` ]  
@@ -99,7 +97,16 @@ type: `object`
     type: `string`  
     path on filesystem where cache files will be stored
 
-    @todo example
+  ```js
+  {
+    mode: 'memory'
+  }
+
+  {
+    mode: 'fs',
+    config: { path: '/tmp/peekaboo' }
+  }
+  ```
 
 #### settings.expire
 
@@ -113,17 +120,9 @@ type: `boolean`
 default: `true`  
 add on response header `x-peekaboo` if response come from cache
 
-### default
-
-Default rules: cache all successful responses
-
-```js
-@todo settings/default
-```
-
 ### Log
 
-To enable loggin just enable the `fastify` logging option like
+Use server log settings
 
 ```js
 fastify({ logger: true })
@@ -141,6 +140,7 @@ See [documentation](./doc/README.md) for further informations and examples.
   - new matching system
   - drop redis storage
   - 100% test coverage
+  - validate settings with `superstruct`
 
 - **v. 0.5.0-beta** [ 2020-04-30 ] beta  
   - upgrade dependencies
@@ -158,17 +158,14 @@ See [documentation](./doc/README.md) for further informations and examples.
 
 **v. 1.0**
 
-- [ ] validate settings with `superstruct`
-- [ ] real world examples
-  - [ ] settings conflict detection
-  - [ ] send warnings/errors
-- [ ] doc review
+- [ ] doc review (matching system)
 
 **v. 1.1**
 
 - [ ] postgresql storage?
-- [ ] benchmark plugin overhead (autocannon?)
 - [ ] `response.rewrite` option
+- [ ] doc: real world examples
+- [ ] benchmark plugin overhead (autocannon?)
   - [ ] benchmark with different storages
 - [ ] on file upload?
 - [ ] test edge cases

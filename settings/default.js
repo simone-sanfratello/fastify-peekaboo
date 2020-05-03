@@ -5,13 +5,10 @@ const default_ = {
       route: true
     },
     response: {
-      status: /^2/
+      status: (code) => code > 199 && code < 300
     }
   }],
-  storage: {
-    mode: 'memory',
-    config: {}
-  },
+  storage: { mode: 'memory' },
   expire: 86400000, // 1 day in ms
   xheader: true,
   log: false
