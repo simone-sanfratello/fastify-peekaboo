@@ -1,13 +1,13 @@
 {
   "name": "fastify-peekaboo",
-  "version": "0.5.0-beta",
+  "version": "1.0.0-alpha",
   "dependencies": {
     "a-toolbox": "^1.7.3",
-    "clone": "^2.1.2",
     "fastify-plugin": "^1.6.1",
+    "json-stringify-extended": "^2.0.0",
     "keyv": "^4.0.0",
     "keyv-file": "^0.1.13",
-    "keyv-redis": "git://github.com/simone-sanfratello/keyv-redis.git#patch-1-0",
+    "superstruct": "^0.8.3",
     "uuid": "^7.0.3"
   },
   "devDependencies": {
@@ -21,10 +21,11 @@
     "test"
   ],
   "scripts": {
-    "test": "standard && tap test/*-*.js",
-    "test-coverage": "standard && tap test/* --cov"
+    "lint": "standard --fix",
+    "test": "tap --files test/e2e/*.e2e.js test/unit/*.spec.js",
+    "test-coverage": "tap test/* --cov"
   },
-  "description": "fastify plugin response caching",
+  "description": "fastify plugin for memoize responses by expressive settings",
   "main": "src/plugin.js",
   "files": [
     "src/",

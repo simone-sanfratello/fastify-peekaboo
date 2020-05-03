@@ -1,18 +1,14 @@
 const default_ = {
-  match: {
+  rules: [{
     request: {
-      methods: 'get'
+      methods: true,
+      route: true
     },
     response: {
-      status: 200,
-      headers: {
-      }
+      status: (code) => code > 199 && code < 300
     }
-  },
-  storage: {
-    mode: 'memory',
-    config: {}
-  },
+  }],
+  storage: { mode: 'memory' },
   expire: 86400000, // 1 day in ms
   xheader: true,
   log: false

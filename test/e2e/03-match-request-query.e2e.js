@@ -1,20 +1,23 @@
 const tap = require('tap')
 const fastify = require('fastify')
-const got = require('got')
+const helper = require('../helper')
 
-const peekaboo = require('../src/plugin')
+const peekaboo = require('../../src/plugin')
 
 tap.test('peekaboo matching by request query (*)',
   async (_test) => {
-    _test.plan(3)
+    _test.plan(2)
     const _fastify = fastify()
     _fastify
       .register(peekaboo, {
         xheader: true,
-        matches: [{
+        rules: [{
           request: {
+            methods: ['get', 'put'],
             route: '/query',
-            query: '*'
+            query: {
+              q: '1'
+            }
           }
         }]
       })
@@ -24,27 +27,24 @@ tap.test('peekaboo matching by request query (*)',
     })
 
     try {
-      await _fastify.listen(0)
-      _fastify.server.unref()
-      const _port = _fastify.server.address().port
+      await helper.fastify.start(_fastify)
 
-      let _url = `http://127.0.0.1:${_port}/query?q=1`
-      await got(_url)
-      let _response = await got(_url)
+      let url = helper.fastify.url(_fastify, '/query?q=1')
+      await helper.request({ url })
+      let _response = await helper.request({ url })
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
       _test.equal(_response.body, '{"q":"1"}')
 
-      _url = `http://127.0.0.1:${_port}/query?q=1&p=0`
-      await got(_url)
-      _response = await got(_url)
-      if (!_response.headers['x-peekaboo']) {
+      url = helper.fastify.url(_fastify, '/query?q=0&p=0')
+      await helper.request({ url })
+      _response = await helper.request({ url })
+      if (_response.headers['x-peekaboo']) {
         _test.fail()
       }
-      _test.equal(_response.body, '{"q":"1","p":"0"}')
 
-      await _fastify.close()
+      await helper.fastify.stop(_fastify)
       _test.pass()
     } catch (error) {
       _test.threw(error)
@@ -58,10 +58,11 @@ tap.test('peekaboo matching by request query (string)',
     _fastify
       .register(peekaboo, {
         xheader: true,
-        matches: [{
+        rules: [{
           request: {
+            methods: '*',
             route: '/query',
-            query: 'param'
+            query: { param: true }
           }
         }]
       })
@@ -71,44 +72,47 @@ tap.test('peekaboo matching by request query (string)',
     })
 
     try {
-      await _fastify.listen(0)
-      _fastify.server.unref()
-      const _port = _fastify.server.address().port
+      await helper.fastify.start(_fastify)
 
-      let _url = `http://127.0.0.1:${_port}/query?param=value1`
-      await got(_url)
-      let _response = await got(_url)
+      let url = helper.fastify.url(_fastify, '/query?param=value1')
+      await helper.request({ url })
+      let _response = await helper.request({ url })
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
       _test.equal(_response.body, '{"param":"value1"}')
 
-      _url = `http://127.0.0.1:${_port}/query?param=value2`
-      await got(_url)
-      _response = await got(_url)
+      url = helper.fastify.url(_fastify, '/query?param=value2')
+      await helper.request({ url })
+      _response = await helper.request({ url })
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
       _test.equal(_response.body, '{"param":"value2"}')
 
-      await _fastify.close()
+      await helper.fastify.stop(_fastify)
       _test.pass()
     } catch (error) {
       _test.threw(error)
     }
   })
 
-tap.test('peekaboo matching by request query (array)',
+tap.test('peekaboo matching by request query (any and never)',
   async (_test) => {
     _test.plan(2)
     const _fastify = fastify()
     _fastify
       .register(peekaboo, {
         xheader: true,
-        matches: [{
+        rules: [{
           request: {
+            methods: '*',
             route: '/query',
-            query: ['page', 'offset']
+            // any page and offset but no filter
+            query: {
+              page: true,
+              filter: false
+            }
           }
         }]
       })
@@ -118,33 +122,31 @@ tap.test('peekaboo matching by request query (array)',
     })
 
     try {
-      await _fastify.listen(0)
-      _fastify.server.unref()
-      const _port = _fastify.server.address().port
+      await helper.fastify.start(_fastify)
 
-      let _url = `http://127.0.0.1:${_port}/query?page=0`
-      await got(_url)
-      let _response = await got(_url)
-      if (_response.headers['x-peekaboo']) {
+      let url = helper.fastify.url(_fastify, '/query?page=0')
+      await helper.request({ url })
+      let _response = await helper.request({ url })
+      if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
 
-      _url = `http://127.0.0.1:${_port}/query?page=1&offset=2`
-      await got(_url)
-      _response = await got(_url)
+      url = helper.fastify.url(_fastify, '/query?page=1&offset=2')
+      await helper.request({ url })
+      _response = await helper.request({ url })
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
       _test.equal(_response.body, '{"page":"1","offset":"2"}')
 
-      _url = `http://127.0.0.1:${_port}/query?page=1&offset=2&filter=value`
-      await got(_url)
-      _response = await got(_url)
+      url = helper.fastify.url(_fastify, '/query?page=1&offset=2&filter=value')
+      await helper.request({ url })
+      _response = await helper.request({ url })
       if (_response.headers['x-peekaboo']) {
         _test.fail()
       }
 
-      await _fastify.close()
+      await helper.fastify.stop(_fastify)
       _test.pass()
     } catch (error) {
       _test.threw(error)
@@ -158,8 +160,9 @@ tap.test('peekaboo matching by request query (function)',
     _fastify
       .register(peekaboo, {
         xheader: true,
-        matches: [{
+        rules: [{
           request: {
+            methods: '*',
             route: '/query',
             query: function (query) {
               return parseInt(query.page) > 0
@@ -173,39 +176,37 @@ tap.test('peekaboo matching by request query (function)',
     })
 
     try {
-      await _fastify.listen(0)
-      _fastify.server.unref()
-      const _port = _fastify.server.address().port
+      await helper.fastify.start(_fastify)
 
-      let _url = `http://127.0.0.1:${_port}/query?page=0`
-      await got(_url)
-      let _response = await got(_url)
+      let url = helper.fastify.url(_fastify, '/query?page=0')
+      await helper.request({ url })
+      let _response = await helper.request({ url })
       if (_response.headers['x-peekaboo']) {
         _test.fail()
       }
 
-      _url = `http://127.0.0.1:${_port}/query?page=1&offset=2`
-      await got(_url)
-      _response = await got(_url)
+      url = helper.fastify.url(_fastify, '/query?page=1&offset=2')
+      await helper.request({ url })
+      _response = await helper.request({ url })
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
 
-      _url = `http://127.0.0.1:${_port}/query?page=2&offset=2&filter=value`
-      await got(_url)
-      _response = await got(_url)
+      url = helper.fastify.url(_fastify, '/query?page=2&offset=2&filter=value')
+      await helper.request({ url })
+      _response = await helper.request({ url })
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
 
-      _url = `http://127.0.0.1:${_port}/query?offset=0`
-      await got(_url)
-      _response = await got(_url)
+      url = helper.fastify.url(_fastify, '/query?offset=0')
+      await helper.request({ url })
+      _response = await helper.request({ url })
       if (_response.headers['x-peekaboo']) {
         _test.fail()
       }
 
-      await _fastify.close()
+      await helper.fastify.stop(_fastify)
       _test.pass()
     } catch (error) {
       _test.threw(error)

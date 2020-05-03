@@ -1,8 +1,8 @@
 const tap = require('tap')
 const fastify = require('fastify')
-const got = require('got')
+const helper = require('../helper')
 
-const peekaboo = require('../src/plugin')
+const peekaboo = require('../../src/plugin')
 
 tap.test('peekaboo matching by request headers (string)',
   async (_test) => {
@@ -11,10 +11,11 @@ tap.test('peekaboo matching by request headers (string)',
     _fastify
       .register(peekaboo, {
         xheader: true,
-        matches: [{
+        rules: [{
           request: {
             route: '/',
-            headers: 'referer'
+            methods: true,
+            headers: { referer: true }
           }
         }]
       })
@@ -24,28 +25,26 @@ tap.test('peekaboo matching by request headers (string)',
     })
 
     try {
-      await _fastify.listen(0)
-      _fastify.server.unref()
-      const _port = _fastify.server.address().port
+      await helper.fastify.start(_fastify)
 
-      let _url = `http://127.0.0.1:${_port}/`
+      let url = helper.fastify.url(_fastify, '/')
       let _headers = { referer: 'testing' }
-      await got(_url, { headers: _headers })
-      let _response = await got(_url, { headers: _headers })
+      await helper.request({ url, headers: _headers })
+      let _response = await helper.request({ url, headers: _headers })
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
       _test.equal(_response.body, 'testing')
 
-      _url = `http://127.0.0.1:${_port}/`
+      url = helper.fastify.url(_fastify, '/')
       _headers = { host: 'localhost' }
-      await got(_url, { headers: _headers })
-      _response = await got(_url, { headers: _headers })
+      await helper.request({ url, headers: _headers })
+      _response = await helper.request({ url, headers: _headers })
       if (_response.headers['x-peekaboo']) {
         _test.fail()
       }
 
-      await _fastify.close()
+      await helper.fastify.stop(_fastify)
       _test.pass()
     } catch (error) {
       _test.threw(error)
@@ -59,10 +58,11 @@ tap.test('peekaboo matching by request headers (array)',
     _fastify
       .register(peekaboo, {
         xheader: true,
-        matches: [{
+        rules: [{
           request: {
             route: '/',
-            headers: ['authorization', 'cookie']
+            methods: true,
+            headers: { authorization: true, cookie: true }
           }
         }]
       })
@@ -76,36 +76,34 @@ tap.test('peekaboo matching by request headers (array)',
     })
 
     try {
-      await _fastify.listen(0)
-      _fastify.server.unref()
-      const _port = _fastify.server.address().port
+      await helper.fastify.start(_fastify)
 
-      let _url = `http://127.0.0.1:${_port}/`
+      let url = helper.fastify.url(_fastify, '/')
       let headers = { authorization: 'token#1', cookie: 'sid=abcde13564' }
-      await got(_url, { headers })
-      let _response = await got(_url, { headers })
+      await helper.request({ url, headers })
+      let _response = await helper.request({ url, headers })
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
 
-      _url = `http://127.0.0.1:${_port}/`
-      await got(_url, { headers })
-      _response = await got(_url)
+      url = helper.fastify.url(_fastify, '/')
+      await helper.request({ url, headers })
+      _response = await helper.request({ url })
       if (_response.headers['x-peekaboo']) {
         _test.fail()
       }
       _test.equal(_response.body, 'error')
 
-      _url = `http://127.0.0.1:${_port}/`
+      url = helper.fastify.url(_fastify, '/')
       headers = { authorization: 'token#2', cookie: 'sid=987654abcde' }
-      await got(_url, { headers })
-      _response = await got(_url, { headers })
+      await helper.request({ url, headers })
+      _response = await helper.request({ url, headers })
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
       _test.equal(_response.body, 'ok ' + headers.cookie)
 
-      await _fastify.close()
+      await helper.fastify.stop(_fastify)
       _test.pass()
     } catch (error) {
       _test.threw(error)
@@ -119,9 +117,10 @@ tap.test('peekaboo matching by request headers (function)',
     _fastify
       .register(peekaboo, {
         xheader: true,
-        matches: [{
+        rules: [{
           request: {
             route: '/',
+            methods: true,
             headers: function (headers) {
               if (headers['accept-language'] && headers['accept-language'].indexOf('it') !== -1) {
                 return ['accept-language']
@@ -140,28 +139,26 @@ tap.test('peekaboo matching by request headers (function)',
     })
 
     try {
-      await _fastify.listen(0)
-      _fastify.server.unref()
-      const _port = _fastify.server.address().port
+      await helper.fastify.start(_fastify)
 
-      let _url = `http://127.0.0.1:${_port}/`
-      await got(_url)
-      let _response = await got(_url)
+      let url = helper.fastify.url(_fastify, '/')
+      await helper.request({ url })
+      let _response = await helper.request({ url })
       if (_response.headers['x-peekaboo']) {
         _test.fail()
       }
       _test.equal(_response.body, 'hello')
 
-      _url = `http://127.0.0.1:${_port}/`
+      url = helper.fastify.url(_fastify, '/')
       const headers = { 'accept-language': 'en-US,en;q=0.9,it;q=0.8,la;q=0.7' }
-      await got(_url, { headers })
-      _response = await got(_url, { headers })
+      await helper.request({ url, headers })
+      _response = await helper.request({ url, headers })
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
       _test.equal(_response.body, 'ciao')
 
-      await _fastify.close()
+      await helper.fastify.stop(_fastify)
       _test.pass()
     } catch (error) {
       _test.threw(error)

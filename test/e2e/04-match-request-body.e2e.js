@@ -1,8 +1,8 @@
 const tap = require('tap')
 const fastify = require('fastify')
-const got = require('got')
+const helper = require('../helper')
 
-const peekaboo = require('../src/plugin')
+const peekaboo = require('../../src/plugin')
 
 tap.test('peekaboo matching by request body (*)',
   async (_test) => {
@@ -11,11 +11,11 @@ tap.test('peekaboo matching by request body (*)',
     _fastify
       .register(peekaboo, {
         xheader: true,
-        matches: [{
+        rules: [{
           request: {
             methods: '*',
-            route: '/',
-            body: '*'
+            route: true,
+            body: true
           }
         }]
       })
@@ -29,27 +29,25 @@ tap.test('peekaboo matching by request body (*)',
     })
 
     try {
-      await _fastify.listen(0)
-      _fastify.server.unref()
-      const _port = _fastify.server.address().port
+      await helper.fastify.start(_fastify)
 
-      let _url = `http://127.0.0.1:${_port}/update`
-      await got.post(_url, { json: { id: 11 } })
-      let _response = await got.post(_url, { json: { id: 11 } })
+      let url = helper.fastify.url(_fastify, '/update')
+      await helper.request({ method: 'post', url, json: { id: 11 } })
+      let _response = await helper.request({ method: 'post', url, json: { id: 11 } })
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
       _test.same(JSON.parse(_response.body), { error: false, id: 11 })
 
-      _url = `http://127.0.0.1:${_port}/update`
-      await got.post(_url, { json: { id: 11, name: 'Alice' } })
-      _response = await got.post(_url, { json: { id: 11, name: 'Alice' } })
+      url = helper.fastify.url(_fastify, '/update')
+      await helper.request({ method: 'post', url, json: { id: 11, name: 'Alice' } })
+      _response = await helper.request({ method: 'post', url, json: { id: 11, name: 'Alice' } })
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
       _test.same(JSON.parse(_response.body), { error: false, name: 'Alice' })
 
-      await _fastify.close()
+      await helper.fastify.stop(_fastify)
       _test.pass()
     } catch (error) {
       _test.threw(error)
@@ -63,11 +61,11 @@ tap.test('peekaboo matching by request body (string)',
     _fastify
       .register(peekaboo, {
         xheader: true,
-        matches: [{
+        rules: [{
           request: {
             methods: '*',
             route: '/update/user',
-            body: 'id'
+            body: { id: true }
           }
         }]
       })
@@ -77,27 +75,25 @@ tap.test('peekaboo matching by request body (string)',
     })
 
     try {
-      await _fastify.listen(0)
-      _fastify.server.unref()
-      const _port = _fastify.server.address().port
+      await helper.fastify.start(_fastify)
 
-      let _url = `http://127.0.0.1:${_port}/update/user`
-      await got.post(_url, { json: { id: 9 } })
-      let _response = await got.post(_url, { json: { id: 9 } })
+      let url = helper.fastify.url(_fastify, '/update/user')
+      await helper.request({ method: 'post', url, json: { id: 9 } })
+      let _response = await helper.request({ method: 'post', url, json: { id: 9 } })
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
       _test.same(JSON.parse(_response.body), { error: false, id: 9 })
 
-      _url = `http://127.0.0.1:${_port}/update/user`
-      await got.post(_url, { json: { name: 'Alice' } })
-      _response = await got.post(_url, { json: { name: 'Alice' } })
+      url = helper.fastify.url(_fastify, '/update/user')
+      await helper.request({ method: 'post', url, json: { name: 'Alice' } })
+      _response = await helper.request({ method: 'post', url, json: { name: 'Alice' } })
       if (_response.headers['x-peekaboo']) {
         _test.fail()
       }
       _test.same(JSON.parse(_response.body), { error: false })
 
-      await _fastify.close()
+      await helper.fastify.stop(_fastify)
       _test.pass()
     } catch (error) {
       _test.threw(error)
@@ -111,11 +107,11 @@ tap.test('peekaboo matching by request body (array)',
     _fastify
       .register(peekaboo, {
         xheader: true,
-        matches: [{
+        rules: [{
           request: {
             methods: '*',
             route: '/update/user',
-            body: ['id', 'name']
+            body: { id: true, name: 'Alice' }
           }
         }]
       })
@@ -125,35 +121,33 @@ tap.test('peekaboo matching by request body (array)',
     })
 
     try {
-      await _fastify.listen(0)
-      _fastify.server.unref()
-      const _port = _fastify.server.address().port
+      await helper.fastify.start(_fastify)
 
-      let _url = `http://127.0.0.1:${_port}/update/user`
-      await got.post(_url, { json: { id: 9 } })
-      let _response = await got.post(_url, { json: { id: 9 } })
+      let url = helper.fastify.url(_fastify, '/update/user')
+      await helper.request({ method: 'post', url, json: { id: 9 } })
+      let _response = await helper.request({ method: 'post', url, json: { id: 9 } })
       if (_response.headers['x-peekaboo']) {
         _test.fail()
       }
       _test.same(JSON.parse(_response.body), { error: false, id: 9 })
 
-      _url = `http://127.0.0.1:${_port}/update/user`
-      await got.post(_url, { json: { name: 'Alice' } })
-      _response = await got.post(_url, { json: { name: 'Alice' } })
+      url = helper.fastify.url(_fastify, '/update/user')
+      await helper.request({ method: 'post', url, json: { name: 'Alice' } })
+      _response = await helper.request({ method: 'post', url, json: { name: 'Alice' } })
       if (_response.headers['x-peekaboo']) {
         _test.fail()
       }
       _test.same(JSON.parse(_response.body), { error: false, name: 'Alice' })
 
-      _url = `http://127.0.0.1:${_port}/update/user`
-      await got.post(_url, { json: { id: 8, name: 'Mimì' } })
-      _response = await got.post(_url, { json: { id: 8, name: 'Mimì' } })
-      if (!_response.headers['x-peekaboo']) {
+      url = helper.fastify.url(_fastify, '/update/user')
+      await helper.request({ method: 'post', url, json: { id: 8, name: 'Mimì' } })
+      _response = await helper.request({ method: 'post', url, json: { id: 8, name: 'Mimì' } })
+      if (_response.headers['x-peekaboo']) {
         _test.fail()
       }
       _test.same(JSON.parse(_response.body), { error: false, id: 8, name: 'Mimì' })
 
-      await _fastify.close()
+      await helper.fastify.stop(_fastify)
       _test.pass()
     } catch (error) {
       _test.threw(error)
@@ -167,7 +161,7 @@ tap.test('peekaboo matching by request body (function)',
     _fastify
       .register(peekaboo, {
         xheader: true,
-        matches: [{
+        rules: [{
           request: {
             methods: 'put',
             route: '/update/user',
@@ -189,25 +183,22 @@ tap.test('peekaboo matching by request body (function)',
     })
 
     try {
-      await _fastify.listen(0)
-      _fastify.server.unref()
-      const _port = _fastify.server.address().port
+      await helper.fastify.start(_fastify)
 
-      let _url = `http://127.0.0.1:${_port}/update/user`
-      await got.put(_url)
-      let _response = await got.put(_url)
+      const url = helper.fastify.url(_fastify, '/update/user')
+      await helper.request({ method: 'put', url })
+      let _response = await helper.request({ method: 'put', url })
       if (_response.headers['x-peekaboo']) {
         _test.fail()
       }
 
-      _url = `http://127.0.0.1:${_port}/update/user`
-      await got.put(_url, { json: { name: 'Alice' } })
-      _response = await got.put(_url, { json: { name: 'Alice' } })
+      await helper.request({ method: 'put', url, json: { name: 'Alice' } })
+      _response = await helper.request({ method: 'put', url, json: { name: 'Alice' } })
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
 
-      await _fastify.close()
+      await helper.fastify.stop(_fastify)
       _test.pass()
     } catch (error) {
       _test.threw(error)

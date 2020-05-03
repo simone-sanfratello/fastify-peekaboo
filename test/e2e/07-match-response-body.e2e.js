@@ -1,8 +1,8 @@
 const tap = require('tap')
 const fastify = require('fastify')
-const got = require('got')
+const helper = require('../helper')
 
-const peekaboo = require('../src/plugin')
+const peekaboo = require('../../src/plugin')
 
 tap.test('peekaboo matching by response body (object)',
   async (_test) => {
@@ -11,10 +11,10 @@ tap.test('peekaboo matching by response body (object)',
     _fastify
       .register(peekaboo, {
         xheader: true,
-        matches: [{
+        rules: [{
           request: {
             methods: '*',
-            route: '/'
+            route: true
           },
           response: {
             body: {
@@ -32,14 +32,12 @@ tap.test('peekaboo matching by response body (object)',
       response.code(403).send('ERROR_INVALID_AUTH')
     })
 
-    await _fastify.listen(0)
-    _fastify.server.unref()
-    const _port = _fastify.server.address().port
+    await helper.fastify.start(_fastify)
 
     try {
-      const _url = `http://127.0.0.1:${_port}/user/1012`
-      await got(_url)
-      const _response = await got(_url)
+      const url = helper.fastify.url(_fastify, '/user/1012')
+      await helper.request({ url })
+      const _response = await helper.request({ url })
       if (!_response.headers['x-peekaboo']) {
         _test.fail('not response from cache')
       }
@@ -48,17 +46,17 @@ tap.test('peekaboo matching by response body (object)',
     }
 
     try {
-      const _url = `http://127.0.0.1:${_port}/admin`
-      await got(_url)
+      const url = helper.fastify.url(_fastify, '/admin')
+      await helper.request({ url })
     } catch (error) {}
 
-    const _url = `http://127.0.0.1:${_port}/admin`
-    const _response = await got(_url, { throwHttpErrors: false })
+    const url = helper.fastify.url(_fastify, '/admin')
+    const _response = await helper.request({ url, throwHttpErrors: false })
     if (_response.headers['x-peekaboo']) {
       _test.fail('response from cache')
     }
 
-    await _fastify.close()
+    await helper.fastify.stop(_fastify)
     _test.pass()
   })
 
@@ -69,10 +67,10 @@ tap.test('peekaboo matching by response body (function)',
     _fastify
       .register(peekaboo, {
         xheader: true,
-        matches: [{
+        rules: [{
           request: {
             methods: '*',
-            route: '/'
+            route: true
           },
           response: {
             body: function (body) {
@@ -96,14 +94,12 @@ tap.test('peekaboo matching by response body (function)',
       response.send(' ... Alice ...')
     })
 
-    await _fastify.listen(0)
-    _fastify.server.unref()
-    const _port = _fastify.server.address().port
+    await helper.fastify.start(_fastify)
 
     try {
-      const _url = `http://127.0.0.1:${_port}/content`
-      await got(_url)
-      const _response = await got(_url)
+      const url = helper.fastify.url(_fastify, '/content')
+      await helper.request({ url })
+      const _response = await helper.request({ url })
       if (!_response.headers['x-peekaboo']) {
         _test.fail('not response from cache')
       }
@@ -112,9 +108,9 @@ tap.test('peekaboo matching by response body (function)',
     }
 
     try {
-      const _url = `http://127.0.0.1:${_port}/user/1012`
-      await got(_url)
-      const _response = await got(_url)
+      const url = helper.fastify.url(_fastify, '/user/1012')
+      await helper.request({ url })
+      const _response = await helper.request({ url })
       if (_response.headers['x-peekaboo']) {
         _test.fail('response from cache')
       }
@@ -123,9 +119,9 @@ tap.test('peekaboo matching by response body (function)',
     }
 
     try {
-      const _url = `http://127.0.0.1:${_port}/admin`
-      await got(_url)
-      const _response = await got(_url)
+      const url = helper.fastify.url(_fastify, '/admin')
+      await helper.request({ url })
+      const _response = await helper.request({ url })
       if (_response.headers['x-peekaboo']) {
         _test.fail('response from cache')
       }
@@ -133,6 +129,6 @@ tap.test('peekaboo matching by response body (function)',
       _test.threw(error)
     }
 
-    await _fastify.close()
+    await helper.fastify.stop(_fastify)
     _test.pass()
   })

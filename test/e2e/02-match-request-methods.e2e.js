@@ -1,8 +1,8 @@
 const tap = require('tap')
 const fastify = require('fastify')
-const got = require('got')
+const helper = require('../helper')
 
-const peekaboo = require('../src/plugin')
+const peekaboo = require('../../src/plugin')
 
 tap.test('peekaboo matching by request methods (*)',
   async (_test) => {
@@ -11,9 +11,10 @@ tap.test('peekaboo matching by request methods (*)',
     _fastify
       .register(peekaboo, {
         xheader: true,
-        matches: [{
+        rules: [{
           request: {
-            methods: '*'
+            methods: '*',
+            route: true
           }
         }]
       })
@@ -22,14 +23,12 @@ tap.test('peekaboo matching by request methods (*)',
       response.send('in ' + request.req.method)
     })
 
-    await _fastify.listen(0)
-    _fastify.server.unref()
-    const _port = _fastify.server.address().port
+    await helper.fastify.start(_fastify)
 
     try {
-      const _url = `http://127.0.0.1:${_port}/resource`
-      await got.post(_url)
-      const _response = await got.post(_url)
+      const url = helper.fastify.url(_fastify, '/resource')
+      await helper.request({ method: 'post', url })
+      const _response = await helper.request({ method: 'post', url })
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
@@ -39,9 +38,9 @@ tap.test('peekaboo matching by request methods (*)',
     }
 
     try {
-      const _url = `http://127.0.0.1:${_port}/resource`
-      await got.delete(_url)
-      const _response = await got.delete(_url)
+      const url = helper.fastify.url(_fastify, '/resource')
+      await helper.request({ method: 'delete', url })
+      const _response = await helper.request({ method: 'delete', url })
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
@@ -51,13 +50,13 @@ tap.test('peekaboo matching by request methods (*)',
     }
 
     try {
-      const _url = `http://127.0.0.1:${_port}/not-matching`
-      await got(_url)
+      const url = helper.fastify.url(_fastify, '/not-matching')
+      await helper.request({ url })
     } catch (error) {
       _test.pass()
     }
 
-    await _fastify.close()
+    await helper.fastify.stop(_fastify)
     _test.pass()
   })
 
@@ -68,9 +67,10 @@ tap.test('peekaboo matching by request methods (string)',
     _fastify
       .register(peekaboo, {
         xheader: true,
-        matches: [{
+        rules: [{
           request: {
-            methods: 'put'
+            methods: 'put',
+            route: true
           }
         }]
       })
@@ -83,14 +83,12 @@ tap.test('peekaboo matching by request methods (string)',
       response.send('in ' + request.req.method)
     })
 
-    await _fastify.listen(0)
-    _fastify.server.unref()
-    const _port = _fastify.server.address().port
+    await helper.fastify.start(_fastify)
 
     try {
-      const _url = `http://127.0.0.1:${_port}/resource`
-      await got.put(_url)
-      const _response = await got.put(_url)
+      const url = helper.fastify.url(_fastify, '/resource')
+      await helper.request({ method: 'put', url })
+      const _response = await helper.request({ method: 'put', url })
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
@@ -100,9 +98,9 @@ tap.test('peekaboo matching by request methods (string)',
     }
 
     try {
-      const _url = `http://127.0.0.1:${_port}/resource`
-      await got.delete(_url)
-      const _response = await got.delete(_url)
+      const url = helper.fastify.url(_fastify, '/resource')
+      await helper.request({ method: 'delete', url })
+      const _response = await helper.request({ method: 'delete', url })
       if (_response.headers['x-peekaboo']) {
         _test.fail()
       }
@@ -112,12 +110,12 @@ tap.test('peekaboo matching by request methods (string)',
     }
 
     try {
-      const _url = `http://127.0.0.1:${_port}/resource`
-      await got(_url)
+      const url = helper.fastify.url(_fastify, '/resource')
+      await helper.request({ url })
     } catch (error) {
       _test.pass()
     }
 
-    await _fastify.close()
+    await helper.fastify.stop(_fastify)
     _test.pass()
   })
