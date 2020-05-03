@@ -1,8 +1,8 @@
 const tap = require('tap')
 const fastify = require('fastify')
-const helper = require('./helper')
+const helper = require('../helper')
 
-const peekaboo = require('../src/plugin')
+const peekaboo = require('../../src/plugin')
 
 tap.test('peekaboo matching by request route (string)',
   async (_test) => {

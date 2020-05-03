@@ -3,9 +3,9 @@ const fastify = require('fastify')
 const fs = require('fs')
 const path = require('path')
 const got = require('got')
-const helper = require('./helper')
+const helper = require('../helper')
 
-const peekaboo = require('../src/plugin')
+const peekaboo = require('../../src/plugin')
 
 tap.test('peekaboo with streams',
   async (_test) => {
@@ -23,7 +23,7 @@ tap.test('peekaboo with streams',
     })
 
     _fastify.get('/local/image', async (request, response) => {
-      response.send(fs.createReadStream(path.join(__dirname, 'samples/image.png')))
+      response.send(fs.createReadStream(path.join(__dirname, '../samples/image.png')))
     })
 
     try {

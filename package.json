@@ -20,8 +20,9 @@
     "test"
   ],
   "scripts": {
-    "test": "standard && tap test/*.e2e.js",
-    "test-coverage": "standard && tap test/* --cov"
+    "lint": "standard --fix",
+    "test": "tap --files test/e2e/*.e2e.js test/unit/*.spec.js",
+    "test-coverage": "tap test/* --cov"
   },
   "description": "fastify plugin response caching",
   "main": "src/plugin.js",

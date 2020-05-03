@@ -8,7 +8,7 @@ const defaultSettings = require('../settings/default')
 const plugin = function (fastify, settings, next) {
   let _settings, _storage
 
-  const __init = function (settings) {
+  const _init = function (settings) {
     // @todo validate settings
     _settings = {
       ...defaultSettings,
@@ -142,7 +142,7 @@ const plugin = function (fastify, settings, next) {
     })()
   }
 
-  __init(settings)
+  _init(settings)
   fastify.decorateReply('peekaboo', {})
   fastify.addHook('preHandler', preHandler)
   fastify.addHook('onSend', onSend)

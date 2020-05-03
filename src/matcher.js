@@ -72,7 +72,7 @@ const matcher = {
       return !!match(number)
     }
     if (match instanceof RegExp) {
-      return match.test(number)
+      return match.test(number.toString())
     }
     return false
   },

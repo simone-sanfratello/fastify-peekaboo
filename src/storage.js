@@ -13,12 +13,9 @@ const lib = require('./lib')
  * @param {number} [options.expire=60000] 1 min
  */
 const Storage = function (options, fastify) {
-  let __storage
+  let _storage
 
-  const __init = function (options) {
-    if (!options) {
-      options = { }
-    }
+  const _init = function (options = {}) {
     if (!options.mode) {
       options.mode = lib.STORAGE.MEMORY
     }
@@ -28,7 +25,7 @@ const Storage = function (options, fastify) {
 
     switch (options.mode) {
       case lib.STORAGE.FS:
-        __storage = new Keyv({
+        _storage = new Keyv({
           store: new KeyvFile({
             filename: path.join(options.config.path, uuid())
           })
@@ -36,19 +33,19 @@ const Storage = function (options, fastify) {
         break
       case lib.STORAGE.MEMORY:
       default:
-        __storage = new Keyv()
+        _storage = new Keyv()
     }
   }
 
   const get = async function (key) {
-    return __storage.get(key)
+    return _storage.get(key)
   }
 
   const set = async function (key, data) {
-    return __storage.set(key, data, options.expire)
+    return _storage.set(key, data, options.expire)
   }
 
-  __init(options)
+  _init(options)
 
   return {
     get: get,
