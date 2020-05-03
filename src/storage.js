@@ -15,7 +15,7 @@ const lib = require('./lib')
 const Storage = function (options, fastify) {
   let _storage
 
-  const _init = function (options = {}) {
+  const _init = function (options) {
     if (!options.mode) {
       options.mode = lib.STORAGE.MEMORY
     }

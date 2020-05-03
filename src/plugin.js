@@ -1,23 +1,31 @@
-const package_ = require('../package.json')
 const plug = require('fastify-plugin')
+const package_ = require('../package.json')
+const defaultSettings = require('../settings/default')
 const Storage = require('./storage')
 const lib = require('./lib')
 const match = require('./match')
-const defaultSettings = require('../settings/default')
+const validateSettings = require('./validate/settings')
 
+/**
+ * implement fastify-plugin interface
+ * @param {Fastify} fastify instance
+ * @param {Settings} settings
+ * @param {function} next
+ *
+ * @throws if settings are invalid
+ */
 const plugin = function (fastify, settings, next) {
   let _settings, _storage
 
   const _init = function (settings) {
-    // @todo validate settings
     _settings = {
       ...defaultSettings,
       ...settings
     }
+    validateSettings(_settings)
 
     const { storage, expire } = settings
     _storage = new Storage({ ...storage, expire }, fastify)
-    // request.log.trace({ peekaboo: { init: { __settings } } })
   }
 
   const preHandler = function (request, response, next) {
