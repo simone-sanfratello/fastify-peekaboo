@@ -3,7 +3,6 @@
 [![NPM Version](http://img.shields.io/npm/v/fastify-peekaboo.svg?style=flat)](https://www.npmjs.org/package/fastify-peekaboo)
 [![NPM Downloads](https://img.shields.io/npm/dm/fastify-peekaboo.svg?style=flat)](https://www.npmjs.org/package/fastify-peekaboo)
 [![JS Standard Style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
-[![Build Status](https://travis-ci.org/braceslab/fastify-peekaboo.svg?branch=master)](https://travis-ci.org/braceslab/fastify-peekaboo)
 
 fastify plugin for memoize responses by expressive settings.
 
@@ -85,9 +84,8 @@ See [matching system](./doc/README.md#matching-system) for details.
 - `mode`  
   type: `string`  [ `memory` | `fs` ]  
   default: `memory`  
-  storage use [keyv](https://github.com/lukechilds/keyv) for interface; it can be:
   - `memory` (default) cache use runtime memory
-  - `fs` use filesystem, need also `config`
+  - `fs` use filesystem, need also `config.path`
 
 - `config`  
   type: `object`  
@@ -95,7 +93,7 @@ See [matching system](./doc/README.md#matching-system) for details.
   for `file` mode
   - `path`  
     type: `string`  
-    path on filesystem where cache files will be stored
+    dir path where files will be stored
 
   ```js
   {
@@ -136,7 +134,10 @@ See [documentation](./doc/README.md) for further informations and examples.
 
 ## Changelog
 
-- **v. 1.0**
+- **v. 1.0.0-alpha** [ 2020-05-14 ] alpha  
+  - drop `keyv` storage
+
+- **v. 1.0.0-alpha** [ 2020-05-03 ] alpha  
   - new matching system
   - drop redis storage
   - 100% test coverage
@@ -156,10 +157,10 @@ See [documentation](./doc/README.md) for further informations and examples.
 
 ## Roadmap
 
-**v. 1.1**
+### v. 1.2
 
-- [ ] postgresql storage?
 - [ ] `response.rewrite` option
+- [ ] `request.rewrite` option
 - [ ] doc: real world examples
 - [ ] benchmark plugin overhead (autocannon?)
   - [ ] benchmark with different storages
@@ -167,14 +168,14 @@ See [documentation](./doc/README.md) for further informations and examples.
 - [ ] test edge cases
   - [ ] querystring array or object
 
-**v. 1.3**
+### v. 1.3
 
-- [ ] settings recipes (example graphql caching)
+- [ ] preset recipes (example graphql caching)
 - [ ] CI
 
-**v. 1.4**
+### v. 1.4
 
-- [ ] different storage, expire, xheader for each match
+- [ ] fine grained settings (storage, expiration, xheader) for each rule
 - [ ] invalidate cache (by ...?)
 - [ ] expire can be a function(request, response)
 

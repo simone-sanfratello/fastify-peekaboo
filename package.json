@@ -1,12 +1,10 @@
 {
   "name": "fastify-peekaboo",
-  "version": "1.0.0-alpha",
+  "version": "1.1.0-alpha",
   "dependencies": {
     "a-toolbox": "^1.7.3",
     "fastify-plugin": "^1.6.1",
     "json-stringify-extended": "^2.0.0",
-    "keyv": "^4.0.0",
-    "keyv-file": "^0.1.13",
     "superstruct": "^0.8.3",
     "uuid": "^7.0.3"
   },

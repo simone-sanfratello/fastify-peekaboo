@@ -25,7 +25,7 @@ const plugin = function (fastify, settings, next) {
     validateSettings(_settings)
 
     const { storage, expire } = settings
-    _storage = new Storage({ ...storage, expire }, fastify)
+    _storage = new Storage({ ...storage, expire })
   }
 
   const preHandler = function (request, response, next) {
@@ -146,6 +146,8 @@ const plugin = function (fastify, settings, next) {
       if (match.response(_set, response.peekaboo.rule)) {
         await _storage.set(response.peekaboo.hash, _set)
       }
+
+      // @todo "next()" could be moved after "await response.peekaboo.body"
       next()
     })()
   }
