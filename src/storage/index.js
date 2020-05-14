@@ -1,18 +1,15 @@
-const Keyv = require('keyv')
-const KeyvFile = require('keyv-file')
 const uuid = require('uuid').v4
 const path = require('path')
-const lib = require('./lib')
-
-// https://github.com/lukechilds/keyv-test-suite/blob/master/src/api.js
+const lib = require('../lib')
+const FsStorage = require('./fs')
+const MemoryStorage = require('./memory')
 
 /**
- *
  * @param {object} [options]
  * @param {peekaboo.STORAGE} [options.type=lib.STORAGE.MEMORY]
  * @param {number} [options.expire=60000] 1 min
  */
-const Storage = function (options, fastify) {
+const Storage = function (options) {
   let _storage
 
   const _init = function (options) {
@@ -25,23 +22,29 @@ const Storage = function (options, fastify) {
 
     switch (options.mode) {
       case lib.STORAGE.FS:
-        _storage = new Keyv({
-          store: new KeyvFile({
-            filename: path.join(options.config.path, uuid())
-          })
+        _storage = new FsStorage({
+          path: path.join(options.config.path, uuid())
         })
         break
       case lib.STORAGE.MEMORY:
       default:
-        _storage = new Keyv()
+        _storage = new MemoryStorage()
     }
   }
 
-  const get = async function (key) {
+  /**
+   * @async
+   * @param {string} key
+   */
+  const get = function (key) {
     return _storage.get(key)
   }
 
-  const set = async function (key, data) {
+  /**
+   * @async
+   * @param {string} key
+   */
+  const set = function (key, data) {
     return _storage.set(key, data, options.expire)
   }
 
