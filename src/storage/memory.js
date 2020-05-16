@@ -21,10 +21,15 @@ const MemoryStorage = function () {
     delete _expires[key]
   }
 
+  const list = async function () {
+    return Object.keys(_store)
+  }
+
   return {
-    get: get,
-    set: set,
-    rm: rm
+    get,
+    set,
+    rm,
+    list
   }
 }
 

@@ -73,3 +73,8 @@ tap.test('peekaboo storage (file)',
     await helper.fastify.stop(_fastify)
     _test.pass()
   })
+
+// @todo expiration
+// @todo persistence
+// @todo info
+// @todo list

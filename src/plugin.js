@@ -1,4 +1,5 @@
 const plug = require('fastify-plugin')
+const stringify = require('json-stringify-extended')
 const package_ = require('../package.json')
 const defaultSettings = require('../settings/default')
 const Storage = require('./storage')
@@ -31,6 +32,7 @@ const plugin = function (fastify, settings, next) {
   const preHandler = function (request, response, next) {
     (async () => {
       request.log.trace({ peekaboo: { preHandler: { request: lib.log.request(request) } } })
+      request.peekaboo = { storage: _storage }
       const _match = match.request(request, _settings.rules)
       if (!_match) {
         next()
@@ -47,6 +49,7 @@ const plugin = function (fastify, settings, next) {
       request.log.trace({ peekaboo: { preHandler: { request: lib.log.request(request), message: 'serve response from cache' } } })
       if (_settings.xheader) {
         response.header('x-peekaboo', 'from-cache-' + _settings.storage.mode)
+        response.header('x-peekaboo-hash', _match.hash)
       }
       for (const _name in _cached.headers) {
         response.header(_name, _cached.headers[_name])
@@ -144,6 +147,10 @@ const plugin = function (fastify, settings, next) {
       delete _set.headers['transfer-encoding']
 
       if (match.response(_set, response.peekaboo.rule)) {
+        _set.info = {
+          rule: stringify(response.peekaboo.rule, stringify.options.compact),
+          created: Date.now()
+        }
         await _storage.set(response.peekaboo.hash, _set)
       }
 
@@ -159,6 +166,7 @@ const plugin = function (fastify, settings, next) {
     return
   }
   fastify.decorateReply('peekaboo', {})
+  fastify.decorateRequest('peekaboo', {})
   fastify.addHook('preHandler', preHandler)
   fastify.addHook('onSend', onSend)
   fastify.addHook('onResponse', onResponse)

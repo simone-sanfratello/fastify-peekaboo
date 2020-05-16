@@ -5,8 +5,7 @@
     "a-toolbox": "^1.7.3",
     "fastify-plugin": "^1.6.1",
     "json-stringify-extended": "^2.0.0",
-    "superstruct": "^0.8.3",
-    "uuid": "^7.0.3"
+    "superstruct": "^0.8.3"
   },
   "devDependencies": {
     "fastify": "^2.13.1",

@@ -106,6 +106,8 @@ See [matching system](./doc/README.md#matching-system) for details.
   }
   ```
 
+@todo how to access and manipulate storage
+
 #### settings.expire
 
 type: `number`  
@@ -116,7 +118,7 @@ cache expiration in ms, optional
 
 type: `boolean`  
 default: `true`  
-add on response header `x-peekaboo` if response come from cache
+add on response header `x-peekaboo` and `x-peekaboo-hash` if response comes from cache
 
 ### Log
 
@@ -134,7 +136,13 @@ See [documentation](./doc/README.md) for further informations and examples.
 
 ## Changelog
 
-- **v. 1.0.0-alpha** [ 2020-05-14 ] alpha  
+- **v. 1.2.0-alpha** [ 2020-05-.. ] alpha  
+  - add storage access for editing
+  - fix fs storage persistence
+  - add `info` in cached pack
+  - add `x-peekaboo-hash` in xheader
+
+- **v. 1.1.0-alpha** [ 2020-05-14 ] alpha  
   - drop `keyv` storage
 
 - **v. 1.0.0-alpha** [ 2020-05-03 ] alpha  
@@ -170,6 +178,7 @@ See [documentation](./doc/README.md) for further informations and examples.
 
 ### v. 1.3
 
+- [ ] postgresql storage
 - [ ] preset recipes (example graphql caching)
 - [ ] CI
 
