@@ -9,6 +9,7 @@ const settings = s({
   storage: s.optional(storage),
   expire: 'number',
   xheader: 'boolean',
+  noinfo: 'boolean?',
   log: 'boolean'
 })
 

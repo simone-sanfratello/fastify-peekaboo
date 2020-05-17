@@ -10,7 +10,7 @@ const MemoryStorage = function (options) {
     try {
       const data = await fs.readFile(path.join(_path, key), 'utf8')
       const content = JSON.parse(data)
-      if (content.info.expire && content.info.expire < Date.now()) {
+      if (content.expire && content.expire < Date.now()) {
         rm(key)
         return
       }
@@ -21,8 +21,8 @@ const MemoryStorage = function (options) {
   }
 
   const set = async function (key, data, expire) {
-    if (expire && !data.info.expire) {
-      data.info.expire = Date.now() + expire
+    if (expire && !data.expire) {
+      data.expire = Date.now() + expire
     }
     return fs.writeFile(path.join(_path, key), JSON.stringify(data), 'utf8')
   }

@@ -147,9 +147,11 @@ const plugin = function (fastify, settings, next) {
       delete _set.headers['transfer-encoding']
 
       if (match.response(_set, response.peekaboo.rule)) {
-        _set.info = {
-          rule: stringify(response.peekaboo.rule, stringify.options.compact),
-          created: Date.now()
+        if (!_settings.noinfo) {
+          _set.info = {
+            rule: stringify(response.peekaboo.rule, stringify.options.compact),
+            created: Date.now()
+          }
         }
         await _storage.set(response.peekaboo.hash, _set)
       }

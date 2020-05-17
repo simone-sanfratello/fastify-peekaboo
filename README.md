@@ -107,6 +107,7 @@ See [matching system](./doc/README.md#matching-system) for details.
   ```
 
 @todo how to access and manipulate storage
+list, get, set, rm
 
 #### settings.expire
 
@@ -119,6 +120,12 @@ cache expiration in ms, optional
 type: `boolean`  
 default: `true`  
 add on response header `x-peekaboo` and `x-peekaboo-hash` if response comes from cache
+
+#### settings.noinfo
+
+type: `boolean`  
+default: `false`  
+do not store info for entries, in order to speed up a little bit in writing and retrieving
 
 ### Log
 
@@ -137,9 +144,9 @@ See [documentation](./doc/README.md) for further informations and examples.
 ## Changelog
 
 - **v. 1.2.0-alpha** [ 2020-05-.. ] alpha  
-  - add storage access for editing
   - fix fs storage persistence
-  - add `info` in cached pack
+  - add storage access for editing
+  - add `info` in stored entries and `settings.noinfo` to skip that
   - add `x-peekaboo-hash` in xheader
 
 - **v. 1.1.0-alpha** [ 2020-05-14 ] alpha  
