@@ -51,12 +51,12 @@ const plugin = function (fastify, settings, next) {
         response.header('x-peekaboo', 'from-cache-' + _settings.storage.mode)
         response.header('x-peekaboo-hash', _match.hash)
       }
-      for (const _name in _cached.headers) {
-        response.header(_name, _cached.headers[_name])
+      for (const _name in _cached.response.headers) {
+        response.header(_name, _cached.response.headers[_name])
       }
-      response.code(_cached.status)
+      response.code(_cached.response.status)
       response.peekaboo.sent = true
-      response.send(_cached.body)
+      response.send(_cached.response.body)
     })()
   }
 
@@ -103,10 +103,12 @@ const plugin = function (fastify, settings, next) {
         return
       }
 
-      const _set = {
-        status: response.statusCode,
-        headers: {},
-        body: await response.peekaboo.body
+      const _entry = {
+        response: {
+          status: response.statusCode,
+          headers: {},
+          body: await response.peekaboo.body
+        }
       }
 
       const _headers = response.res._header
@@ -124,36 +126,37 @@ const plugin = function (fastify, settings, next) {
 
       for (let index = 0; index < _headers.length; index++) {
         const _header = _headers[index]
-        _set.headers[_header.key] = _header.value
+        _entry.response.headers[_header.key] = _header.value
       }
 
       if (response.peekaboo.stream) {
         // request.log.trace('plugin', 'onResponse', 'response body content-type', _set.headers['content-type'])
         // @todo _set.body = _set.body.toString(charset(_set.headers['content-type']) || 'utf8')
-        if (contentTypeText(_set.headers['content-type'])) {
-          _set.body = _set.body.toString('utf8')
+        if (contentTypeText(_entry.response.headers['content-type'])) {
+          _entry.response.body = _entry.response.body.toString('utf8')
         }
       }
 
-      if (_set.headers['content-type'].includes('json')) {
+      if (_entry.response.headers['content-type'].includes('json')) {
         try {
-          _set.body = JSON.parse(_set.body)
+          _entry.response.body = JSON.parse(_entry.response.body)
         } catch (error) {}
       }
 
       // trim headers @todo function
-      delete _set.headers.status
-      delete _set.headers.connection
-      delete _set.headers['transfer-encoding']
+      delete _entry.response.headers.status
+      delete _entry.response.headers.connection
+      delete _entry.response.headers['transfer-encoding']
 
-      if (match.response(_set, response.peekaboo.rule)) {
+      if (match.response(_entry.response, response.peekaboo.rule)) {
         if (!_settings.noinfo) {
-          _set.info = {
+          _entry.request = { todo: '...' }
+          _entry.info = {
             rule: stringify(response.peekaboo.rule, stringify.options.compact),
             created: Date.now()
           }
         }
-        await _storage.set(response.peekaboo.hash, _set)
+        await _storage.set(response.peekaboo.hash, _entry)
       }
 
       // @todo "next()" could be moved after "await response.peekaboo.body"

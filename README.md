@@ -113,19 +113,19 @@ list, get, set, rm
 
 type: `number`  
 default: `86400000` // 1 day  
-cache expiration in ms, optional
+cache expiration in ms, optional.
 
 #### settings.xheader
 
 type: `boolean`  
 default: `true`  
-add on response header `x-peekaboo` and `x-peekaboo-hash` if response comes from cache
+add on response header `x-peekaboo` and `x-peekaboo-hash` if response comes from cache.
 
 #### settings.noinfo
 
 type: `boolean`  
 default: `false`  
-do not store info for entries, in order to speed up a little bit in writing and retrieving
+do not store info (matching rule, request) for entries, in order to speed up a little bit while writing and reading cache, and save some space; info are needed only to manipulate cache.
 
 ### Log
 
