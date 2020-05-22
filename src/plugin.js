@@ -113,11 +113,11 @@ const plugin = function (fastify, settings, next) {
 
       const _headers = response.res._header
         .split('\r\n')
-        .map((header) => {
-          const [key, value] = header.split(':')
+        .map(header => {
+          const [key, ...value] = header.split(':')
           return {
             key: key.toLowerCase(),
-            value: value ? value.trim() : ''
+            value: value ? value.join(':').trim() : ''
           }
         })
         .filter((header) => {
