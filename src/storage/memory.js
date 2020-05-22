@@ -22,6 +22,12 @@ const MemoryStorage = function () {
     delete _store[key]
   }
 
+  const clear = async function () {
+    for (const key in _store) {
+      delete _store[key]
+    }
+  }
+
   const list = async function () {
     return Object.keys(_store)
   }
@@ -30,7 +36,8 @@ const MemoryStorage = function () {
     get,
     set,
     rm,
-    list
+    list,
+    clear
   }
 }
 

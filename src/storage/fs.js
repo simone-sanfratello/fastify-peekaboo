@@ -27,12 +27,6 @@ const MemoryStorage = function (options) {
     return fs.writeFile(path.join(_path, key), JSON.stringify(data), 'utf8')
   }
 
-  const rm = async function (key) {
-    try {
-      fs.unlink(path.join(_path, key))
-    } catch (error) { }
-  }
-
   const list = async function () {
     const _entries = []
     try {
@@ -45,11 +39,27 @@ const MemoryStorage = function (options) {
     return _entries
   }
 
+  const rm = async function (key) {
+    try {
+      fs.unlink(path.join(_path, key))
+    } catch (error) { }
+  }
+
+  const clear = async function () {
+    try {
+      const _files = await fs.readdir(_path)
+      for (let i = 0; i < _files.length; i++) {
+        fs.unlink(path.join(_path, _files[i]))
+      }
+    } catch (error) { }
+  }
+
   return {
     get,
     set,
     rm,
-    list
+    list,
+    clear
   }
 }
 

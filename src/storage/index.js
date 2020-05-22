@@ -48,6 +48,13 @@ const Storage = function (options) {
 
   /**
    * @async
+   */
+  const list = function () {
+    return _storage.list()
+  }
+
+  /**
+   * @async
    * @param {string} key
    */
   const rm = function (key) {
@@ -57,8 +64,8 @@ const Storage = function (options) {
   /**
    * @async
    */
-  const list = function () {
-    return _storage.list()
+  const clear = function () {
+    return _storage.clear()
   }
 
   _init(options)
@@ -67,7 +74,8 @@ const Storage = function (options) {
     get,
     set,
     rm,
-    list
+    list,
+    clear
   }
 }
 
