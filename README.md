@@ -35,6 +35,7 @@ _fastify.register(peekaboo, {
       status: (code) => code > 199 && code < 300
     }
   }],
+  mode: 'lazy',
   storage: { mode: 'memory' },
   expire: 86400000, // 1 day in ms
   xheader: true,
@@ -68,9 +69,11 @@ The first rule that match the request is choosen.
 ```js
 {
   rules: MatchingRule[],
+  mode: Mode,
   storage: Storage,
   expire: number,
-  xheader: boolean
+  xheader: boolean,
+  noinfo: boolean
 }
 ```
 
@@ -78,6 +81,12 @@ The first rule that match the request is choosen.
 
 The set of rules that indicate to use cache or not for requests.  
 See [matching system](./doc/README.md#matching-system) for details.
+
+#### settings.mode
+
+type: `string`, one of `lazy`, `off`, `collector`, `warehouse`
+default: `lazy`
+@todo
 
 #### settings.storage
 
@@ -107,7 +116,7 @@ See [matching system](./doc/README.md#matching-system) for details.
   ```
 
 @todo how to access and manipulate storage
-list, get, set, rm
+list, get, set, rm, clear
 
 #### settings.expire
 
@@ -145,7 +154,8 @@ See [documentation](./doc/README.md) for further informations and examples.
 
 - **v. 1.2.0-alpha** [ 2020-05-.. ] alpha  
   - fix fs storage persistence
-  - add storage access for editing
+  - add mode
+  - add storage access for editing: get, list, set, rm, clear
   - add `info` in stored entries and `settings.noinfo` to skip that
   - add `x-peekaboo-hash` in xheader
 
@@ -186,12 +196,13 @@ See [documentation](./doc/README.md) for further informations and examples.
 ### v. 1.3
 
 - [ ] postgresql storage
+- [ ] redis storage
 - [ ] preset recipes (example graphql caching)
 - [ ] CI
 
 ### v. 1.4
 
-- [ ] fine grained settings (storage, expiration, xheader) for each rule
+- [ ] fine grained settings (storage, expiration, xheader ...) for each rule
 - [ ] invalidate cache (by ...?)
 - [ ] expire can be a function(request, response)
 
