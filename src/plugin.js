@@ -181,9 +181,10 @@ const plugin = function (fastify, settings, next) {
     set: {
       mode: function (value) {
         if (!['off', 'lazy', 'collector', 'warehouse'].includes(value)) {
-          fastify.log.trace({ ns: 'peekaboo', message: 'invalid mode', mode: value })
+          fastify.log.warn({ ns: 'peekaboo', message: `try to set invalid mode "${value}", ignore` })
           return
         }
+        fastify.log.info({ ns: 'peekaboo', message: `change mode from ${_settings.mode} to ${value}` })
         _settings.mode = value
       }
     },
