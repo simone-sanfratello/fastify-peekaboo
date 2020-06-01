@@ -46,11 +46,11 @@ const plugin = function (fastify, settings, next) {
       response.peekaboo = { match: true, ..._match }
       const _cached = await _storage.get(_match.hash)
       if (!_cached) {
-        if (_settings.mode === 'warehouse') {
+        if (_settings.mode === 'stock') {
           // @todo settings
           response.code(404)
           response.peekaboo.sent = true
-          response.send('PEEKABOO_NOT_IN_WAREHOUSE')
+          response.send('PEEKABOO_NOT_IN_STOCK')
           return
         }
         request.log.trace({ ns: 'peekaboo', message: 'preHandler - still not cached', request: lib.log.request(request) })
@@ -73,7 +73,7 @@ const plugin = function (fastify, settings, next) {
 
   const onSend = function (request, response, payload, next) {
     (async () => {
-      if (['off', 'warehouse'].includes(_settings.mode) || !response.peekaboo.match) {
+      if (['off', 'stock'].includes(_settings.mode) || !response.peekaboo.match) {
         request.log.trace({ ns: 'peekaboo', message: 'onSend - response has not to be cached', request: lib.log.request(request) })
         return next()
       }
@@ -104,7 +104,7 @@ const plugin = function (fastify, settings, next) {
 
   const onResponse = function (request, response, next) {
     (async () => {
-      if (['off', 'warehouse'].includes(_settings.mode) || !response.peekaboo.match || response.peekaboo.sent) {
+      if (['off', 'stock'].includes(_settings.mode) || !response.peekaboo.match || response.peekaboo.sent) {
         request.log.trace({ ns: 'peekaboo', message: 'onResponse - response has not to be cached', request: lib.log.request(request) })
         return next()
       }
@@ -157,7 +157,13 @@ const plugin = function (fastify, settings, next) {
 
       if (match.response(_entry.response, response.peekaboo.rule)) {
         if (!_settings.noinfo) {
-          _entry.request = { todo: '...' }
+          _entry.request = {
+            method: request.req.method,
+            route: request.raw.originalUrl,
+            headers: request.headers,
+            query: request.query || undefined,
+            body: request.body ? JSON.stringify(request.body) : undefined
+          }
           _entry.info = {
             rule: stringify(response.peekaboo.rule, stringify.options.compact),
             created: Date.now()
@@ -180,7 +186,7 @@ const plugin = function (fastify, settings, next) {
   fastify.decorate('peekaboo', {
     set: {
       mode: function (value) {
-        if (!['off', 'lazy', 'collector', 'warehouse'].includes(value)) {
+        if (!['off', 'lazy', 'collector', 'stock'].includes(value)) {
           fastify.log.warn({ ns: 'peekaboo', message: `try to set invalid mode "${value}", ignore` })
           return
         }

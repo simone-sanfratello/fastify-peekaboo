@@ -84,9 +84,9 @@ See [matching system](./doc/README.md#matching-system) for details.
 
 #### settings.mode
 
-type: `string`, one of `lazy`, `off`, `collector`, `warehouse`
+type: `string`, one of `lazy`, `off`, `collector`, `stock`
 default: `lazy`
-@todo
+@todo doc
 
 #### settings.storage
 
@@ -134,7 +134,7 @@ add on response header `x-peekaboo` and `x-peekaboo-hash` if response comes from
 
 type: `boolean`  
 default: `false`  
-do not store info (matching rule, request) for entries, in order to speed up a little bit while writing and reading cache, and save some space; info are needed only to manipulate cache.
+do not store info (matching rule, request) for entries, in order to speed up a little bit in write/read cache and save space; info are needed only for cache manipulation.
 
 ### Log
 
@@ -152,9 +152,10 @@ See [documentation](./doc/README.md) for further informations and examples.
 
 ## Changelog
 
-- **v. 1.2.0-alpha** [ 2020-05-.. ] alpha  
+- **v. 1.2.0-beta** [ 2020-06-.. ] beta  
+  - move to `beta` stage
   - fix fs storage persistence
-  - add mode
+  - add `mode` (laxy, off, collector, stock)
   - add storage access for editing: get, list, set, rm, clear
   - add `info` in stored entries and `settings.noinfo` to skip that
   - add `x-peekaboo-hash` in xheader

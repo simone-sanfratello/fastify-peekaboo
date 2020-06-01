@@ -11,7 +11,7 @@ const settings = s({
   expire: 'number',
   xheader: 'boolean',
   noinfo: 'boolean?',
-  mode: s.enum(['lazy', 'off', 'collector', 'warehouse']),
+  mode: s.enum(['lazy', 'off', 'collector', 'stock']),
   log: 'boolean'
 }, default_)
 
