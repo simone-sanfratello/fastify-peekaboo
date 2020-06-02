@@ -26,11 +26,11 @@ tap.test('peekaboo with streams',
       response.send(fs.createReadStream(path.join(__dirname, '../samples/image.png')))
     })
 
+    let url
     try {
       await helper.fastify.start(_fastify)
 
-      let url = helper.fastify.url(_fastify, '/google')
-      /*
+      url = helper.fastify.url(_fastify, '/google')
       await helper.request({ url })
       let _response = await helper.request({ url })
       if (!_response.headers['x-peekaboo']) {
@@ -43,7 +43,7 @@ tap.test('peekaboo with streams',
       if (!_response.headers['x-peekaboo']) {
         _test.fail('should use cache, but it doesnt')
       }
-*/
+
       url = helper.fastify.url(_fastify, '/local/image')
       await helper.request({ url })
       _response = await helper.request({ url })
@@ -54,7 +54,7 @@ tap.test('peekaboo with streams',
       await helper.fastify.stop(_fastify)
       _test.pass()
     } catch (error) {
-      console.error(error)
+      console.error(url, error)
       _test.threw(error)
     }
   })

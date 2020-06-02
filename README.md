@@ -205,25 +205,26 @@ See [documentation](./doc/README.md) for further informations and examples.
 
 ## Roadmap
 
-### v. 1.2
+### v. 1.3
 
+- [ ] remove got and use native http client
 - [ ] `response.rewrite` option
 - [ ] `request.rewrite` option
+- [ ] postgresql storage
+- [ ] redis storage
+
+### v. 1.4
+
 - [ ] doc: real world examples
 - [ ] benchmark plugin overhead (autocannon?)
   - [ ] benchmark with different storages
 - [ ] on file upload?
 - [ ] test edge cases
   - [ ] querystring array or object
-
-### v. 1.3
-
-- [ ] postgresql storage
-- [ ] redis storage
 - [ ] preset recipes (example graphql caching)
 - [ ] CI
 
-### v. 1.4
+### v. 1.5
 
 - [ ] fine grained settings (storage, expiration, xheader ...) for each rule
 - [ ] invalidate cache (by ...?)
