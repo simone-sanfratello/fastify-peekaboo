@@ -278,3 +278,95 @@ _fastify.register(peekaboo, {
     response.send('your content ...')
   })
   ```
+
+## Storage
+
+The storage allow access to entries for:
+
+#### get
+
+retrieve the entry
+
+```js
+fastify.get('/cache/get/:hash', async (request, response) => {
+  response.send(await request.peekaboo.storage.get(request.params.hash))
+})
+
+{
+    "response": {
+        "status": 200,
+        "headers": {
+            "date": "Mon, 01 Jun 2020 12:46:29 GMT",
+            "content-type": "application/json;charset=UTF-8",
+            "content-length": "329"
+        },
+        "body": { ... }
+    },
+    "request": {
+        "method": "GET",
+        "route": "/my/route",
+        "headers": {
+            "host": "localhost:8080",
+            "client-platform": "web",
+            "authorization": "Bearer 8JWyaSndABPj3APA3MmmF50m2bNa",
+            "content-type": "application/json; charset=UTF-8",
+            "accept": "application/json",
+            "accept-encoding": "gzip, deflate, br",
+        }
+    },
+    "info": {
+        "rule": "{request:{methods:'*',route:/^\\/url/,body:true,query:true},response:{status:(status) => status > 199 && status < 501}}",
+        "created": 1591015589805
+    },
+    "expire": 1622551589805
+}
+```
+
+#### set
+
+set the content of a entry, all part must be provided:
+
+```js
+fastify.put('/cache/set/:hash', async (request, response) => {
+  const update = {
+    response: {
+      status: 200,
+      headers: { 'content-type': 'application/json;charset=UTF-8', 'content-length': '123' },
+      body: { new: 'content' },
+      expire: 1622551586632
+    }
+  }
+  await request.peekaboo.storage.set(request.params.hash, update)
+  response.send('entry updated')
+})
+```
+
+#### rm
+
+```js
+fastify.delete('/cache/rm/:hash', async (request, response) => {
+  await request.peekaboo.storage.rm(request.params.hash)
+  response.send('entry removed')
+})
+```
+
+#### clear
+
+```js
+fastify.delete('/cache/clear', async (request, response) => {
+  await request.peekaboo.storage.clear()
+  response.send('cache is empty now')
+})
+```
+
+#### list
+
+retrieve the hashes of entries
+
+```js
+fastify.delete('/cache/list', async (request, response) => {
+  response.send(await request.peekaboo.storage.list())
+})
+
+["48471f2408e9e1c2f9058060f5723f40e93cd965c0ab2322d1…", "af1ec22be30172fb69f9624b91042d9945943db81da052554a…"]
+```

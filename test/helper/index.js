@@ -8,6 +8,7 @@ const got = require('got')
 const options = {} // retry: 0, throwHttpErrors: false }
 
 const helper = {
+  sleep: ms => new Promise(resolve => setTimeout(resolve, ms)),
   fastify: {
     _port: null,
     start: async function (instance) {

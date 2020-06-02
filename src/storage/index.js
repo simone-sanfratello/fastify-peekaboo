@@ -1,5 +1,3 @@
-const uuid = require('uuid').v4
-const path = require('path')
 const lib = require('../lib')
 const FsStorage = require('./fs')
 const MemoryStorage = require('./memory')
@@ -23,7 +21,7 @@ const Storage = function (options) {
     switch (options.mode) {
       case lib.STORAGE.FS:
         _storage = new FsStorage({
-          path: path.join(options.config.path, uuid())
+          path: options.config.path
         })
         break
       case lib.STORAGE.MEMORY:
@@ -48,11 +46,36 @@ const Storage = function (options) {
     return _storage.set(key, data, options.expire)
   }
 
+  /**
+   * @async
+   */
+  const list = function () {
+    return _storage.list()
+  }
+
+  /**
+   * @async
+   * @param {string} key
+   */
+  const rm = function (key) {
+    return _storage.rm(key)
+  }
+
+  /**
+   * @async
+   */
+  const clear = function () {
+    return _storage.clear()
+  }
+
   _init(options)
 
   return {
-    get: get,
-    set: set
+    get,
+    set,
+    rm,
+    list,
+    clear
   }
 }
 

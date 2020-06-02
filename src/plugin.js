@@ -1,4 +1,5 @@
 const plug = require('fastify-plugin')
+const stringify = require('json-stringify-extended')
 const package_ = require('../package.json')
 const defaultSettings = require('../settings/default')
 const Storage = require('./storage')
@@ -7,7 +8,7 @@ const match = require('./match')
 const validateSettings = require('./validate/settings')
 
 /**
- * implement fastify-plugin interface
+ * it implement the fastify-plugin interface
  * @param {Fastify} fastify instance
  * @param {Settings} settings
  * @param {function} next
@@ -30,89 +31,100 @@ const plugin = function (fastify, settings, next) {
 
   const preHandler = function (request, response, next) {
     (async () => {
-      request.log.trace({ peekaboo: { preHandler: { request: lib.log.request(request) } } })
-      const _match = match.request(request, _settings.rules)
-      if (!_match) {
-        next()
-        return
+      if (_settings.mode === 'off') {
+        return next(null)
       }
-      request.log.trace({ peekaboo: { preHandler: { request: lib.log.request(request), message: 'will use cache' } } })
+
+      request.log.trace({ ns: 'peekaboo', message: 'preHandler', request: lib.log.request(request) })
+      request.peekaboo = { storage: _storage }
+      const _match = match.request(request, _settings.rules)
+      if (!_match || _settings.mode === 'collector') {
+        return next()
+      }
+
+      request.log.trace({ ns: 'peekaboo', message: 'preHandler - will use cache', request: lib.log.request(request) })
       response.peekaboo = { match: true, ..._match }
       const _cached = await _storage.get(_match.hash)
       if (!_cached) {
-        request.log.trace({ peekaboo: { preHandler: { request: lib.log.request(request), message: 'still not cached' } } })
-        next()
-        return
+        if (_settings.mode === 'stock') {
+          // @todo settings
+          response.code(404)
+          response.peekaboo.sent = true
+          response.send('PEEKABOO_NOT_IN_STOCK')
+          return
+        }
+        request.log.trace({ ns: 'peekaboo', message: 'preHandler - still not cached', request: lib.log.request(request) })
+        return next()
       }
-      request.log.trace({ peekaboo: { preHandler: { request: lib.log.request(request), message: 'serve response from cache' } } })
+
+      request.log.trace({ ns: 'peekaboo', message: 'preHandler - serve response from cache', request: lib.log.request(request) })
       if (_settings.xheader) {
         response.header('x-peekaboo', 'from-cache-' + _settings.storage.mode)
+        response.header('x-peekaboo-hash', _match.hash)
       }
-      for (const _name in _cached.headers) {
-        response.header(_name, _cached.headers[_name])
+      for (const _name in _cached.response.headers) {
+        response.header(_name, _cached.response.headers[_name])
       }
-      response.code(_cached.status)
+      response.code(_cached.response.status)
       response.peekaboo.sent = true
-      response.send(_cached.body)
+      response.send(_cached.response.body)
     })()
   }
 
   const onSend = function (request, response, payload, next) {
     (async () => {
-      request.log.trace({ peekaboo: { onSend: { request: lib.log.request(request), message: '...' } } })
-      if (!response.peekaboo.match) {
-        request.log.trace({ peekaboo: { onSend: { request: lib.log.request(request), message: 'response has not to be cached' } } })
-        next()
-        return
+      if (['off', 'stock'].includes(_settings.mode) || !response.peekaboo.match) {
+        request.log.trace({ ns: 'peekaboo', message: 'onSend - response has not to be cached', request: lib.log.request(request) })
+        return next()
       }
 
       const _peekaboo = response.peekaboo
       if (!_peekaboo.sent && _peekaboo.match) {
-        request.log.trace({ peekaboo: { onSend: { request: lib.log.request(request), message: 'response has to be cached' } } })
+        request.log.trace({ ns: 'peekaboo', message: 'onSend - response has to be cached', request: lib.log.request(request) })
         if (lib.isStream(payload)) {
           _peekaboo.stream = true
-          request.log.trace({ peekaboo: { onSend: { request: lib.log.request(request), message: 'response is a stream' } } })
+          request.log.trace({ ns: 'peekaboo', message: 'onSend - response is a stream', request: lib.log.request(request) })
           next(null, payload)
-          request.log.trace({ peekaboo: { onSend: { request: lib.log.request(request), message: 'acquiring response stream' } } })
+          request.log.trace({ ns: 'peekaboo', message: 'onSend - acquiring response stream', request: lib.log.request(request) })
           _peekaboo.body = lib.acquireStream(payload)
-          request.log.trace({ peekaboo: { onSend: { request: lib.log.request(request), message: 'response stream acquired' } } })
+          request.log.trace({ ns: 'peekaboo', message: 'onSend - response stream acquired', request: lib.log.request(request) })
           return
         } else {
           _peekaboo.body = payload
-          request.log.trace({ peekaboo: { onSend: { request: lib.log.request(request), message: 'response acquired' } } })
+          request.log.trace({ ns: 'peekaboo', message: 'onSend - response acquired', request: lib.log.request(request) })
         }
       } else {
         response.peekaboo.sent = true
-        request.log.trace({ peekaboo: { onSend: { request: lib.log.request(request), message: 'response sent from cache' } } })
+        request.log.trace({ ns: 'peekaboo', message: 'onSend - response sent from cache', request: lib.log.request(request) })
       }
-      request.log.trace({ peekaboo: { onSend: { request: lib.log.request(request), message: 'done' } } })
-      // request.log.trace({ payload })
+      request.log.trace({ ns: 'peekaboo', message: 'onSend - done', request: lib.log.request(request) })
       next(null, payload)
     })()
   }
 
   const onResponse = function (request, response, next) {
     (async () => {
-      // request.log.trace('plugin', 'onResponse')
-      if (!response.peekaboo.match || response.peekaboo.sent) {
-        // request.log.trace('plugin', 'onResponse', 'response has not to be cached')
-        next()
-        return
+      if (['off', 'stock'].includes(_settings.mode) || !response.peekaboo.match || response.peekaboo.sent) {
+        request.log.trace({ ns: 'peekaboo', message: 'onResponse - response has not to be cached', request: lib.log.request(request) })
+        return next()
       }
+      request.log.trace({ ns: 'peekaboo', message: 'onResponse', request: lib.log.request(request) })
 
-      const _set = {
-        status: response.statusCode,
-        headers: {},
-        body: await response.peekaboo.body
+      const _entry = {
+        response: {
+          status: response.statusCode,
+          headers: {},
+          body: await response.peekaboo.body
+        }
       }
 
       const _headers = response.res._header
         .split('\r\n')
-        .map((header) => {
-          const [key, value] = header.split(':')
+        .map(header => {
+          const [key, ...value] = header.split(':')
           return {
             key: key.toLowerCase(),
-            value: value ? value.trim() : ''
+            value: value.join(':').trim()
           }
         })
         .filter((header) => {
@@ -121,30 +133,43 @@ const plugin = function (fastify, settings, next) {
 
       for (let index = 0; index < _headers.length; index++) {
         const _header = _headers[index]
-        _set.headers[_header.key] = _header.value
+        _entry.response.headers[_header.key] = _header.value
       }
 
       if (response.peekaboo.stream) {
         // request.log.trace('plugin', 'onResponse', 'response body content-type', _set.headers['content-type'])
         // @todo _set.body = _set.body.toString(charset(_set.headers['content-type']) || 'utf8')
-        if (contentTypeText(_set.headers['content-type'])) {
-          _set.body = _set.body.toString('utf8')
+        if (contentTypeText(_entry.response.headers['content-type'])) {
+          _entry.response.body = _entry.response.body.toString('utf8')
         }
       }
 
-      if (_set.headers['content-type'].includes('json')) {
+      if (_entry.response.headers['content-type'].includes('json')) {
         try {
-          _set.body = JSON.parse(_set.body)
+          _entry.response.body = JSON.parse(_entry.response.body)
         } catch (error) {}
       }
 
       // trim headers @todo function
-      delete _set.headers.status
-      delete _set.headers.connection
-      delete _set.headers['transfer-encoding']
+      delete _entry.response.headers.status
+      delete _entry.response.headers.connection
+      delete _entry.response.headers['transfer-encoding']
 
-      if (match.response(_set, response.peekaboo.rule)) {
-        await _storage.set(response.peekaboo.hash, _set)
+      if (match.response(_entry.response, response.peekaboo.rule)) {
+        if (!_settings.noinfo) {
+          _entry.request = {
+            method: request.req.method,
+            route: request.raw.originalUrl,
+            headers: request.headers,
+            query: request.query,
+            body: request.body ? JSON.stringify(request.body) : undefined
+          }
+          _entry.info = {
+            rule: stringify(response.peekaboo.rule, stringify.options.compact),
+            created: Date.now()
+          }
+        }
+        await _storage.set(response.peekaboo.hash, _entry, settings.expire)
       }
 
       // @todo "next()" could be moved after "await response.peekaboo.body"
@@ -155,10 +180,29 @@ const plugin = function (fastify, settings, next) {
   try {
     _init(settings)
   } catch (error) {
-    next(error)
-    return
+    return next(error)
   }
+
+  fastify.decorate('peekaboo', {
+    set: {
+      mode: function (value) {
+        if (!['off', 'memoize', 'collector', 'stock'].includes(value)) {
+          fastify.log.warn({ ns: 'peekaboo', message: `try to set invalid mode "${value}", ignore` })
+          return
+        }
+        fastify.log.info({ ns: 'peekaboo', message: `change mode from ${_settings.mode} to ${value}` })
+        _settings.mode = value
+      }
+    },
+    get: {
+      mode: function () {
+        return _settings.mode
+      }
+    }
+  })
+
   fastify.decorateReply('peekaboo', {})
+  fastify.decorateRequest('peekaboo', {})
   fastify.addHook('preHandler', preHandler)
   fastify.addHook('onSend', onSend)
   fastify.addHook('onResponse', onResponse)

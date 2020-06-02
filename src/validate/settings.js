@@ -1,6 +1,7 @@
 const superstruct = require('superstruct')
 const rule = require('./rule')
 const storage = require('./storage')
+const default_ = require(('../../settings/default'))
 
 const s = superstruct.struct
 
@@ -9,7 +10,9 @@ const settings = s({
   storage: s.optional(storage),
   expire: 'number',
   xheader: 'boolean',
+  noinfo: 'boolean?',
+  mode: s.enum(['memoize', 'off', 'collector', 'stock']),
   log: 'boolean'
-})
+}, default_)
 
 module.exports = settings

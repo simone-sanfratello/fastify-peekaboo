@@ -11,7 +11,8 @@ const default_ = {
   storage: { mode: 'memory' },
   expire: 86400000, // 1 day in ms
   xheader: true,
-  log: false
+  log: false,
+  mode: 'memoize'
 }
 
 module.exports = default_

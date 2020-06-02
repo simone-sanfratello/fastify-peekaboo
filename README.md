@@ -3,6 +3,7 @@
 [![NPM Version](http://img.shields.io/npm/v/fastify-peekaboo.svg?style=flat)](https://www.npmjs.org/package/fastify-peekaboo)
 [![NPM Downloads](https://img.shields.io/npm/dm/fastify-peekaboo.svg?style=flat)](https://www.npmjs.org/package/fastify-peekaboo)
 [![JS Standard Style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
+(100% code coverage badge)
 
 fastify plugin for memoize responses by expressive settings.
 
@@ -35,6 +36,7 @@ _fastify.register(peekaboo, {
       status: (code) => code > 199 && code < 300
     }
   }],
+  mode: 'memoize',
   storage: { mode: 'memory' },
   expire: 86400000, // 1 day in ms
   xheader: true,
@@ -68,9 +70,11 @@ The first rule that match the request is choosen.
 ```js
 {
   rules: MatchingRule[],
+  mode: Mode,
   storage: Storage,
   expire: number,
-  xheader: boolean
+  xheader: boolean,
+  noinfo: boolean
 }
 ```
 
@@ -78,6 +82,34 @@ The first rule that match the request is choosen.
 
 The set of rules that indicate to use cache or not for requests.  
 See [matching system](./doc/README.md#matching-system) for details.
+
+#### settings.mode
+
+type: `string`, one of `memoize`, `off`, `collector`, `stock`
+default: `memoize`
+
+It set how the cache system behave:
+
+- **memoize**  
+  on each request, it check if there is the cache entry and serve that avoiding elaboration, or elaborate and cache
+- **collector**  
+  only cache entries but don't use cache for serve responses
+- **stock**  
+  serve only responses from cache or 404 is the cache entry does not exists
+- **off**  
+  the plugin is not used
+
+You can get/set also at runtime by
+
+```js
+fastify.get('/cache/mode', async (request, response) => {
+  response.send({ mode: fastify.peekaboo.get.mode() })
+})
+fastify.get('/cache/mode/:mode', async (request, response) => {
+  fastify.peekaboo.set.mode(request.params.mode)
+  response.send('set mode ' + request.params.mode)
+})
+```
 
 #### settings.storage
 
@@ -87,7 +119,7 @@ See [matching system](./doc/README.md#matching-system) for details.
   - `memory` (default) cache use runtime memory
   - `fs` use filesystem, need also `config.path`
 
-- `config`  
+- storage `config`  
   type: `object`  
 
   for `file` mode
@@ -106,17 +138,25 @@ See [matching system](./doc/README.md#matching-system) for details.
   }
   ```
 
+See [storage documentation](./doc/README.md#storage) for further information about to access and manipulate entries.
+
 #### settings.expire
 
 type: `number`  
 default: `86400000` // 1 day  
-cache expiration in ms, optional
+cache expiration in ms, optional.
 
 #### settings.xheader
 
 type: `boolean`  
 default: `true`  
-add on response header `x-peekaboo` if response come from cache
+add on response header `x-peekaboo` and `x-peekaboo-hash` if response comes from cache.
+
+#### settings.noinfo
+
+type: `boolean`  
+default: `false`  
+do not store info (matching rule, request) for entries, in order to speed up a little bit in write/read cache and save space; info are needed only for cache manipulation.
 
 ### Log
 
@@ -134,7 +174,15 @@ See [documentation](./doc/README.md) for further informations and examples.
 
 ## Changelog
 
-- **v. 1.0.0-alpha** [ 2020-05-14 ] alpha  
+- **v. 1.2.0-beta** [ 2020-06-.. ] beta  
+  - move to `beta` stage
+  - fix fs storage persistence
+  - add `mode` (memoize, off, collector, stock)
+  - add storage access for editing: `get`, `list`, `set`, `rm`, `clear`
+  - add `info` in stored entries and `settings.noinfo` to skip that
+  - add `x-peekaboo-hash` in xheader
+
+- **v. 1.1.0-alpha** [ 2020-05-14 ] alpha  
   - drop `keyv` storage
 
 - **v. 1.0.0-alpha** [ 2020-05-03 ] alpha  
@@ -157,25 +205,28 @@ See [documentation](./doc/README.md) for further informations and examples.
 
 ## Roadmap
 
-### v. 1.2
+### v. 1.3
 
+- [ ] remove got and use native http client
 - [ ] `response.rewrite` option
 - [ ] `request.rewrite` option
+- [ ] postgresql storage
+- [ ] redis storage
+
+### v. 1.4
+
 - [ ] doc: real world examples
 - [ ] benchmark plugin overhead (autocannon?)
   - [ ] benchmark with different storages
 - [ ] on file upload?
 - [ ] test edge cases
   - [ ] querystring array or object
-
-### v. 1.3
-
 - [ ] preset recipes (example graphql caching)
 - [ ] CI
 
-### v. 1.4
+### v. 1.5
 
-- [ ] fine grained settings (storage, expiration, xheader) for each rule
+- [ ] fine grained settings (storage, expiration, xheader ...) for each rule
 - [ ] invalidate cache (by ...?)
 - [ ] expire can be a function(request, response)
 
