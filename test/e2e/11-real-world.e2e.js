@@ -29,8 +29,8 @@ tap.test('peekaboo with streams',
     try {
       await helper.fastify.start(_fastify)
 
-      /*
       let url = helper.fastify.url(_fastify, '/google')
+      /*
       await helper.request({ url })
       let _response = await helper.request({ url })
       if (!_response.headers['x-peekaboo']) {
