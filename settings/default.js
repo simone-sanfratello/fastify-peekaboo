@@ -12,7 +12,7 @@ const default_ = {
   expire: 86400000, // 1 day in ms
   xheader: true,
   log: false,
-  mode: 'lazy'
+  mode: 'memoize'
 }
 
 module.exports = default_

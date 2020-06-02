@@ -4,7 +4,7 @@ const helper = require('../helper')
 
 const peekaboo = require('../../src/plugin')
 
-for (const mode of ['lazy', 'off', 'collector', 'stock']) {
+for (const mode of ['memoize', 'off', 'collector', 'stock']) {
   tap.test('peekaboo change mode ' + mode,
     async (_test) => {
       _test.plan(2)
@@ -124,7 +124,7 @@ tap.test('peekaboo change to invalid mode and nothing change',
 
     try {
       const _response = await helper.request({ url: helper.fastify.url(_fastify, '/set/unknown') })
-      _test.equal(_response.body, 'lazy')
+      _test.equal(_response.body, 'memoize')
     } catch (error) {
       _test.threw(error)
     }

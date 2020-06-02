@@ -27,6 +27,7 @@ tap.test('peekaboo matching by response status (exact)',
     })
 
     _fastify.get('/201', async (request, response) => {
+      response.header('empty', '')
       response.code(201).send('201')
     })
 

@@ -28,7 +28,7 @@ tap.test('peekaboo matching by request headers (string)',
       await helper.fastify.start(_fastify)
 
       let url = helper.fastify.url(_fastify, '/')
-      let _headers = { referer: 'testing' }
+      let _headers = { referer: 'testing', empty: '' }
       await helper.request({ url, headers: _headers })
       let _response = await helper.request({ url, headers: _headers })
       if (!_response.headers['x-peekaboo']) {

@@ -3,6 +3,7 @@
 [![NPM Version](http://img.shields.io/npm/v/fastify-peekaboo.svg?style=flat)](https://www.npmjs.org/package/fastify-peekaboo)
 [![NPM Downloads](https://img.shields.io/npm/dm/fastify-peekaboo.svg?style=flat)](https://www.npmjs.org/package/fastify-peekaboo)
 [![JS Standard Style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
+(100% code coverage badge)
 
 fastify plugin for memoize responses by expressive settings.
 
@@ -35,7 +36,7 @@ _fastify.register(peekaboo, {
       status: (code) => code > 199 && code < 300
     }
   }],
-  mode: 'lazy',
+  mode: 'memoize',
   storage: { mode: 'memory' },
   expire: 86400000, // 1 day in ms
   xheader: true,
@@ -84,9 +85,31 @@ See [matching system](./doc/README.md#matching-system) for details.
 
 #### settings.mode
 
-type: `string`, one of `lazy`, `off`, `collector`, `stock`
-default: `lazy`
-@todo doc
+type: `string`, one of `memoize`, `off`, `collector`, `stock`
+default: `memoize`
+
+It set how the cache system behave:
+
+- **memoize**  
+  on each request, it check if there is the cache entry and serve that avoiding elaboration, or elaborate and cache
+- **collector**  
+  only cache entries but don't use cache for serve responses
+- **stock**  
+  serve only responses from cache or 404 is the cache entry does not exists
+- **off**  
+  the plugin is not used
+
+You can get/set also at runtime by
+
+```js
+fastify.get('/cache/mode', async (request, response) => {
+  response.send({ mode: fastify.peekaboo.get.mode() })
+})
+fastify.get('/cache/mode/:mode', async (request, response) => {
+  fastify.peekaboo.set.mode(request.params.mode)
+  response.send('set mode ' + request.params.mode)
+})
+```
 
 #### settings.storage
 
@@ -96,7 +119,7 @@ default: `lazy`
   - `memory` (default) cache use runtime memory
   - `fs` use filesystem, need also `config.path`
 
-- `config`  
+- storage `config`  
   type: `object`  
 
   for `file` mode
@@ -115,8 +138,7 @@ default: `lazy`
   }
   ```
 
-@todo how to access and manipulate storage
-list, get, set, rm, clear
+See [storage documentation](./doc/README.md#storage) for further information about to access and manipulate entries.
 
 #### settings.expire
 
@@ -155,8 +177,8 @@ See [documentation](./doc/README.md) for further informations and examples.
 - **v. 1.2.0-beta** [ 2020-06-.. ] beta  
   - move to `beta` stage
   - fix fs storage persistence
-  - add `mode` (laxy, off, collector, stock)
-  - add storage access for editing: get, list, set, rm, clear
+  - add `mode` (memoize, off, collector, stock)
+  - add storage access for editing: `get`, `list`, `set`, `rm`, `clear`
   - add `info` in stored entries and `settings.noinfo` to skip that
   - add `x-peekaboo-hash` in xheader
 

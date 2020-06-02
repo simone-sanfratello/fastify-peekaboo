@@ -124,7 +124,7 @@ const plugin = function (fastify, settings, next) {
           const [key, ...value] = header.split(':')
           return {
             key: key.toLowerCase(),
-            value: value ? value.join(':').trim() : ''
+            value: value.join(':').trim()
           }
         })
         .filter((header) => {
@@ -161,7 +161,7 @@ const plugin = function (fastify, settings, next) {
             method: request.req.method,
             route: request.raw.originalUrl,
             headers: request.headers,
-            query: request.query || undefined,
+            query: request.query,
             body: request.body ? JSON.stringify(request.body) : undefined
           }
           _entry.info = {
@@ -169,7 +169,7 @@ const plugin = function (fastify, settings, next) {
             created: Date.now()
           }
         }
-        await _storage.set(response.peekaboo.hash, _entry)
+        await _storage.set(response.peekaboo.hash, _entry, settings.expire)
       }
 
       // @todo "next()" could be moved after "await response.peekaboo.body"
@@ -186,7 +186,7 @@ const plugin = function (fastify, settings, next) {
   fastify.decorate('peekaboo', {
     set: {
       mode: function (value) {
-        if (!['off', 'lazy', 'collector', 'stock'].includes(value)) {
+        if (!['off', 'memoize', 'collector', 'stock'].includes(value)) {
           fastify.log.warn({ ns: 'peekaboo', message: `try to set invalid mode "${value}", ignore` })
           return
         }

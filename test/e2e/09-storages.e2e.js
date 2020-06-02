@@ -116,7 +116,7 @@ for (const name in storages) {
       _test.pass()
     })
 
-  tap.test('peekaboo get list of cached items (' + name + ')',
+  tap.test('peekaboo get list of cached entries (' + name + ')',
     async (_test) => {
       _test.plan(3)
       const _fastify = fastify()
@@ -150,7 +150,7 @@ for (const name in storages) {
         const _response = await helper.request({ url: helper.fastify.url(_fastify, '/list') })
         const _body = JSON.parse(_response.body)
         _test.equal(_body.length, 2)
-        _test.match(_body[0], /[a-f0-9]{12}/)
+        _test.match(_body[0], /^[a-f0-9]{64}$/)
       } catch (error) {
         _test.threw(error)
       }
@@ -159,12 +159,13 @@ for (const name in storages) {
       _test.pass()
     })
 
-  tap.test('peekaboo remove a cached item by hash (' + name + ')',
+  tap.test('peekaboo remove a cached entry by hash (' + name + ')',
     async (_test) => {
       _test.plan(2)
       const _fastify = fastify()
+
       _fastify
-        .register(peekaboo, storage.settings)
+        .register(peekaboo, { ...storage.settings, xheader: false })
 
       _fastify.all('/one', async (request, response) => {
         response.send('one')
@@ -211,7 +212,7 @@ for (const name in storages) {
         response.send('two')
       })
       _fastify.all('/set/:hash', async (request, response) => {
-        await request.peekaboo.storage.set(request.params.hash, {})
+        await request.peekaboo.storage.set(request.params.hash, { expire: 3000 })
         response.send('set')
       })
       _fastify.all('/list', async (request, response) => {
