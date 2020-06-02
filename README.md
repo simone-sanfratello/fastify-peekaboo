@@ -3,7 +3,7 @@
 [![NPM Version](http://img.shields.io/npm/v/fastify-peekaboo.svg?style=flat)](https://www.npmjs.org/package/fastify-peekaboo)
 [![NPM Downloads](https://img.shields.io/npm/dm/fastify-peekaboo.svg?style=flat)](https://www.npmjs.org/package/fastify-peekaboo)
 [![JS Standard Style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
-![100% code coverage](https://img.shields.io/badge/coverage-100%25-green)
+![100% code coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)
 
 fastify plugin for memoize responses by expressive settings.
 
