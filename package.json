@@ -1,6 +1,15 @@
 {
   "name": "fastify-peekaboo",
-  "version": "1.2.1-beta",
+  "version": "1.2.2-beta",
+  "description": "fastify plugin for memoize responses by expressive settings",
+  "main": "src/plugin.js",
+  "files": [
+    "src/",
+    "settings/"
+  ],
+  "engines": {
+    "node": ">=12"
+  },
   "dependencies": {
     "a-toolbox": "^1.7.3",
     "fastify-plugin": "^1.6.1",
@@ -21,15 +30,6 @@
     "lint": "standard --fix",
     "test": "tap --files test/e2e/*.e2e.js test/unit/*.spec.js",
     "test-coverage": "tap test/* --cov"
-  },
-  "description": "fastify plugin for memoize responses by expressive settings",
-  "main": "src/plugin.js",
-  "files": [
-    "src/",
-    "settings/"
-  ],
-  "engines": {
-    "node": ">=12"
   },
   "author": "Simone Sanfratello <simone@braceslab.com>",
   "license": "MIT",

@@ -15,9 +15,7 @@ const MemoryStorage = function (options) {
         return
       }
       return content
-    } catch (error) {
-      console.error(error)
-    }
+    } catch (error) { }
   }
 
   const set = async function (key, data, expire) {
