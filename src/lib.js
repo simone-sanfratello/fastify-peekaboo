@@ -22,8 +22,8 @@ const lib = {
   hash: {
     request: function (request, rule) {
       const hashing = {
-        method: request.req.method,
-        route: request.raw.originalUrl
+        method: request.method,
+        route: request.raw.url
       }
 
       for (const part of ['headers', 'body', 'query']) {
@@ -97,7 +97,7 @@ const lib = {
 
   log: {
     request: function (request) {
-      return request.raw.originalUrl
+      return request.raw.url
     }
   }
 

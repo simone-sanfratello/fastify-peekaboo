@@ -2,9 +2,9 @@ const url = require('url')
 
 const matcher = {
   request: function (request, rule) {
-    const route = new url.URL('http://a.b' + request.raw.originalUrl).pathname
+    const route = new url.URL('http://a.b' + request.raw.url).pathname
 
-    if (!matcher.list(request.req.method.toLowerCase(), rule.methods) ||
+    if (!matcher.list(request.method.toLowerCase(), rule.methods) ||
       !matcher.string(route, rule.route)) {
       return false
     }

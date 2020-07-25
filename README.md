@@ -174,7 +174,11 @@ See [documentation](./doc/README.md) for further informations and examples.
 
 ## Changelog
 
-- **v. 1.2.0-beta** [ 2020-06-.. ] beta  
+- **v. 1.3.0** [ 2020-07-25 ] stable  
+  - update to `fastify v3`
+  - update deps
+
+- **v. 1.2.0-beta** [ 2020-06-18 ] beta  
   - move to `beta` stage
   - fix fs storage persistence
   - add `mode` (memoize, off, collector, stock)
@@ -205,7 +209,7 @@ See [documentation](./doc/README.md) for further informations and examples.
 
 ## Roadmap
 
-### v. 1.3
+### v. 1.4
 
 - [ ] remove `got` and use native http client
 - [ ] `response.rewrite` option
@@ -213,7 +217,7 @@ See [documentation](./doc/README.md) for further informations and examples.
 - [ ] postgresql storage
 - [ ] redis storage
 
-### v. 1.4
+### v. 1.5
 
 - [ ] doc: real world examples
 - [ ] benchmark plugin overhead (autocannon?)
@@ -224,7 +228,7 @@ See [documentation](./doc/README.md) for further informations and examples.
 - [ ] preset recipes (example graphql caching)
 - [ ] CI
 
-### v. 1.5
+### v. 1.6
 
 - [ ] fine grained settings (storage, expiration, xheader ...) for each rule
 - [ ] invalidate cache (by ...?)

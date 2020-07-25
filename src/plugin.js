@@ -38,7 +38,7 @@ const plugin = function (fastify, settings, next) {
       request.log.trace({ ns: 'peekaboo', message: 'preHandler', request: lib.log.request(request) })
       request.peekaboo = { storage: _storage }
       const _match = match.request(request, _settings.rules)
-      if (!_match || _settings.mode === 'collector') {
+      if (!_match || _settings.mode == 'collector') {
         return next()
       }
 
@@ -73,7 +73,7 @@ const plugin = function (fastify, settings, next) {
 
   const onSend = function (request, response, payload, next) {
     (async () => {
-      if (['off', 'stock'].includes(_settings.mode) || !response.peekaboo.match) {
+      if (_settings.mode == 'off' || _settings.mode == 'stock' || !response.peekaboo.match) {
         request.log.trace({ ns: 'peekaboo', message: 'onSend - response has not to be cached', request: lib.log.request(request) })
         return next()
       }
@@ -104,7 +104,7 @@ const plugin = function (fastify, settings, next) {
 
   const onResponse = function (request, response, next) {
     (async () => {
-      if (['off', 'stock'].includes(_settings.mode) || !response.peekaboo.match || response.peekaboo.sent) {
+      if (_settings.mode == 'off' || _settings.mode == 'stock' || !response.peekaboo.match || response.peekaboo.sent) {
         request.log.trace({ ns: 'peekaboo', message: 'onResponse - response has not to be cached', request: lib.log.request(request) })
         return next()
       }
@@ -118,7 +118,7 @@ const plugin = function (fastify, settings, next) {
         }
       }
 
-      const _headers = response.res._header
+      const _headers = response.raw._header
         .split('\r\n')
         .map(header => {
           const [key, ...value] = header.split(':')
@@ -150,16 +150,17 @@ const plugin = function (fastify, settings, next) {
         } catch (error) {}
       }
 
-      // trim headers @todo function
+      // @todo custom trim headers function
       delete _entry.response.headers.status
       delete _entry.response.headers.connection
       delete _entry.response.headers['transfer-encoding']
 
+      console.log('match')
       if (match.response(_entry.response, response.peekaboo.rule)) {
         if (!_settings.noinfo) {
           _entry.request = {
-            method: request.req.method,
-            route: request.raw.originalUrl,
+            method: request.method,
+            route: request.raw.url,
             headers: request.headers,
             query: request.query,
             body: request.body ? JSON.stringify(request.body) : undefined
@@ -215,7 +216,7 @@ const contentTypeText = function (contentType) {
 }
 
 module.exports = plug(plugin, {
-  fastify: '2',
+  fastify: '3',
   name: package_.name
 })
 

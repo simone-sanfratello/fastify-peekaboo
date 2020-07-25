@@ -5,6 +5,7 @@
 /pid/
 /node_modules/
 /coverage/
+/debug
 
 # logs
 *.log
