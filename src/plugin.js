@@ -147,7 +147,7 @@ const plugin = function (fastify, settings, next) {
       if (_entry.response.headers['content-type'].includes('json')) {
         try {
           _entry.response.body = JSON.parse(_entry.response.body)
-        } catch (error) {}
+        } catch (error) { }
       }
 
       // @todo custom trim headers function
