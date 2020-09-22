@@ -237,7 +237,7 @@ const plugin = function (fastify, settings, next) {
        */
       remove: async function (id) {
         return _storage.dataset.remove(id)
-      },
+      }
     }
   })
 

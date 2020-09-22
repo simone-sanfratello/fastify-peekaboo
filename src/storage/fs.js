@@ -100,16 +100,12 @@ const FsStorage = function (options) {
      * @throws
      */
     create: async function (name) {
-      try {
-        await _inited
-        const id = uuid()
-        _dataset.entries[id] = name
-        await fs.ensureDir(path.join(_basePath, _dataset.default))
-        await dataset.saveIndex()
-        return id
-      } catch (error) {
-        throw error
-      }
+      await _inited
+      const id = uuid()
+      _dataset.entries[id] = name
+      await fs.ensureDir(path.join(_basePath, _dataset.default))
+      await dataset.saveIndex()
+      return id
     },
     /**
      * @async
@@ -140,24 +136,19 @@ const FsStorage = function (options) {
         if (!_dataset.entries[id]) {
           throw Error('INVALID_DATASET_ID')
         }
+        if (id == _dataset.default) {
+          throw Error('INVALID_DATASET_OPERATION_CANT_REMOVE_DEFAULT')
+        }
         const entries = _dataset.entries
         delete _dataset.entries[id]
         await dataset.saveIndex()
         if (_dataset.current == id) {
           dataset.set(_dataset.default)
         }
-        // launch but don't wait for remove files and dir
-        dataset._remove(id, entries)
+        fs.remove(path.join(_basePath, id))
       } catch (error) {
         throw error
       }
-    },
-    _remove: async function (id, entries) {
-      const dir = path.join(_basePath, id)
-      for (const key in entries) {
-        await fs.unlink(path.join(dir, key))
-      }
-      fs.rmdir(dir)
     },
     get: async function () {
       await _inited
@@ -180,7 +171,7 @@ const FsStorage = function (options) {
       _dataset.current = id
       _path = path.join(_basePath, id)
       await dataset.saveIndex()
-    },
+    }
   }
 
   _inited = _init()

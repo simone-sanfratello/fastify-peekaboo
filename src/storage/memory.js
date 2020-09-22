@@ -79,6 +79,9 @@ const MemoryStorage = function () {
       if (!_dataset.entries[id]) {
         throw Error('INVALID_DATASET_ID')
       }
+      if (id == _dataset.default) {
+        throw Error('INVALID_DATASET_OPERATION_CANT_REMOVE_DEFAULT')
+      }
       delete _dataset.entries[id]
       delete _store[id]
       if (_dataset.current == id) {
@@ -106,7 +109,7 @@ const MemoryStorage = function () {
       }
       _dataset.current = id
       _dataset.store = _store[id]
-    },
+    }
   }
 
   _init()

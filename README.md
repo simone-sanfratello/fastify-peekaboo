@@ -86,9 +86,21 @@ Cache storage can be `memory` (ram), `fs`.
 
 `dataset` feature allow to have different caches and switching between them.
 
-Example:
+Example: create a new dataset and use it
 
-@todo
+```js
+fastify.post('/dataset', async (request, response) => {
+  try {
+    const id = await _fastify.peekaboo.dataset.create(request.body.name)
+    await _fastify.peekaboo.dataset.set(id)
+    response.send({ id })
+  } catch (error) {
+    response.send({ message: error.message })
+  }
+})
+```
+
+See [documentation](./doc/README.md#dataset) for full information and examples.
 
 ### Upgrade from v.1 to v.2
 
@@ -206,7 +218,7 @@ fastify({ logger: true })
 
 ## Documentation
 
-See [documentation](./doc/README.md) for further informations and examples.
+See [documentation](./doc/README.md) for further information and examples.
 
 ---
 

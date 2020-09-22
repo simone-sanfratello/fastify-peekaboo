@@ -26,7 +26,7 @@ const helper = {
     return got({ ...options, ...request })
   },
   assert: {
-    isId: function(id) {
+    isId: function (id) {
       return id.match(/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/)
     }
   }

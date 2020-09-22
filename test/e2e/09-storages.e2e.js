@@ -7,7 +7,7 @@ const peekaboo = require('../../src/plugin')
 const rules = [{
   request: {
     methods: true,
-    route: true
+    route: /^\/(?!clear).*$/
   }
 }]
 
@@ -149,7 +149,7 @@ for (const name in storages) {
         await helper.request({ url: helper.fastify.url(_fastify, '/') })
         const _response = await helper.request({ url: helper.fastify.url(_fastify, '/list') })
         const _body = JSON.parse(_response.body)
-        _test.equal(_body.length, 2)
+        _test.equal(_body.length, 1)
         _test.match(_body[0], /^[a-f0-9]{64}$/)
       } catch (error) {
         _test.threw(error)

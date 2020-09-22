@@ -74,7 +74,7 @@ const Storage = function (options) {
      * @param {string} name
      * @throws
      */
-    create: async function (name) {
+    create: function (name) {
       if (!name) {
         throw Error('INVALID_DATASET_NAME')
       }
@@ -86,7 +86,7 @@ const Storage = function (options) {
      * @param {string} name
      * @throws
      */
-    update: async function (id, name) {
+    update: function (id, name) {
       if (!name) {
         throw Error('INVALID_DATASET_NAME')
       }
@@ -97,10 +97,10 @@ const Storage = function (options) {
      * @param {hash} id
      * @throws
      */
-    remove: async function (id) {
+    remove: function (id) {
       return _storage.dataset.remove(id)
     },
-    get: async function () {
+    get: function () {
       return _storage.dataset.get()
     },
     /**
@@ -108,9 +108,9 @@ const Storage = function (options) {
      * @param {hash} id
      * @throws
      */
-    set: async function (id) {
+    set: function (id) {
       return _storage.dataset.set(id)
-    },
+    }
   }
 
   _init(options)
