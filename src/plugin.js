@@ -147,7 +147,7 @@ const plugin = function (fastify, settings, next) {
       if (_entry.response.headers['content-type'].includes('json')) {
         try {
           _entry.response.body = JSON.parse(_entry.response.body)
-        } catch (error) {}
+        } catch (error) { }
       }
 
       // @todo custom trim headers function
@@ -155,7 +155,6 @@ const plugin = function (fastify, settings, next) {
       delete _entry.response.headers.connection
       delete _entry.response.headers['transfer-encoding']
 
-      console.log('match')
       if (match.response(_entry.response, response.peekaboo.rule)) {
         if (!_settings.noinfo) {
           _entry.request = {
@@ -198,6 +197,46 @@ const plugin = function (fastify, settings, next) {
     get: {
       mode: function () {
         return _settings.mode
+      }
+    },
+    dataset: {
+      /**
+       * @async
+       */
+      get: function () {
+        return _storage.dataset.get()
+      },
+      /**
+       * @async
+       */
+      set: async function (id) {
+        await _storage.dataset.set(id)
+      },
+      /**
+       * @async
+       * @param {string} name
+       * @returns {hash} id
+       * @throws
+       */
+      create: function (name) {
+        return _storage.dataset.create(name)
+      },
+      /**
+       * @async
+       * @param {hash} id
+       * @param {string} name
+       * @throws
+       */
+      update: async function (id, name) {
+        return _storage.dataset.update(id, name)
+      },
+      /**
+       * @async
+       * @param {hash} id
+       * @throws
+       */
+      remove: async function (id) {
+        return _storage.dataset.remove(id)
       }
     }
   })

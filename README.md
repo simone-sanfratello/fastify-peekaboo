@@ -12,6 +12,29 @@ fastify plugin for memoize responses by expressive settings.
 
 Use arbitrary cache to serve responses from previous elaboration, matching them by request and response.
 
+- [fastify-peekaboo](#fastify-peekaboo)
+  - [Purpose](#purpose)
+  - [Installing](#installing)
+    - [Quick start](#quick-start)
+  - [Storage and dataset](#storage-and-dataset)
+    - [Upgrade from v.1 to v.2](#upgrade-from-v1-to-v2)
+  - [Settings](#settings)
+    - [settings](#settings-1)
+      - [settings.rules](#settingsrules)
+      - [settings.mode](#settingsmode)
+      - [settings.storage](#settingsstorage)
+      - [settings.expire](#settingsexpire)
+      - [settings.xheader](#settingsxheader)
+      - [settings.noinfo](#settingsnoinfo)
+    - [Log](#log)
+  - [Documentation](#documentation)
+  - [Changelog](#changelog)
+  - [Roadmap](#roadmap)
+    - [v. 2.1](#v-21)
+    - [v. 2.2](#v-22)
+    - [v. 2.3](#v-23)
+  - [License](#license)
+
 ## Installing
 
 ````bash
@@ -60,6 +83,33 @@ First call to `/home` or `/image` will execute the handler; from second time con
 
 Cache storage can be `memory` (ram), `fs`.
 
+## Storage and dataset
+
+`dataset` feature allow to have different caches and switching between them.
+
+Example: create a new dataset and use it
+
+```js
+fastify.post('/dataset', async (request, response) => {
+  try {
+    const id = await _fastify.peekaboo.dataset.create(request.body.name)
+    await _fastify.peekaboo.dataset.set(id)
+    response.send({ id })
+  } catch (error) {
+    response.send({ message: error.message })
+  }
+})
+```
+
+See [documentation](./doc/README.md#dataset) for full information and examples.
+
+### Upgrade from v.1 to v.2
+
+If you are using `memory` storage, cache is volatile, no action is required.  
+In order to keep cache using `fs` storage, move dir and content from `peekaboo` to `peekaboo/default`; otherwise, a new empty cache is created.
+
+Update API calls for `set.mode` and `get.mode` to `mode.set` and `mode.get`.
+
 ## Settings
 
 Cache works by matching request and response.  
@@ -104,10 +154,10 @@ You can get/set also at runtime by
 
 ```js
 fastify.get('/cache/mode', async (request, response) => {
-  response.send({ mode: fastify.peekaboo.get.mode() })
+  response.send({ mode: fastify.peekaboo.mode.get() })
 })
 fastify.get('/cache/mode/:mode', async (request, response) => {
-  fastify.peekaboo.set.mode(request.params.mode)
+  fastify.peekaboo.mode.set(request.params.mode)
   response.send('set mode ' + request.params.mode)
 })
 ```
@@ -169,11 +219,15 @@ fastify({ logger: true })
 
 ## Documentation
 
-See [documentation](./doc/README.md) for further informations and examples.
+See [documentation](./doc/README.md) for further information and examples.
 
 ---
 
 ## Changelog
+
+- **v. 2.0.0** [ 2020-09-25 ] stable  
+  - add `dataset` feature
+  - update `mode` public methods
 
 - **v. 1.3.0** [ 2020-07-25 ] stable  
   - update to `fastify v3`
@@ -210,7 +264,7 @@ See [documentation](./doc/README.md) for further informations and examples.
 
 ## Roadmap
 
-### v. 1.4
+### v. 2.1
 
 - [ ] remove `got` and use native http client
 - [ ] `response.rewrite` option
@@ -218,7 +272,7 @@ See [documentation](./doc/README.md) for further informations and examples.
 - [ ] postgresql storage
 - [ ] redis storage
 
-### v. 1.5
+### v. 2.2
 
 - [ ] doc: real world examples
 - [ ] benchmark plugin overhead (autocannon?)
@@ -229,7 +283,7 @@ See [documentation](./doc/README.md) for further informations and examples.
 - [ ] preset recipes (example graphql caching)
 - [ ] CI
 
-### v. 1.6
+### v. 2.3
 
 - [ ] fine grained settings (storage, expiration, xheader ...) for each rule
 - [ ] invalidate cache (by ...?)

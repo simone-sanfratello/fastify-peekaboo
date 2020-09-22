@@ -269,7 +269,7 @@ _fastify.register(peekaboo, {
 - response using cache either on error too
 
   ```js
-  _fastify.get('/content/:id', async (request, response) => {
+  fastify.get('/content/:id', async (request, response) => {
     const _id = parseInt(request.params.id)
     if (isNaN(_id)) {
       response.code(405).send('BAD_REQUEST')
@@ -369,4 +369,79 @@ fastify.delete('/cache/list', async (request, response) => {
 })
 
 ["48471f2408e9e1c2f9058060f5723f40e93cd965c0ab2322d1…", "af1ec22be30172fb69f9624b91042d9945943db81da052554a…"]
+```
+
+## Dataset
+
+Storage uses a default dataset, however storage can use many dataset at runtime.
+Dataset are volatile using `memory` storage, but persist using `fs` storage.
+
+### get
+
+Get the dataset status: `entries`, `default` and `current`.
+
+```js
+fastify.get('/dataset', async (request, response) => {
+  response.send(await _fastify.peekaboo.dataset.get())
+})
+```
+
+### create
+
+Create a new dataset with the given `name`. An error occurs if `name` is not valid or empty.
+
+```js
+fastify.post('/dataset', async (request, response) => {
+  try {
+    const id = await fastify.peekaboo.dataset.create(request.body.name)
+    response.send({ id })
+  } catch (error) {
+    response.code(400).send({ message: error.message })
+  }
+})
+```
+
+### update
+
+Update a dataset `name`. An error occurs if `name` is not valid or empty or the `id` is not valid.
+
+```js
+fastify.patch('/dataset', async (request, response) => {
+  try {
+    await fastify.peekaboo.dataset.update(request.body.id, request.body.name)
+    response.send({})
+  } catch (error) {
+    response.code(400).send({ message: error.message })
+  }
+})
+```
+
+### remove
+
+Remove a dataset. An error occurs trying to remove the `default` dataset or the `id` is not valid.
+
+```js
+fastify.patch('/dataset', async (request, response) => {
+  try {
+    await fastify.peekaboo.dataset.update(request.body.id, request.body.name)
+    response.send({})
+  } catch (error) {
+    response.code(400).send({ message: error.message })
+  }
+})
+```
+
+### set
+
+Set the dataset in use. An error occurs trying if the `id` is not valid.
+
+```js
+fastify.get('/dataset/:id', async (request, response) => {
+  try {
+    await fastify.peekaboo.dataset.set(request.params.id)
+    response.send({})
+  } catch (error) {
+    response.code(400).send({ message: error.message })
+  }
+})
 ```
