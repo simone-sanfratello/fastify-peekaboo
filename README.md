@@ -11,6 +11,29 @@ fastify plugin for memoize responses by expressive settings.
 
 Use arbitrary cache to serve responses from previous elaboration, matching them by request and response.
 
+- [fastify-peekaboo](#fastify-peekaboo)
+  - [Purpose](#purpose)
+  - [Installing](#installing)
+    - [Quick start](#quick-start)
+  - [Storage and dataset](#storage-and-dataset)
+    - [Upgrade from v.1 to v.2](#upgrade-from-v1-to-v2)
+  - [Settings](#settings)
+    - [settings](#settings-1)
+      - [settings.rules](#settingsrules)
+      - [settings.mode](#settingsmode)
+      - [settings.storage](#settingsstorage)
+      - [settings.expire](#settingsexpire)
+      - [settings.xheader](#settingsxheader)
+      - [settings.noinfo](#settingsnoinfo)
+    - [Log](#log)
+  - [Documentation](#documentation)
+  - [Changelog](#changelog)
+  - [Roadmap](#roadmap)
+    - [v. 2.1](#v-21)
+    - [v. 2.2](#v-22)
+    - [v. 2.3](#v-23)
+  - [License](#license)
+
 ## Installing
 
 ````bash
@@ -58,6 +81,23 @@ await _fastify.listen(80)
 First call to `/home` or `/image` will execute the handler; from second time content will be served straight from the cache without running the handlers.
 
 Cache storage can be `memory` (ram), `fs`.
+
+## Storage and dataset
+
+`dataset` feature allow to have different caches and switching between them.
+
+Example:
+
+@todo
+
+### Upgrade from v.1 to v.2
+
+If you are using `memory` storage, cache is volatile, no action is required.
+
+In order to keep cache using `fs` storage:
+
+- move dir and content from `peekaboo` to `peekaboo/default`
+- done
 
 ## Settings
 
@@ -174,6 +214,10 @@ See [documentation](./doc/README.md) for further informations and examples.
 
 ## Changelog
 
+- **v. 2.0.0** [ 2020-09-25 ] stable  
+  - add `dataset` feature
+  - **breaking change**
+
 - **v. 1.3.0** [ 2020-07-25 ] stable  
   - update to `fastify v3`
   - update deps
@@ -209,7 +253,7 @@ See [documentation](./doc/README.md) for further informations and examples.
 
 ## Roadmap
 
-### v. 1.4
+### v. 2.1
 
 - [ ] remove `got` and use native http client
 - [ ] `response.rewrite` option
@@ -217,7 +261,7 @@ See [documentation](./doc/README.md) for further informations and examples.
 - [ ] postgresql storage
 - [ ] redis storage
 
-### v. 1.5
+### v. 2.2
 
 - [ ] doc: real world examples
 - [ ] benchmark plugin overhead (autocannon?)
@@ -228,7 +272,7 @@ See [documentation](./doc/README.md) for further informations and examples.
 - [ ] preset recipes (example graphql caching)
 - [ ] CI
 
-### v. 1.6
+### v. 2.3
 
 - [ ] fine grained settings (storage, expiration, xheader ...) for each rule
 - [ ] invalidate cache (by ...?)

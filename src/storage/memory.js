@@ -1,25 +1,26 @@
-const { v1: uuid } = require('uuid/v1')
+const { v1: uuid } = require('uuid')
 
 const MemoryStorage = function () {
-  const _store = {}
   const _dataset = {}
+  const _store = {}
+  let _defaultDataset
 
   const _init = async function () {
-    fs.mkdir(_path, { recursive: true })
-
-    let index = v1()
+    _defaultDataset = uuid()
     _dataset.entries = {
-      [index]: 'default'
+      [_defaultDataset]: 'default'
     }
-    _dataset.current = index
+    _dataset.current = _defaultDataset
+    _store[_defaultDataset] = {}
+    _dataset.store = _store[_defaultDataset]
   }
 
   const get = async function (key) {
-    if (!_store[key]) {
+    if (!_dataset.store[key]) {
       return
     }
-    if (_store[key].expire > Date.now()) {
-      return _store[key]
+    if (_dataset.store[key].expire > Date.now()) {
+      return _dataset.store[key]
     }
     rm(key)
   }
@@ -28,21 +29,21 @@ const MemoryStorage = function () {
     if (expire && !data.expire) {
       data.expire = Date.now() + expire
     }
-    _store[key] = data
+    _dataset.store[key] = data
   }
 
   const rm = async function (key) {
-    delete _store[key]
+    delete _dataset.store[key]
   }
 
   const clear = async function () {
-    for (const key in _store) {
-      delete _store[key]
+    for (const key in _dataset.store) {
+      delete _dataset.store[key]
     }
   }
 
   const list = async function () {
-    return Object.keys(_store)
+    return Object.keys(_dataset.store)
   }
 
   const dataset = {
@@ -55,6 +56,7 @@ const MemoryStorage = function () {
     create: async function (name) {
       const id = uuid()
       _dataset.entries[id] = name
+      _store[id] = {}
       return id
     },
     /**
@@ -79,6 +81,10 @@ const MemoryStorage = function () {
         throw Error('INVALID_DATASET_ID')
       }
       delete _dataset.entries[id]
+      delete _store[id]
+      if (_dataset.current == id) {
+        dataset.set(_defaultDataset)
+      }
     },
     /**
      * @async
@@ -99,7 +105,8 @@ const MemoryStorage = function () {
       if (!_dataset.entries[id]) {
         throw Error('INVALID_DATASET_CURRENT_VALUE')
       }
-      current = id
+      _dataset.current = id
+      _dataset.store = _store[id]      
     },
   }
 
