@@ -24,6 +24,11 @@ const helper = {
   },
   request: async function (request) {
     return got({ ...options, ...request })
+  },
+  assert: {
+    isId: function(id) {
+      return id.match(/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/)
+    }
   }
 }
 

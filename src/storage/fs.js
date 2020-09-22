@@ -1,29 +1,40 @@
 const { v1: uuid } = require('uuid')
-const fs = require('fs').promises
+const fs = require('fs-extra')
 const path = require('path')
 
 const FsStorage = function (options) {
   const _basePath = options.path
   const _dataset = {}
   let _indexFile
-  let _defaultDataset
   let _path
+  let _inited
 
   const _init = async function () {
-    _defaultDataset = uuid()
-    _path = path.join(_basePath, _defaultDataset)
     _indexFile = path.join(_basePath, 'index.json')
-    await fs.mkdir(_path, { recursive: true })
+    await fs.ensureDir(_basePath)
 
-    _dataset.entries = {
-      [_defaultDataset]: 'default'
+    try {
+      // try load dataset index
+      const index = require(_indexFile)
+      _dataset.default = index.default
+      _dataset.entries = index.entries
+      _dataset.current = index.current
+    } catch (error) {
+      // create the dataset index file if index is not found or invalid
+      _dataset.default = uuid()
+      _dataset.entries = {
+        [_dataset.default]: 'default'
+      }
+      _dataset.current = _dataset.default
+      await dataset.saveIndex()
     }
-    _dataset.current = _defaultDataset
-    await dataset.init()
+    _path = path.join(_basePath, _dataset.current)
+    await fs.ensureDir(_path)
   }
 
   const get = async function (key) {
     try {
+      await _inited
       const data = await fs.readFile(path.join(_path, key), 'utf8')
       const content = JSON.parse(data)
       if (content.expire && content.expire < Date.now()) {
@@ -35,15 +46,19 @@ const FsStorage = function (options) {
   }
 
   const set = async function (key, data, expire) {
-    if (expire && !data.expire) {
-      data.expire = Date.now() + expire
-    }
-    return fs.writeFile(path.join(_path, key), JSON.stringify(data), 'utf8')
+    try {
+      await _inited
+      if (expire && !data.expire) {
+        data.expire = Date.now() + expire
+      }
+      return fs.writeFile(path.join(_path, key), JSON.stringify(data), 'utf8')
+    } catch (error) { }
   }
 
   const list = async function () {
     const _entries = []
     try {
+      await _inited
       const _files = await fs.readdir(_path)
       for (let i = 0; i < _files.length; i++) {
         const _file = _files[i]
@@ -55,12 +70,14 @@ const FsStorage = function (options) {
 
   const rm = async function (key) {
     try {
+      await _inited
       fs.unlink(path.join(_path, key))
     } catch (error) { }
   }
 
   const clear = async function () {
     try {
+      await _inited
       const _files = await fs.readdir(_path)
       for (let i = 0; i < _files.length; i++) {
         fs.unlink(path.join(_path, _files[i]))
@@ -69,24 +86,6 @@ const FsStorage = function (options) {
   }
 
   const dataset = {
-    /**
-     * load dataset index or create the dataset index file
-     * @async
-     * @throws
-     */
-    init: async function () {
-      try {
-        const index = require(_indexFile)
-        dataset.entries = index.entries
-        dataset.current = index.current
-        return
-      } catch (error) {
-        // index not found or invalid
-      }
-      // create a new one
-      _inited = dataset.saveIndex()
-      await _inited
-    },
     /**
      * @async
      * @throws
@@ -101,11 +100,16 @@ const FsStorage = function (options) {
      * @throws
      */
     create: async function (name) {
-      const id = uuid()
-      _dataset.entries[id] = name
-      await fs.mkdir(path.join(_basePath, _defaultDataset))
-      await dataset.saveIndex()
-      return id
+      try {
+        await _inited
+        const id = uuid()
+        _dataset.entries[id] = name
+        await fs.ensureDir(path.join(_basePath, _dataset.default))
+        await dataset.saveIndex()
+        return id
+      } catch (error) {
+        throw error
+      }
     },
     /**
      * @async
@@ -114,11 +118,16 @@ const FsStorage = function (options) {
      * @throws
      */
     update: async function (id, name) {
-      if (!_dataset.entries[id]) {
-        throw Error('INVALID_DATASET_ID')
+      try {
+        await _inited
+        if (!_dataset.entries[id]) {
+          throw Error('INVALID_DATASET_ID')
+        }
+        _dataset.entries[id] = name
+        await dataset.saveIndex()
+      } catch (error) {
+        throw error
       }
-      _dataset.entries[id] = name
-      await dataset.saveIndex()
     },
     /**
      * @async
@@ -126,17 +135,22 @@ const FsStorage = function (options) {
      * @throws
      */
     remove: async function (id) {
-      if (!_dataset.entries[id]) {
-        throw Error('INVALID_DATASET_ID')
+      try {
+        await _inited
+        if (!_dataset.entries[id]) {
+          throw Error('INVALID_DATASET_ID')
+        }
+        const entries = _dataset.entries
+        delete _dataset.entries[id]
+        await dataset.saveIndex()
+        if (_dataset.current == id) {
+          dataset.set(_dataset.default)
+        }
+        // launch but don't wait for remove files and dir
+        dataset._remove(id, entries)
+      } catch (error) {
+        throw error
       }
-      const entries = _dataset.entries
-      delete _dataset.entries[id]
-      await dataset.saveIndex()
-      if (_dataset.current == id) {
-        dataset.set(_defaultDataset)
-      }
-      // launch but don't wait for remove files and dir
-      dataset._remove(id, entries)
     },
     _remove: async function (id, entries) {
       const dir = path.join(_basePath, id)
@@ -147,27 +161,29 @@ const FsStorage = function (options) {
     },
     get: async function () {
       await _inited
-      const entries = []
-      for (const id in _dataset.entries) {
-        entries.push({ id, name: _dataset.entries[id].name })
+      return {
+        entries: { ..._dataset.entries },
+        current: _dataset.current,
+        default: _dataset.default
       }
-      return { entries, current }
     },
     /**
      * @async
      * @param {hash} id
      * @throws error if `id` is not a valid dataset id
      */
-    set: async function (value) {
+    set: async function (id) {
+      await _inited
       if (!_dataset.entries[id]) {
         throw Error('INVALID_DATASET_CURRENT_VALUE')
       }
       _dataset.current = id
       _path = path.join(_basePath, id)
+      await dataset.saveIndex()
     },
   }
 
-  _init()
+  _inited = _init()
 
   return {
     get,

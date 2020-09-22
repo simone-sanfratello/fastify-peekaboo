@@ -86,7 +86,7 @@ for (const name in storages) {
       _test.plan(2)
       const _fastify = fastify()
       _fastify
-        .register(peekaboo, { ...storage.settings, expire: 100 })
+        .register(peekaboo, { ...storage.settings, expire: 10 })
 
       _fastify.all('/', async (request, response) => {
         response.send('response')

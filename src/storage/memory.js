@@ -3,16 +3,15 @@ const { v1: uuid } = require('uuid')
 const MemoryStorage = function () {
   const _dataset = {}
   const _store = {}
-  let _defaultDataset
 
   const _init = async function () {
-    _defaultDataset = uuid()
+    _dataset.default = uuid()
     _dataset.entries = {
-      [_defaultDataset]: 'default'
+      [_dataset.default]: 'default'
     }
-    _dataset.current = _defaultDataset
-    _store[_defaultDataset] = {}
-    _dataset.store = _store[_defaultDataset]
+    _dataset.current = _dataset.default
+    _store[_dataset.default] = {}
+    _dataset.store = _store[_dataset.default]
   }
 
   const get = async function (key) {
@@ -83,18 +82,18 @@ const MemoryStorage = function () {
       delete _dataset.entries[id]
       delete _store[id]
       if (_dataset.current == id) {
-        dataset.set(_defaultDataset)
+        dataset.set(_dataset.default)
       }
     },
     /**
      * @async
      */
     get: async function () {
-      const entries = []
-      for (const id in _dataset.entries) {
-        entries.push({ id, name: _dataset.entries[id].name })
+      return {
+        entries: { ..._dataset.entries },
+        current: _dataset.current,
+        default: _dataset.default
       }
-      return { entries, current: _dataset.current }
     },
     /**
      * @async
@@ -106,7 +105,7 @@ const MemoryStorage = function () {
         throw Error('INVALID_DATASET_CURRENT_VALUE')
       }
       _dataset.current = id
-      _dataset.store = _store[id]      
+      _dataset.store = _store[id]
     },
   }
 

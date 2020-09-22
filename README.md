@@ -92,12 +92,10 @@ Example:
 
 ### Upgrade from v.1 to v.2
 
-If you are using `memory` storage, cache is volatile, no action is required.
+If you are using `memory` storage, cache is volatile, no action is required.  
+In order to keep cache using `fs` storage, move dir and content from `peekaboo` to `peekaboo/default`; otherwise, a new empty cache is created.
 
-In order to keep cache using `fs` storage:
-
-- move dir and content from `peekaboo` to `peekaboo/default`
-- done
+Update API calls for `set.mode` and `get.mode` to `mode.set` and `mode.get`.
 
 ## Settings
 
@@ -143,10 +141,10 @@ You can get/set also at runtime by
 
 ```js
 fastify.get('/cache/mode', async (request, response) => {
-  response.send({ mode: fastify.peekaboo.get.mode() })
+  response.send({ mode: fastify.peekaboo.mode.get() })
 })
 fastify.get('/cache/mode/:mode', async (request, response) => {
-  fastify.peekaboo.set.mode(request.params.mode)
+  fastify.peekaboo.mode.set(request.params.mode)
   response.send('set mode ' + request.params.mode)
 })
 ```
@@ -216,7 +214,7 @@ See [documentation](./doc/README.md) for further informations and examples.
 
 - **v. 2.0.0** [ 2020-09-25 ] stable  
   - add `dataset` feature
-  - **breaking change**
+  - update `mode` public methods
 
 - **v. 1.3.0** [ 2020-07-25 ] stable  
   - update to `fastify v3`
