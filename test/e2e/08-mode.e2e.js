@@ -12,8 +12,8 @@ for (const mode of ['memoize', 'off', 'collector', 'stock']) {
       _fastify.register(peekaboo)
 
       _fastify.all('/set/:mode', async (request, response) => {
-        _fastify.peekaboo.set.mode(request.params.mode)
-        response.send(_fastify.peekaboo.get.mode())
+        _fastify.peekaboo.mode.set(request.params.mode)
+        response.send(_fastify.peekaboo.mode.get())
       })
 
       await helper.fastify.start(_fastify)
@@ -116,8 +116,8 @@ tap.test('peekaboo change to invalid mode and nothing change',
     _fastify.register(peekaboo, { xheader: false, noinfo: true })
 
     _fastify.all('/set/:mode', async (request, response) => {
-      _fastify.peekaboo.set.mode(request.params.mode)
-      response.send(_fastify.peekaboo.get.mode())
+      _fastify.peekaboo.mode.set(request.params.mode)
+      response.send(_fastify.peekaboo.mode.get())
     })
 
     await helper.fastify.start(_fastify)

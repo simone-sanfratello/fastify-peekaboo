@@ -184,18 +184,16 @@ const plugin = function (fastify, settings, next) {
   }
 
   fastify.decorate('peekaboo', {
-    set: {
-      mode: function (value) {
+    mode: {
+      set: function (value) {
         if (!['off', 'memoize', 'collector', 'stock'].includes(value)) {
           fastify.log.warn({ ns: 'peekaboo', message: `try to set invalid mode "${value}", ignore` })
           return
         }
         fastify.log.info({ ns: 'peekaboo', message: `change mode from ${_settings.mode} to ${value}` })
         _settings.mode = value
-      }
-    },
-    get: {
-      mode: function () {
+      },
+      get: function () {
         return _settings.mode
       }
     },

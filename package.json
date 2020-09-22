@@ -1,6 +1,6 @@
 {
   "name": "fastify-peekaboo",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "fastify plugin for memoize responses by expressive settings",
   "main": "src/plugin.js",
   "files": [
