@@ -198,8 +198,8 @@ Setup and run
 const fastify = require('fastify')
 const peekaboo = require('fastify-peekaboo')
 
-const _fastify = fastify()
-_fastify.register(peekaboo, {
+const fastify = fastify()
+fastify.register(peekaboo, {
   rules: [
     // list of matches, see below
   ]}
@@ -220,7 +220,7 @@ _fastify.register(peekaboo, {
 - response using cache after from the second time, same response always
 
   ```js
-  _fastify.get('/home', async (request, response) => {
+  fastify.get('/home', async (request, response) => {
     response.send('hey there')
   })
   ```
@@ -242,7 +242,7 @@ _fastify.register(peekaboo, {
 - response using cache but different from header/cookie, means that every request is based on cookie
 
   ```js
-  _fastify.get('/session', async (request, response) => {
+  fastify.get('/session', async (request, response) => {
     // cookie parsing is done by a plugin like fastify-cookie
     // ... retrieve user
     const _user = user.retrieve(request.cookies.token)
@@ -283,7 +283,7 @@ _fastify.register(peekaboo, {
 
 The storage allow access to entries for:
 
-#### get
+#### storage.get
 
 retrieve the entry
 
@@ -322,7 +322,7 @@ fastify.get('/cache/get/:hash', async (request, response) => {
 }
 ```
 
-#### set
+#### storage.set
 
 set the content of a entry, all part must be provided:
 
@@ -341,7 +341,7 @@ fastify.put('/cache/set/:hash', async (request, response) => {
 })
 ```
 
-#### rm
+#### storage.rm
 
 ```js
 fastify.delete('/cache/rm/:hash', async (request, response) => {
@@ -350,7 +350,7 @@ fastify.delete('/cache/rm/:hash', async (request, response) => {
 })
 ```
 
-#### clear
+#### storage.clear
 
 ```js
 fastify.delete('/cache/clear', async (request, response) => {
@@ -359,7 +359,7 @@ fastify.delete('/cache/clear', async (request, response) => {
 })
 ```
 
-#### list
+#### storage.list
 
 retrieve the hashes of entries
 
@@ -376,17 +376,17 @@ fastify.delete('/cache/list', async (request, response) => {
 Storage uses a default dataset, however storage can use many dataset at runtime.
 Dataset are volatile using `memory` storage, but persist using `fs` storage.
 
-### get
+### dataset.get
 
 Get the dataset status: `entries`, `default` and `current`.
 
 ```js
 fastify.get('/dataset', async (request, response) => {
-  response.send(await _fastify.peekaboo.dataset.get())
+  response.send(await fastify.peekaboo.dataset.get())
 })
 ```
 
-### create
+### dataset.create
 
 Create a new dataset with the given `name`. An error occurs if `name` is not valid or empty.
 
@@ -401,7 +401,7 @@ fastify.post('/dataset', async (request, response) => {
 })
 ```
 
-### update
+### dataset.update
 
 Update a dataset `name`. An error occurs if `name` is not valid or empty or the `id` is not valid.
 
@@ -416,7 +416,7 @@ fastify.patch('/dataset', async (request, response) => {
 })
 ```
 
-### remove
+### dataset.remove
 
 Remove a dataset. An error occurs trying to remove the `default` dataset or the `id` is not valid.
 
@@ -431,7 +431,7 @@ fastify.patch('/dataset', async (request, response) => {
 })
 ```
 
-### set
+### dataset.set
 
 Set the dataset in use. An error occurs trying if the `id` is not valid.
 
@@ -443,5 +443,15 @@ fastify.get('/dataset/:id', async (request, response) => {
   } catch (error) {
     response.code(400).send({ message: error.message })
   }
+})
+```
+
+### dataset.current
+
+Get the id of the dataset currently in use. It's the same value of `dataset.get().current`, but the function is sync.
+
+```js
+fastify.get('/dataset/current', async (request, response) => {
+  response.send({current: fastify.peekaboo.dataset.current() })
 })
 ```

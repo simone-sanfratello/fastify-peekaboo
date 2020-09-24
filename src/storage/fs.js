@@ -158,6 +158,9 @@ const FsStorage = function (options) {
         default: _dataset.default
       }
     },
+    current: function () {
+      return _dataset.current
+    },
     /**
      * @async
      * @param {hash} id

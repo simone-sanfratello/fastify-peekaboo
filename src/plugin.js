@@ -211,6 +211,12 @@ const plugin = function (fastify, settings, next) {
         await _storage.dataset.set(id)
       },
       /**
+       * get the dataset id currently in use (sync)
+       */
+      current: function () {
+        return _storage.dataset.current()
+      },
+      /**
        * @async
        * @param {string} name
        * @returns {hash} id

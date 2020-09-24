@@ -313,7 +313,7 @@ for (const storage in storages) {
 
     _fastify.all('/dataset/set/:id', async (request, response) => {
       await _fastify.peekaboo.dataset.set(request.params.id)
-      response.send(await _fastify.peekaboo.dataset.get())
+      response.send({ current: _fastify.peekaboo.dataset.current() })
     })
 
     await helper.fastify.start(_fastify)

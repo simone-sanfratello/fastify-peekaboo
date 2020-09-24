@@ -98,6 +98,9 @@ const MemoryStorage = function () {
         default: _dataset.default
       }
     },
+    current: function () {
+      return _dataset.current
+    },
     /**
      * @async
      * @param {hash} id

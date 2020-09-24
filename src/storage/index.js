@@ -110,7 +110,14 @@ const Storage = function (options) {
      */
     set: function (id) {
       return _storage.dataset.set(id)
-    }
+    },
+    /**
+     * get the id of the dataset currently in use
+     * @returns {hash}
+     */
+    current: function () {
+      return _storage.dataset.current()
+    },
   }
 
   _init(options)
