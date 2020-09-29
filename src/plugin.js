@@ -38,12 +38,14 @@ const plugin = function (fastify, settings, next) {
       request.log.trace({ ns: 'peekaboo', message: 'preHandler', request: lib.log.request(request) })
       request.peekaboo = { storage: _storage }
       const _match = match.request(request, _settings.rules)
+      if (_match) {
+        response.peekaboo = { match: true, ..._match }
+      }
       if (!_match || _settings.mode == 'collector') {
         return next()
       }
 
-      request.log.trace({ ns: 'peekaboo', message: 'preHandler - will use cache', request: lib.log.request(request) })
-      response.peekaboo = { match: true, ..._match }
+      request.log.trace({ ns: 'peekaboo', message: 'preHandler - will search in cache', request: lib.log.request(request) })
       const _cached = await _storage.get(_match.hash)
       if (!_cached) {
         if (_settings.mode === 'stock') {
