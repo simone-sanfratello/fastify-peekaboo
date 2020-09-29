@@ -103,7 +103,7 @@ const FsStorage = function (options) {
       await _inited
       const id = uuid()
       _dataset.entries[id] = name
-      await fs.ensureDir(path.join(_basePath, _dataset.default))
+      await fs.ensureDir(path.join(_basePath, id))
       await dataset.saveIndex()
       return id
     },
