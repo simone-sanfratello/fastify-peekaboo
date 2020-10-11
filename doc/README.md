@@ -1,6 +1,34 @@
+**Index**
+
+- [Matching system](#matching-system)
+  - [MatchRule](#matchrule)
+    - [MatchRequest](#matchrequest)
+    - [MatchResponse](#matchresponse)
+    - [MatchString](#matchstring)
+    - [MatchNumber](#matchnumber)
+    - [MatchList](#matchlist)
+    - [MatchObject](#matchobject)
+  - [Match by function notes](#match-by-function-notes)
+- [Storage](#storage)
+  - [storage.get](#storageget)
+  - [storage.set](#storageset)
+  - [storage.rm](#storagerm)
+  - [storage.clear](#storageclear)
+  - [storage.list](#storagelist)
+- [Dataset](#dataset)
+  - [dataset.get](#datasetget)
+  - [dataset.create](#datasetcreate)
+  - [dataset.update](#datasetupdate)
+  - [dataset.remove](#datasetremove)
+  - [dataset.set](#datasetset)
+  - [dataset.current](#datasetcurrent)
+- [Examples](#examples)
+
+---
+
 ## Matching system
 
-#### MatchRule
+### MatchRule
 
 ```js
 {
@@ -157,7 +185,7 @@ use a function for more logic: anything but `DELETE`
 request: { body: true }
 ```
 
-match if body is present; also use the whole body for hashing
+match if body is present; also use the whole body for caching
 
 ```js
 request: { body: false }
@@ -173,7 +201,7 @@ response: {
 }
 ```
 
-match with a function, in this case only if `response` has no `authorization` header
+match using a function, in this case only if `response` has no `authorization` header
 
 ```js
 response: {
@@ -185,105 +213,36 @@ response: {
 ```
 
 Match single object entries using a `MatchString` logic.  
-All entries must success in order to match the object.  
+All entries must succeed in order to match the object.  
 In this case, match all sent images less than 2k.
 
 ---
 
-## Examples
+### Match by function notes
 
-Setup and run
+In case the function returns `true`, the whole part is considered for caching;
+if the function returns a value, the value is taken: in this way you can add a custom logic
+for caching based on function evaluation.
+
+**Example**
 
 ```js
-const fastify = require('fastify')
-const peekaboo = require('fastify-peekaboo')
-
-const fastify = fastify()
-fastify.register(peekaboo, {
-  rules: [
-    // list of matches, see below
-  ]}
-)
+response: {
+  body: (body) => {
+    return { user: body.userId }
+  }
+}
 ```
 
-- cache `GET /home` (using default settings)
+This is applied to matching `request.methods`, `request.route`, `request.headers`, `request.body`, `request.query`, but not on `MatchingObject` field functions.
 
-  ```js
-  const rules = [{
-    request: {
-      methods: 'get',
-      route: '/home'
-    }
-  }]
-  ```
-
-- response using cache after from the second time, same response always
-
-  ```js
-  fastify.get('/home', async (request, response) => {
-    response.send('hey there')
-  })
-  ```
-
-- cache route /session by cookie
-
-  ```js
-  const rules = [{
-    request: {
-      methods: '*',
-      route: '/session',
-      headers: {
-        cookie: true
-      }
-    }
-  }]
-  ```
-
-- response using cache but different from header/cookie, means that every request is based on cookie
-
-  ```js
-  fastify.get('/session', async (request, response) => {
-    // cookie parsing is done by a plugin like fastify-cookie
-    // ... retrieve user
-    const _user = user.retrieve(request.cookies.token)
-    response.send('welcome ' + _user.name)
-  })
-  ```
-
-- cache route /content even if response is an error
-
-  ```js
-  const rules = [{
-    request: {
-      methods: 'get',
-      route: /^\/content/,
-    },
-    response: {
-      headers: {
-        status: true
-      }
-    }
-  }]
-  ```
-
-- response using cache either on error too
-
-  ```js
-  fastify.get('/content/:id', async (request, response) => {
-    const _id = parseInt(request.params.id)
-    if (isNaN(_id)) {
-      response.code(405).send('BAD_REQUEST')
-      return
-    }
-    response.send('your content ...')
-  })
-  ```
+---
 
 ## Storage
 
 The storage allow access to entries for:
 
-#### storage.get
+### storage.get
 
 retrieve the entry
 
@@ -322,7 +281,7 @@ fastify.get('/cache/get/:hash', async (request, response) => {
 }
 ```
 
-#### storage.set
+### storage.set
 
 set the content of a entry, all part must be provided:
 
@@ -341,7 +300,7 @@ fastify.put('/cache/set/:hash', async (request, response) => {
 })
 ```
 
-#### storage.rm
+### storage.rm
 
 ```js
 fastify.delete('/cache/rm/:hash', async (request, response) => {
@@ -350,7 +309,7 @@ fastify.delete('/cache/rm/:hash', async (request, response) => {
 })
 ```
 
-#### storage.clear
+### storage.clear
 
 ```js
 fastify.delete('/cache/clear', async (request, response) => {
@@ -359,7 +318,7 @@ fastify.delete('/cache/clear', async (request, response) => {
 })
 ```
 
-#### storage.list
+### storage.list
 
 retrieve the hashes of entries
 
@@ -455,3 +414,94 @@ fastify.get('/dataset/current', async (request, response) => {
   response.send({current: fastify.peekaboo.dataset.current() })
 })
 ```
+
+---
+
+## Examples
+
+Setup and run
+
+```js
+const fastify = require('fastify')
+const peekaboo = require('fastify-peekaboo')
+
+const fastify = fastify()
+fastify.register(peekaboo, {
+  rules: [
+    // list of matches, see below
+  ]}
+)
+```
+
+- cache `GET /home` (using default settings)
+
+  ```js
+  const rules = [{
+    request: {
+      methods: 'get',
+      route: '/home'
+    }
+  }]
+  ```
+
+- response using cache after from the second time, same response always
+
+  ```js
+  fastify.get('/home', async (request, response) => {
+    response.send('hey there')
+  })
+  ```
+
+- cache route /session by cookie
+
+  ```js
+  const rules = [{
+    request: {
+      methods: '*',
+      route: '/session',
+      headers: {
+        cookie: true
+      }
+    }
+  }]
+  ```
+
+- response using cache but different from header/cookie, means that every request is based on cookie
+
+  ```js
+  fastify.get('/session', async (request, response) => {
+    // cookie parsing is done by a plugin like fastify-cookie
+    // ... retrieve user
+    const _user = user.retrieve(request.cookies.token)
+    response.send('welcome ' + _user.name)
+  })
+  ```
+
+- cache route /content even if response is an error
+
+  ```js
+  const rules = [{
+    request: {
+      methods: 'get',
+      route: /^\/content/,
+    },
+    response: {
+      headers: {
+        status: true
+      }
+    }
+  }]
+  ```
+
+- response using cache either on error too
+
+  ```js
+  fastify.get('/content/:id', async (request, response) => {
+    const _id = parseInt(request.params.id)
+    if (isNaN(_id)) {
+      response.code(405).send('BAD_REQUEST')
+      return
+    }
+    response.send('your content ...')
+  })
+  ```
