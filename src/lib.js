@@ -1,6 +1,6 @@
 const crypto = require('crypto')
 const stream = require('stream')
-const stringify = require('json-stringify-extended')
+const stringify = require('fast-json-stable-stringify')
 
 const lib = {
   METHOD: {
@@ -20,28 +20,49 @@ const lib = {
   },
 
   hash: {
+    /**
+     * on matching all or function, hash the whole part
+     */
+    select: function (request, rule, part) {
+      if (rule[part] === true) {
+        return request[part]
+      }
+      // on function, if return true or false, get the whole part
+      // else, use the return value
+      if (typeof rule[part] === 'function') {
+        const data = rule[part](request[part])
+        return data === true ? request[part] : data
+      }
+      const hashing = {}
+      for (const key in rule[part]) {
+        hashing[key] = request[part][key]
+      }
+      return hashing
+    },
+    /**
+     * hash `request` by `rule` matching
+     * @param {fastify.Request} request
+     * @param {rule} rule
+     */
     request: function (request, rule) {
       const hashing = {
         method: request.method,
         route: request.raw.url
       }
 
-      for (const part of ['headers', 'body', 'query']) {
-        if (rule[part]) {
-          // on mathing all or function, hash whole part
-          if (rule[part] === true || typeof rule[part] === 'function') {
-            hashing[part] = request[part]
-            continue
-          }
-
-          hashing[part] = {}
-          for (const key in rule[part]) {
-            hashing[part][key] = request[part][key]
-          }
-        }
+      // nb on purpuse copy/paste code for performance reason
+      if (rule.headers) {
+        hashing.headers = lib.hash.select(request, rule, 'headers')
       }
+      if (rule.query) {
+        hashing.query = lib.hash.select(request, rule, 'query')
+      }
+      if (rule.body && lib.isPlainObject(request.body)) {
+        hashing.body = lib.hash.select(request, rule, 'body')
+      }
+
       return crypto.createHmac('sha256', '')
-        .update(stringify(hashing, stringify.options.compact))
+        .update(stringify(hashing))
         .digest('hex')
     },
     response: function (response, rule) {
@@ -55,7 +76,7 @@ const lib = {
         hashing.status = response.status
       }
       if (rule.body) {
-        if (typeof response.body === 'object') {
+        if (lib.isPlainObject(response.body)) {
           hashing.body = {}
           for (const key in rule.body) {
             hashing.body[key] = response.body[key]
@@ -71,7 +92,7 @@ const lib = {
         }
       }
       return crypto.createHmac('sha256', '')
-        .update(stringify(hashing, stringify.options.compact))
+        .update(stringify(hashing))
         .digest('hex')
     }
   },
@@ -79,6 +100,10 @@ const lib = {
   isStream: function (object) {
     // ? ['DuplexWrapper', 'ReadStream'].includes(object.__proto__.constructor.name)
     return object.pipe && object.unpipe
+  },
+
+  isPlainObject: function (object) {
+    return typeof object === 'object' && object.constructor == Object
   },
 
   acquireStream: async function (source) {

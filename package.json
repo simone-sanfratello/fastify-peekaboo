@@ -1,6 +1,6 @@
 {
   "name": "fastify-peekaboo",
-  "version": "2.1.2",
+  "version": "2.2.0",
   "description": "fastify plugin for memoize responses by expressive settings",
   "main": "src/plugin.js",
   "files": [
@@ -12,14 +12,14 @@
   },
   "dependencies": {
     "a-toolbox": "^1.7.3",
+    "fast-json-stable-stringify": "^2.1.0",
     "fastify-plugin": "^2.3.4",
     "fs-extra": "^9.0.1",
-    "json-stringify-extended": "^2.0.0",
     "superstruct": "0.8.4",
-    "uuid": "^8.3.0"
+    "uuid": "^8.3.1"
   },
   "devDependencies": {
-    "fastify": "^3.4.1",
+    "fastify": "^3.5.1",
     "got": "^11.7.0",
     "pre-commit": "^1.2.2",
     "standard": "^14",

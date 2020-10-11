@@ -4,7 +4,7 @@
 [![NPM Downloads](https://img.shields.io/npm/dm/fastify-peekaboo.svg?style=flat)](https://www.npmjs.org/package/fastify-peekaboo)
 [![JS Standard Style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
 ![100% code coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)
-![Synk Security Rate](https://snyk-widget.herokuapp.com/badge/npm/fastify-peekaboo/1.3.0/badge.svg)
+![Snyk Security Rate](https://snyk-widget.herokuapp.com/badge/npm/fastify-peekaboo/1.3.0/badge.svg)
 
 fastify plugin for memoize responses by expressive settings.
 
@@ -30,9 +30,9 @@ Use arbitrary cache to serve responses from previous elaboration, matching them 
   - [Documentation](#documentation)
   - [Changelog](#changelog)
   - [Roadmap](#roadmap)
-    - [v. 2.1](#v-21)
-    - [v. 2.2](#v-22)
     - [v. 2.3](#v-23)
+    - [v. 2.4](#v-24)
+    - [v. 2.5](#v-25)
   - [License](#license)
 
 ## Installing
@@ -142,13 +142,13 @@ default: `memoize`
 It set how the cache system behave:
 
 - **memoize**  
-  on each request, it check if there is the cache entry and serve that avoiding elaboration, or elaborate and cache
+  on each request, if the relative cache entry is present serve that, or elaborate and cache on response if it doesn't
 - **collector**  
-  only cache entries but don't use cache for serve responses
+  cache entries but don't use cache for serve responses
 - **stock**  
-  serve only responses from cache or 404 is the cache entry does not exists
+  serve only responses from cache or `404` if the cache entry does not exists
 - **off**  
-  the plugin is not used
+  the plugin is not used at all
 
 You can get/set also at runtime by
 
@@ -225,11 +225,17 @@ See [documentation](./doc/README.md) for further information and examples.
 
 ## Changelog
 
-- **v. 2.0.0** [ 2020-09-25 ] stable  
+- **v. 2.2.0** [ 2020-10-11 ]
+  - update matching `function` allow cache based on values, [see notes](./doc/README.md#match-by-function-notes)
+  - update documentation
+  - update deps
+
+- **v. 2.0.0** [ 2020-09-25 ]
   - add `dataset` feature
   - update `mode` public methods
 
-- **v. 1.3.0** [ 2020-07-25 ] stable  
+- **v. 1.3.0** [ 2020-07-25 ]
+  - stable version
   - update to `fastify v3`
   - update deps
 
@@ -264,26 +270,26 @@ See [documentation](./doc/README.md) for further information and examples.
 
 ## Roadmap
 
-### v. 2.1
+### v. 2.3
 
-- [ ] remove `got` and use native http client
+- [ ] remove `got` in favor of natvie `http` client
 - [ ] `response.rewrite` option
 - [ ] `request.rewrite` option
 - [ ] postgresql storage
 - [ ] redis storage
 
-### v. 2.2
+### v. 2.4
 
 - [ ] doc: real world examples
 - [ ] benchmark plugin overhead (autocannon?)
   - [ ] benchmark with different storages
-- [ ] on file upload?
+- [ ] support binary request/response (upload, download)
 - [ ] test edge cases
   - [ ] querystring array or object
 - [ ] preset recipes (example graphql caching)
 - [ ] CI
 
-### v. 2.3
+### v. 2.5
 
 - [ ] fine grained settings (storage, expiration, xheader ...) for each rule
 - [ ] invalidate cache (by ...?)

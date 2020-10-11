@@ -1,5 +1,5 @@
 const plug = require('fastify-plugin')
-const stringify = require('json-stringify-extended')
+const stringify = require('fast-json-stable-stringify')
 const package_ = require('../package.json')
 const defaultSettings = require('../settings/default')
 const Storage = require('./storage')
@@ -167,7 +167,7 @@ const plugin = function (fastify, settings, next) {
             body: request.body ? JSON.stringify(request.body) : undefined
           }
           _entry.info = {
-            rule: stringify(response.peekaboo.rule, stringify.options.compact),
+            rule: stringify(response.peekaboo.rule),
             created: Date.now()
           }
         }
