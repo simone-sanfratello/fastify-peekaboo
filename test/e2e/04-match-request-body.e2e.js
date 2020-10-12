@@ -205,7 +205,7 @@ tap.test('peekaboo matching by request body (function) returns true',
     }
   })
 
-tap.only('peekaboo matching by request body (function) returns false',
+tap.test('peekaboo matching by request body (function) returns false',
   async (_test) => {
     _test.plan(1)
     const _fastify = fastify()
@@ -248,7 +248,7 @@ tap.only('peekaboo matching by request body (function) returns false',
     }
   })
 
-tap.only('peekaboo matching by request body (function) returns value',
+tap.test('peekaboo matching by request body (function) where body is json, returns value',
   async (_test) => {
     _test.plan(1)
     const _fastify = fastify()
@@ -287,6 +287,97 @@ tap.only('peekaboo matching by request body (function) returns value',
       if (!_response.headers['x-peekaboo']) {
         _test.fail()
       }
+
+      await helper.fastify.stop(_fastify)
+      _test.pass()
+    } catch (error) {
+      _test.threw(error)
+    }
+  })
+
+tap.test('peekaboo matching by request body (function) where body is text, returns value',
+  async (_test) => {
+    _test.plan(4)
+    const _fastify = fastify()
+    _fastify
+      .register(peekaboo, {
+        xheader: true,
+        rules: [{
+          request: {
+            methods: '*',
+            route: '/update/user',
+            body: (body) => {
+              // special cache for Alice, same cache for anyone else
+              return body.includes('Alice') ? 'yes' : 'no'
+            }
+          }
+        }]
+      })
+
+    _fastify.post('/update/user', async (request, response) => {
+      response.send(request.body.includes('Alice') ? '<response>ciao Alice</response>' : '<response>welcome</response>')
+    })
+
+    try {
+      await helper.fastify.start(_fastify)
+
+      const url = helper.fastify.url(_fastify, '/update/user')
+      await helper.request({ method: 'post', url, body: '<to>Alice</to>', headers: { 'content-type': 'text/plain' } })
+      let _response = await helper.request({ method: 'post', url, body: '<to>Alice</to>', headers: { 'content-type': 'text/plain' } })
+      if (!_response.headers['x-peekaboo']) {
+        _test.fail()
+      }
+      _test.equal(_response.body, '<response>ciao Alice</response>')
+
+      _response = await helper.request({ method: 'post', url, body: '<to>Alissia</to>', headers: { 'content-type': 'text/plain' } })
+      if (_response.headers['x-peekaboo']) {
+        _test.fail()
+      }
+      _test.equal(_response.body, '<response>welcome</response>')
+
+      _response = await helper.request({ method: 'post', url, body: '<to>Alisson</to>', headers: { 'content-type': 'text/plain' } })
+      if (!_response.headers['x-peekaboo']) {
+        _test.fail()
+      }
+      _test.equal(_response.body, '<response>welcome</response>')
+
+      await helper.fastify.stop(_fastify)
+      _test.pass()
+    } catch (error) {
+      _test.threw(error)
+    }
+  })
+
+tap.test('peekaboo matching by request body (bool) where body is text',
+  async (_test) => {
+    _test.plan(2)
+    const _fastify = fastify()
+    _fastify
+      .register(peekaboo, {
+        xheader: true,
+        rules: [{
+          request: {
+            methods: '*',
+            route: '/update/user',
+            body: true
+          }
+        }]
+      })
+
+    _fastify.post('/update/user', async (request, response) => {
+      response.send(request.body.includes('Alice') ? '<response>ciao Alice</response>' : '<response>welcome</response>')
+    })
+
+    try {
+      await helper.fastify.start(_fastify)
+
+      const url = helper.fastify.url(_fastify, '/update/user')
+      await helper.request({ method: 'post', url, body: '<to>Alice</to>', headers: { 'content-type': 'text/plain' } })
+      const _response = await helper.request({ method: 'post', url, body: '<to>Alice</to>', headers: { 'content-type': 'text/plain' } })
+      if (!_response.headers['x-peekaboo']) {
+        _test.fail()
+      }
+      _test.equal(_response.body, '<response>ciao Alice</response>')
 
       await helper.fastify.stop(_fastify)
       _test.pass()

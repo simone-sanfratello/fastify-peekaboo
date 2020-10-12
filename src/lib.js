@@ -22,8 +22,9 @@ const lib = {
   hash: {
     /**
      * on matching all or function, hash the whole part
+     * it suppose the request[part] to be a plain object
      */
-    select: function (request, rule, part) {
+    objectSelect: function (request, rule, part) {
       if (rule[part] === true) {
         return request[part]
       }
@@ -40,6 +41,22 @@ const lib = {
       return hashing
     },
     /**
+     * on matching all or function, hash the whole part
+     * it suppose the request[part] to not be a plain object,
+     * so it does not perform the object keys hashing
+     */
+    anySelect: function (request, rule, part) {
+      if (rule[part] === true) {
+        return request[part]
+      }
+      // on function, if return true or false, get the whole part
+      // else, use the return value
+      if (typeof rule[part] === 'function') {
+        const data = rule[part](request[part])
+        return data === true ? request[part] : data
+      }
+    },
+    /**
      * hash `request` by `rule` matching
      * @param {fastify.Request} request
      * @param {rule} rule
@@ -52,13 +69,17 @@ const lib = {
 
       // nb on purpuse copy/paste code for performance reason
       if (rule.headers) {
-        hashing.headers = lib.hash.select(request, rule, 'headers')
+        hashing.headers = lib.hash.objectSelect(request, rule, 'headers')
       }
       if (rule.query) {
-        hashing.query = lib.hash.select(request, rule, 'query')
+        hashing.query = lib.hash.objectSelect(request, rule, 'query')
       }
-      if (rule.body && lib.isPlainObject(request.body)) {
-        hashing.body = lib.hash.select(request, rule, 'body')
+      if (rule.body) {
+        if (lib.isPlainObject(request.body)) {
+          hashing.body = lib.hash.objectSelect(request, rule, 'body')
+        } else {
+          hashing.body = lib.hash.anySelect(request, rule, 'body')
+        }
       }
 
       return crypto.createHmac('sha256', '')
