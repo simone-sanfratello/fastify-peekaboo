@@ -1,3 +1,5 @@
+'use strict'
+
 const crypto = require('crypto')
 const stream = require('stream')
 const stringify = require('fast-json-stable-stringify')
