@@ -13,23 +13,23 @@
   "dependencies": {
     "a-toolbox": "^1.7.3",
     "fast-json-stable-stringify": "^2.1.0",
-    "fastify-plugin": "^2.3.4",
-    "fs-extra": "^9.0.1",
-    "superstruct": "0.8.4",
-    "uuid": "^8.3.1"
+    "fastify-plugin": "^3.0.0",
+    "fs-extra": "^9.1.0",
+    "superstruct": "^0.8.4",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "fastify": "^3.5.1",
-    "got": "^11.7.0",
+    "fastify": "^3.12.0",
+    "got": "^11.8.2",
     "pre-commit": "^1.2.2",
-    "standard": "^14",
-    "tap": "^14.10.8"
+    "standard": "^16",
+    "tap": "^14.11.0"
   },
   "pre-commit": [
     "test"
   ],
   "scripts": {
-    "lint": "standard --fix",
+    "format": "standard --fix",
     "test": "tap --files test/e2e/*.e2e.js test/unit/*.spec.js",
     "test-coverage": "tap test/* --cov"
   },
