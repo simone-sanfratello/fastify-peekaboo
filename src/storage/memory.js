@@ -1,3 +1,5 @@
+'use strict'
+
 const { v1: uuid } = require('uuid')
 
 const MemoryStorage = function () {

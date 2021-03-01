@@ -1,3 +1,5 @@
+'use strict'
+
 const superstruct = require('superstruct')
 const rule = require('./rule')
 const storage = require('./storage')

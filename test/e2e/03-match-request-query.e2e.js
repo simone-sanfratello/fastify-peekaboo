@@ -1,3 +1,5 @@
+'use strict'
+
 const tap = require('tap')
 const fastify = require('fastify')
 const helper = require('../helper')
@@ -202,6 +204,69 @@ tap.test('peekaboo matching by request query (function)',
       url = helper.fastify.url(_fastify, '/query?offset=0')
       await helper.request({ url })
       _response = await helper.request({ url })
+      if (_response.headers['x-peekaboo']) {
+        _test.fail()
+      }
+
+      await helper.fastify.stop(_fastify)
+      _test.pass()
+    } catch (error) {
+      _test.threw(error)
+    }
+  })
+
+tap.test('peekaboo partial matching by request query (function)',
+  async (_test) => {
+    _test.plan(4)
+    const _fastify = fastify()
+    _fastify
+      .register(peekaboo, {
+        xheader: true,
+        rules: [{
+          request: {
+            methods: '*',
+            route: '/query',
+            query: function (query) {
+              return parseInt(query.page) > 0
+            }
+          }
+        }]
+      })
+
+    _fastify.all('/query', async (request, response) => {
+      response.send(request.query)
+    })
+
+    try {
+      await helper.fastify.start(_fastify)
+
+      let url = helper.fastify.url(_fastify, '/query?page=0')
+      await helper.request({ url })
+      let _response = await helper.request({ url })
+      if (_response.headers['x-peekaboo']) {
+        _test.fail()
+      }
+
+      url = helper.fastify.url(_fastify, '/query?page=1&offset=2')
+      await helper.request({ url })
+      _response = await helper.request({ url })
+      _test.deepEqual(JSON.parse(_response.body), { page: 1, offset: 2 })
+      if (!_response.headers['x-peekaboo']) {
+        _test.fail()
+      }
+
+      url = helper.fastify.url(_fastify, '/query?page=2&offset=2&filter=value')
+      await helper.request({ url })
+      _response = await helper.request({ url })
+      _test.deepEqual(JSON.parse(_response.body), { page: 2, offset: 2, filter: 'value' })
+      if (!_response.headers['x-peekaboo']) {
+        _test.fail()
+      }
+
+      url = helper.fastify.url(_fastify, '/query?page=0')
+      await helper.request({ url })
+      _response = await helper.request({ url })
+      _test.deepEqual(JSON.parse(_response.body), { page: 0 })
       if (_response.headers['x-peekaboo']) {
         _test.fail()
       }

@@ -1,3 +1,5 @@
+'use strict'
+
 const plug = require('fastify-plugin')
 const stringify = require('fast-json-stable-stringify')
 const package_ = require('../package.json')

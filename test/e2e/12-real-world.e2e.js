@@ -1,3 +1,5 @@
+'use strict'
+
 const tap = require('tap')
 const fastify = require('fastify')
 const fs = require('fs')

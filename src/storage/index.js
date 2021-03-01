@@ -1,3 +1,5 @@
+'use strict'
+
 const lib = require('../lib')
 const FsStorage = require('./fs')
 const MemoryStorage = require('./memory')
