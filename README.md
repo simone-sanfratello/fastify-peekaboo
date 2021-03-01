@@ -225,6 +225,9 @@ See [documentation](./doc/README.md) for further information and examples.
 
 ## Changelog
 
+- **v. 2.3.0** [ 2021-03-01 ]
+  - update deps
+
 - **v. 2.2.0** [ 2020-10-11 ]
   - update matching `function` allow cache based on values, [see notes](./doc/README.md#match-by-function-notes)
   - update documentation
