@@ -225,6 +225,9 @@ See [documentation](./doc/README.md) for further information and examples.
 
 ## Changelog
 
+- **v. 2.3.1** [ 2021-03-02 ]
+  - fix route hashing
+
 - **v. 2.3.0** [ 2021-03-01 ]
   - update deps
 

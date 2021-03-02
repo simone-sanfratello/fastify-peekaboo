@@ -227,7 +227,9 @@ tap.test('peekaboo partial matching by request query (function)',
             methods: '*',
             route: '/query',
             query: function (query) {
-              return parseInt(query.page) > 0
+              return query.page && parseInt(query.page) > 0
+                ? query.page
+                : false
             }
           }
         }]
@@ -247,6 +249,14 @@ tap.test('peekaboo partial matching by request query (function)',
         _test.fail()
       }
 
+      url = helper.fastify.url(_fastify, '/query?page=0')
+      await helper.request({ url })
+      _response = await helper.request({ url })
+      _test.deepEqual(JSON.parse(_response.body), { page: 0 })
+      if (_response.headers['x-peekaboo']) {
+        _test.fail()
+      }
+
       url = helper.fastify.url(_fastify, '/query?page=1&offset=2')
       await helper.request({ url })
       _response = await helper.request({ url })
@@ -255,18 +265,10 @@ tap.test('peekaboo partial matching by request query (function)',
         _test.fail()
       }
 
-      url = helper.fastify.url(_fastify, '/query?page=2&offset=2&filter=value')
+      url = helper.fastify.url(_fastify, '/query?nopage=2&filter=value')
       await helper.request({ url })
       _response = await helper.request({ url })
-      _test.deepEqual(JSON.parse(_response.body), { page: 2, offset: 2, filter: 'value' })
-      if (!_response.headers['x-peekaboo']) {
-        _test.fail()
-      }
-
-      url = helper.fastify.url(_fastify, '/query?page=0')
-      await helper.request({ url })
-      _response = await helper.request({ url })
-      _test.deepEqual(JSON.parse(_response.body), { page: 0 })
+      _test.deepEqual(JSON.parse(_response.body), { nopage: 2, filter: 'value' })
       if (_response.headers['x-peekaboo']) {
         _test.fail()
       }

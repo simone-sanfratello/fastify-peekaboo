@@ -1,6 +1,7 @@
 'use strict'
 
 const crypto = require('crypto')
+const url = require('url')
 const stream = require('stream')
 const stringify = require('fast-json-stable-stringify')
 
@@ -23,8 +24,10 @@ const lib = {
 
   hash: {
     /**
-     * on matching all or function, hash the whole part
-     * it suppose the request[part] to be a plain object
+     * if rule is true, hash using the whole part
+     * if rule is a function, use the function result, or the whole part if the function returns true
+     * if rule is an object, hash using only the selected parts
+     * it's supposed the request[part] to be a plain object
      */
     objectSelect: function (request, rule, part) {
       if (rule[part] === true) {
@@ -43,7 +46,7 @@ const lib = {
       return hashing
     },
     /**
-     * on matching all or function, hash the whole part
+     * 
      * it suppose the request[part] to not be a plain object,
      * so it does not perform the object keys hashing
      */
@@ -64,12 +67,13 @@ const lib = {
      * @param {rule} rule
      */
     request: function (request, rule) {
+      const route = new url.URL('http://a.b' + request.raw.url).pathname
       const hashing = {
         method: request.method,
-        route: request.raw.url
+        route
       }
 
-      // nb on purpuse copy/paste code for performance reason
+      // copy/paste code for performance reason
       if (rule.headers) {
         hashing.headers = lib.hash.objectSelect(request, rule, 'headers')
       }
@@ -94,7 +98,7 @@ const lib = {
       }
       const hashing = {}
 
-      // nb on purpuse copy/paste code for performance reason
+      // copy/paste code for performance reason
       if (rule.status) {
         hashing.status = response.status
       }
